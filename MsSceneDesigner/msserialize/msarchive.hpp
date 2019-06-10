@@ -3,112 +3,211 @@
 
 namespace MSRPC
 {
-	class NValTest
+	class INodeTest
 	{
 	public:
 		template <class T>
 		void in_serialize(T& tValue)
 		{
 		}
+
+		INodeTest new_node()
+		{
+			return INodeTest();
+		}
+
+		void add_member(const char* strName, INodeTest& vNode)
+		{
+
+		}
+
+		void push_node(INodeTest& vNode)
+		{
+
+		}
 	};
 
-	class NObjTest
+	class ONodeTest
 	{
 	public:
-		NObjTest sub_obj(const char* strName)
-		{
-			return NObjTest();
-		}
-
-		void end_obj(const char* strName, NObjTest& vNode)
-		{
-
-		}
-
-		NValTest sub_val(const char* strName)
-		{
-			return NValTest();
-		}
-
-		void end_val(const char* strName, NValTest& vTest)
+		template <class T>
+		void in_serialize(T& tValue)
 		{
 		}
 
-		operator bool() const
+		ONodeTest sub_member(const char* strName)
+		{
+
+		}
+
+		class ONodeTestIter
+		{
+		public:
+			ONodeTest operator *()
+			{
+				return ONodeTest();
+			}
+
+			operator bool()
+			{
+				return true;
+			}
+
+			ONodeTestIter& operator ++ ()
+			{
+				return *this;
+			}
+		};
+
+		typedef ONodeTestIter ITER;
+		ITER sub_node()
+		{
+			return ITER();
+		}
+
+		operator bool()
 		{
 			return true;
 		}
 	};
 
+	class ArrayReader
+	{
+	public:
 
-	template <class NVAL, class NOBJ>
-	class ArchiveHelper
+	};
+
+	class ArraryWriter
+	{
+	public:
+
+
+	};
+
+	template <class NODE>
+	class IArchiveHelper
 	{
 	private:
-		NOBJ& m_vCurNode;
+		NODE& m_vCurNode;
 
 	public:
-		typedef NOBJ OBJ;
+		typedef NODE Node;
 
 	public:
-		ArchiveHelper(NOBJ& vNode)
+		IArchiveHelper(NODE& vNode)
 			: m_vCurNode(vNode) {}
 
 		template <class T>
-		ArchiveHelper& operator & (T& tValue)
+		IArchiveHelper& operator & (T& tValue)
 		{
 			ex_serialize(*this, tValue);
 			return *this;
 		}
 
 		template <class T>
-		ArchiveHelper& io(const char* strName, T& tValue)
+		void serialize(NODE& vNewNode, T& tValue)
 		{
-			if (NOBJ vNewNode = m_vCurNode.sub_obj(strName))
-			{
-				ArchiveHelper<NVAL, NOBJ> oh(vNewNode);
-				ex_serialize(oh, tValue);
-				m_vCurNode.end_obj(strName, vNewNode);
-			}
-
-			return *this;
+			IArchiveHelper<NODE> oh(vNewNode);
+			ex_serialize(oh, tValue);
 		}
 
-		template <class T, class N>
-		ArchiveHelper& io(const char* strName, T(&tValue)[N])
+		template<>
+		void serialize(NODE& vNewNode, int& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+
+		template<>
+		void serialize(NODE& vNewNode, double& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+
+		template <class T, int N>
+		void serialize(NODE& vNewNode, T(&tValue)[N])
 		{
 			for (int ix = 0; ix != N; ++ix)
 			{
-				this->io(strName, tValue[ix]);
+				NODE vNode = vNewNode.new_node();
+				serialize(vNode, tValue[ix]);
+				vNewNode.push_node(vNode);
 			}
+		}
+
+		template <class T>
+		IArchiveHelper& io(const char* strName, T& tValue)
+		{
+			NODE vNewNode = m_vCurNode.new_node();
+			serialize(vNewNode, tValue);
+			m_vCurNode.add_member(strName, vNewNode);
+
+			return *this;
+		}
+		 
+	};
+
+	template <class NODE>
+	class OArchiveHelper
+	{
+	private:
+		NODE& m_vCurNode;
+
+	public:
+		typedef NODE Node;
+
+	public:
+		OArchiveHelper(NODE& vNode)
+			: m_vCurNode(vNode) {}
+
+		template <class T>
+		OArchiveHelper& operator & (T& tValue)
+		{
+			ex_serialize(*this, tValue);
 			return *this;
 		}
 
 		template <class T>
-		inline void seri_val(const char* strName, T& tValue)
+		void serialize(NODE& vNewNode, T& tValue)
 		{
-			if (typename NVAL vNewNode = m_vCurNode.sub_val(strName))
-			{
-				vNewNode.in_serialize(tValue);
-				m_vCurNode.end_val(strName, vNewNode);
-			}
-		}
-		 
-		template <>
-		ArchiveHelper& io(const char* strName, int& tValue)
-		{
-			seri_val(strName, tValue);
-			return *this;
+			OArchiveHelper<NODE> oh(vNewNode);
+			ex_serialize(oh, tValue);
 		}
 
-		template <>
-		ArchiveHelper& io(const char* strName, double& tValue)
+		template<>
+		void serialize(NODE& vNewNode, int& tValue)
 		{
-			seri_val(strName, tValue);
+			vNewNode.in_serialize(tValue);
+		}
+
+		template<>
+		void serialize(NODE& vNewNode, double& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+
+		template <class T, int N>
+		void serialize(NODE& vNewNode, T(&tValue)[N])
+		{
+			typename NODE::ITER itor = vNewNode.sub_node();
+			for (int ix = 0; ix != N && itor; ++itor, ++ix)
+			{
+				serialize(*itor, tValue[ix]);
+			}
+		}
+
+		template <class T>
+		OArchiveHelper& io(const char* strName, T& tValue)
+		{
+			if (NODE vNewNode = m_vCurNode.sub_member(strName))
+			{
+				serialize(vNewNode, tValue);
+			}
+
 			return *this;
 		}
 
 	};
+
 }
 
 #endif // MSARCHIVE_H__

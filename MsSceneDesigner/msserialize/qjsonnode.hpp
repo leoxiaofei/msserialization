@@ -3,15 +3,14 @@
 
 #include "msarchive.hpp"
 
-#include <QJsonValue>
 #include <QJsonObject>
-
+#include <QJsonArray>
 
 namespace MSRPC
 {
-	class NValQJsonI
+	class INodeJson
 	{
-	public:
+	private:
 		QJsonValue m_node;
 
 	public:
@@ -21,104 +20,97 @@ namespace MSRPC
 			m_node = tValue;
 		}
 
-		operator bool() const
+		INodeJson new_node()
 		{
-			return true;
+			return INodeJson();
+		}
+
+		void add_member(const char* strName, INodeJson& vNode)
+		{
+			QJsonObject obj = m_node.toObject();
+			obj[strName] = vNode.m_node;
+			m_node = obj;
+		}
+
+		void push_node(INodeJson& vNode)
+		{
+			QJsonArray arr = m_node.toArray();
+			arr.append(vNode.m_node);
+			m_node = arr;
+		}
+
+	public:
+		QJsonValue& data()
+		{
+			return m_node;
 		}
 
 	};
 
-	class NObjQJsonI
+	class ONodeJson
 	{
 	public:
-		QJsonObject m_node;
-		
-	public:
-		NObjQJsonI sub_obj(const char* strName)
-		{
-			return NObjQJsonI();
-		}
+		QJsonValue m_node;
 
-		void end_obj(const char* strName, NObjQJsonI& vNode)
-		{
-			m_node[strName] = vNode.m_node;
-		}
-
-		NValQJsonI sub_val(const char* strName)
-		{
-			return NValQJsonI();
-		}
-
-		void end_val(const char* strName, NValQJsonI& vNode)
-		{
-			m_node[strName] = vNode.m_node;
-		}
-
-		operator bool() const
-		{
-			return true;
-		}
-	};
-
-	typedef MSRPC::ArchiveHelper<MSRPC::NValQJsonI, MSRPC::NObjQJsonI> JsonIArc;
-
-
-	class NValQJsonO
-	{
-	public:
-		QJsonValueRef m_node;
-
-		NValQJsonO(const QJsonValueRef& node)
+		ONodeJson(const QJsonValue& node) 
 			: m_node(node) {}
 
 	public:
 		template <class T>
-		void in_serialize(T& tValue)
+		void in_serialize(T& tValue) const
 		{
 			tValue = m_node.toVariant().value<T>();
+		}
+
+		ONodeJson sub_member(const char* strName) const
+		{
+			return ONodeJson(m_node.toObject()[strName]);
+		}
+
+		class ONodeJsonIter
+		{
+		public:
+			QJsonArray m_node;
+			int m_idx;
+
+			ONodeJsonIter(const QJsonArray& node)
+				: m_node(node)
+				, m_idx(0) {}
+
+		public:
+			ONodeJson operator *() const
+			{
+				return ONodeJson(m_node[m_idx]);
+			}
+
+			operator bool() const
+			{
+				return m_idx != m_node.size();
+			}
+
+			ONodeJsonIter& operator ++ ()
+			{
+				++m_idx;
+				return *this;
+			}
+		};
+
+		typedef ONodeJsonIter ITER;
+
+		ITER sub_node() const
+		{
+			return ITER(m_node.toArray());
 		}
 
 		operator bool() const
 		{
 			return !m_node.isNull();
 		}
-
 	};
 
-	class NObjQJsonO
-	{
-	public:
-		QJsonObject m_node;
 
-		NObjQJsonO(const QJsonObject& node)
-			: m_node(node) {}
-
-	public:
-		NObjQJsonO sub_obj(const char* strName)
-		{
-			return NObjQJsonO(m_node[strName].toObject());
-		}
-
-		void end_obj(const char* strName, NObjQJsonO& vNode)
-		{
-		}
-
-		NValQJsonO sub_val(const char* strName)
-		{
-			return NValQJsonO(m_node[strName]);
-		}
-
-		void end_val(const char* strName, NValQJsonO& vNode)
-		{
-		}
-
-		operator bool() const
-		{
-			return !m_node.isEmpty();
-		}
-	};
-
-	typedef MSRPC::ArchiveHelper<MSRPC::NValQJsonO, MSRPC::NObjQJsonO> JsonOArc;
+	typedef MSRPC::OArchiveHelper<MSRPC::ONodeJson> OJsonArc;
+	typedef MSRPC::IArchiveHelper<MSRPC::INodeJson> IJsonArc;
 
 }
 
