@@ -6,6 +6,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+#define NODE_WITH_QT 1
+
 namespace MSRPC
 {
 	class INodeJson
