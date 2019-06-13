@@ -20,6 +20,11 @@ namespace MSRPC
 			m_node = tValue;
 		}
 
+		void in_serialize(char* tValue)
+		{
+			m_node = tValue;
+		}
+
 		INodeJson new_node()
 		{
 			return INodeJson();
@@ -60,6 +65,13 @@ namespace MSRPC
 		void in_serialize(T& tValue) const
 		{
 			tValue = m_node.toVariant().value<T>();
+		}
+
+		void in_serialize(char*& tValue) const
+		{
+			QByteArray ba = m_node.toString().toUtf8();
+
+			tValue = new char[ba.size()];
 		}
 
 		ONodeJson sub_member(const char* strName) const
