@@ -9,7 +9,7 @@ namespace MSRPC
 	class ISerialize<NODE, QString>
 	{
 	public:
-		static void serialize(NODE& vNewNode, QString& tValue)
+		static void serialize(NODE& vNewNode, const QString& tValue)
 		{
 #ifdef NODE_WITH_QT
 			vNewNode.in_serialize(tValue);
@@ -44,7 +44,7 @@ namespace MSRPC
 	class ISerialize<NODE, QVector<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QVector<T>& tValue)
+		static void serialize(NODE& vNewNode, const QVector<T>& tValue)
 		{
 			for (int ix = 0; ix != tValue.size(); ++ix)
 			{
@@ -76,7 +76,7 @@ namespace MSRPC
 	class ISerialize<NODE, QList<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QList<T>& tValue)
+		static void serialize(NODE& vNewNode, const QList<T>& tValue)
 		{
 			for (int ix = 0; ix != tValue.size(); ++ix)
 			{
@@ -107,7 +107,7 @@ namespace MSRPC
 	class ISerialize<NODE, QSharedPointer<T>>
 	{
 	public:
-		static void serialize(NODE& vNewNode, QSharedPointer<T>& tValue)
+		static void serialize(NODE& vNewNode, const QSharedPointer<T>& tValue)
 		{
 			ISerialize<NODE, T>::serialize(vNewNode, *tValue);
 		}

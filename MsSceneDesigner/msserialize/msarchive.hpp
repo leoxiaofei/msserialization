@@ -71,19 +71,6 @@ namespace MSRPC
 		}
 	};
 
-	class ArrayReader
-	{
-	public:
-
-	};
-
-	class ArraryWriter
-	{
-	public:
-
-
-	};
-
 	//template <class AR, typename T>
 	//void ex_serialize(AR& ar, T& tValue);
 
@@ -91,10 +78,10 @@ namespace MSRPC
 	class ISerialize
 	{
 	public:
-		static void serialize (NODE& vNewNode, T& tValue)
+		static void serialize (NODE& vNewNode, const T& tValue)
 		{
 			IArchiveHelper<NODE> oh(vNewNode);
-			ex_serialize(oh, tValue);
+			ex_serialize(oh, const_cast<T&>(tValue));
 		}
 	};
 
@@ -102,7 +89,7 @@ namespace MSRPC
 	class ISerialize<NODE, T[N]>
 	{
 	public:
-		static void serialize(NODE& vNewNode, T(&tValue)[N])
+		static void serialize(NODE& vNewNode, const T(&tValue)[N])
 		{
 			for (int ix = 0; ix != N; ++ix)
 			{
@@ -118,9 +105,12 @@ namespace MSRPC
 	class ISerialize<NODE, T*>
 	{
 	public:
-		static void serialize(NODE& vNewNode, T*& tValue)
+		static void serialize(NODE& vNewNode, const T* tValue)
 		{
-			ISerialize<NODE, T>::serialize(vNewNode, *tValue);
+			if (tValue)
+			{
+				ISerialize<NODE, T>::serialize(vNewNode, *tValue);
+			}
 		}
 	};
 
@@ -128,7 +118,7 @@ namespace MSRPC
 	class ISerialize<NODE, int>
 	{
 	public:
-		static void serialize(NODE& vNewNode, int& tValue)
+		static void serialize(NODE& vNewNode, const int& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
@@ -138,7 +128,7 @@ namespace MSRPC
 	class ISerialize<NODE, long long>
 	{
 	public:
-		static void serialize(NODE& vNewNode, long long& tValue)
+		static void serialize(NODE& vNewNode, const long long& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
@@ -149,7 +139,7 @@ namespace MSRPC
 	class ISerialize<NODE, double>
 	{
 	public:
-		static void serialize(NODE& vNewNode, double& tValue)
+		static void serialize(NODE& vNewNode, const double& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
@@ -159,7 +149,7 @@ namespace MSRPC
 	class ISerialize<NODE, char*>
 	{
 	public:
-		static void serialize(NODE& vNewNode, char*& tValue)
+		static void serialize(NODE& vNewNode, const char*& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
@@ -181,14 +171,14 @@ namespace MSRPC
 			: m_vCurNode(vNode) {}
 
 		template <class T>
-		IArchiveHelper& operator & (T& tValue)
+		IArchiveHelper& operator & (const T& tValue)
 		{
-			ex_serialize(*this, tValue);
+			ISerialize<NODE, T>::serialize(m_vCurNode, tValue);
 			return *this;
 		}
 
 		template <class T>
-		IArchiveHelper& io(const char* strName, T& tValue)
+		IArchiveHelper& io(const char* strName, const T& tValue)
 		{
 			NODE vNewNode = m_vCurNode.new_node();
 			ISerialize<NODE, T>::serialize(vNewNode, tValue);
@@ -280,7 +270,7 @@ namespace MSRPC
 
 	template <class NODE>
 	class OArchiveHelper
-	{
+                                                                                                                                                    	{
 	private:
 		NODE& m_vCurNode;
 
@@ -294,7 +284,7 @@ namespace MSRPC
 		template <class T>
 		OArchiveHelper& operator & (T& tValue)
 		{
-			ex_serialize(*this, tValue);
+			OSerialize<NODE, T>::serialize(m_vCurNode, tValue);
 			return *this;
 		}
 

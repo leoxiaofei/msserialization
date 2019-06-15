@@ -17,12 +17,12 @@ namespace MSRPC
 
 	public:
 		template <class T>
-		void in_serialize(T& tValue)
+		void in_serialize(const T& tValue)
 		{
 			m_node = tValue;
 		}
 
-		void in_serialize(char* tValue)
+		void in_serialize(const char* tValue)
 		{
 			m_node = tValue;
 		}
@@ -71,9 +71,10 @@ namespace MSRPC
 
 		void in_serialize(char*& tValue) const
 		{
-			QByteArray ba = m_node.toString().toUtf8();
+			QByteArray baBuffer = m_node.toString().toUtf8();
 
-			tValue = new char[ba.size()];
+			tValue = new char[baBuffer.size()];
+			memcpy(tValue, baBuffer.data(), baBuffer.size());
 		}
 
 		ONodeJson sub_member(const char* strName) const
@@ -122,10 +123,8 @@ namespace MSRPC
 		}
 	};
 
-
 	typedef MSRPC::OArchiveHelper<MSRPC::ONodeJson> OJsonArc;
 	typedef MSRPC::IArchiveHelper<MSRPC::INodeJson> IJsonArc;
-
 }
 
 #endif // QJSONNODE_H__
