@@ -3,7 +3,10 @@
 
 
 #include "msarchive.hpp"
-#include <QTextStream>
+
+#include <QFont>
+#include <QPen>
+#include <QBrush>
 
 
 namespace MSRPC
@@ -15,19 +18,14 @@ namespace MSRPC
 		QtPosApt(T& t) 
 			: m_t(t) {}
 
-		operator QString () const
+		operator QPointF () const
 		{
-			QPointF pt = m_t.pos();
-			return QString("%1,%2").arg(pt.x()).arg(pt.y());
+			return m_t.pos();
 		}
 
-		void operator = (const QString& strValue)
+		void operator = (const QPointF& ptValue)
 		{
-			QPointF pt;
-			char ch(0);
-			QTextStream ts(const_cast<QString*>(&strValue));
-			ts >> pt.rx() >> ch >> pt.ry();
-			m_t.setPos(pt);
+			m_t.setPos(ptValue);
 		}
 
 	private:
@@ -40,8 +38,7 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, const QtPosApt<T>& tValue)
 		{
-			QString strValue = tValue;
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+			ISerialize<NODE, QPointF>::serialize(vNewNode, tValue);
 		}
 	};
 
@@ -51,9 +48,9 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, QtPosApt<T>& tValue)
 		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			tValue = strValue;
+			QPointF ptValue;
+			OSerialize<NODE, QPointF>::serialize(vNewNode, ptValue);
+			tValue = ptValue;
 		}
 	};
 
@@ -64,23 +61,14 @@ namespace MSRPC
 		QtRectApt(T& t)
 			: m_t(t) {}
 
-		operator QString () const
+		operator QRectF () const
 		{
-			QRectF rf = m_t.rect();
-			return QString("%1,%2,%3,%4").arg(rf.x())
-				.arg(rf.y()).arg(rf.width()).arg(rf.height());
+			return m_t.rect();
 		}
 
-		void operator = (const QString& strValue)
+		void operator = (const QRectF& rfValue)
 		{
-			qreal dX(0);
-			qreal dY(0);
-			qreal dW(0);
-			qreal dH(0);
-			char ch(0);
-			QTextStream ts(const_cast<QString*>(&strValue));
-			ts >> dX >> ch >> dY >> ch >> dW >> ch >> dH;
-			m_t.setRect(dX, dY, dW, dH);
+			m_t.setRect(rfValue);
 		}
 
 	private:
@@ -93,8 +81,7 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, const QtRectApt<T>& tValue)
 		{
-			QString strValue = tValue;
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+			ISerialize<NODE, QRectF>::serialize(vNewNode, tValue);
 		}
 	};
 
@@ -104,9 +91,9 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, QtRectApt<T>& tValue)
 		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			tValue = strValue;
+			QRectF rfValue;
+			OSerialize<NODE, QRectF>::serialize(vNewNode, rfValue);
+			tValue = rfValue;
 		}
 	};
 
@@ -117,23 +104,14 @@ namespace MSRPC
 		QtLineApt(T& t)
 			: m_t(t) {}
 
-		operator QString () const
+		operator QLineF () const
 		{
-			QLineF lf = m_t.line();
-			return QString("%1,%2,%3,%4").arg(lf.x1())
-				.arg(lf.y1()).arg(lf.x2()).arg(lf.y2());
+			return m_t.line();
 		}
 
-		void operator = (const QString& strValue)
+		void operator = (const QLineF& lfValue)
 		{
-			qreal dX1(0);
-			qreal dY1(0);
-			qreal dX2(0);
-			qreal dY2(0);
-			char ch(0);
-			QTextStream ts(const_cast<QString*>(&strValue));
-			ts >> dX1 >> ch >> dY1 >> ch >> dX2 >> ch >> dY2;
-			m_t.setLine(dX1, dY1, dX2, dY2);
+			m_t.setLine(lfValue);
 		}
 
 	private:
@@ -146,8 +124,7 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, const QtLineApt<T>& tValue)
 		{
-			QString strValue = tValue;
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+			ISerialize<NODE, QLineF>::serialize(vNewNode, tValue);
 		}
 	};
 
@@ -157,9 +134,9 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, QtLineApt<T>& tValue)
 		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			tValue = strValue;
+			QLineF lfValue;
+			OSerialize<NODE, QLineF>::serialize(vNewNode, lfValue);
+			tValue = lfValue;
 		}
 	};
 
@@ -440,6 +417,184 @@ namespace MSRPC
 			QString strValue;
 			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
 			tValue = strValue;
+		}
+	};
+
+
+	template<class T>
+	class QtHtmlApt
+	{
+	public:
+		QtHtmlApt(T& t)
+			: m_t(t)
+		{}
+
+		operator QString () const
+		{
+			return m_t.toHtml();
+		}
+
+		void operator = (const QString& strValue)
+		{
+			m_t.setHtml(strValue);
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, QtHtmlApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QtHtmlApt<T>& tValue)
+		{
+			QString strValue = tValue;
+			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, QtHtmlApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, QtHtmlApt<T>& tValue)
+		{
+			QString strValue;
+			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
+			tValue = strValue;
+		}
+	};
+
+	template<class T>
+	class QtFontApt
+	{
+	public:
+		QtFontApt(T& t)
+			: m_t(t)
+		{}
+
+		operator QFont () const
+		{
+			return m_t.font();
+		}
+
+		void operator = (const QFont& fValue)
+		{
+			m_t.setFont(fValue);
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, QtFontApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QtFontApt<T>& tValue)
+		{
+			ISerialize<NODE, QFont>::serialize(vNewNode, tValue);
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, QtFontApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, QtFontApt<T>& tValue)
+		{
+			QFont font;
+			OSerialize<NODE, QFont>::serialize(vNewNode, font);
+			tValue = font;
+		}
+	};
+
+	template<class T>
+	class QtPenApt
+	{
+	public:
+		QtPenApt(T& t)
+			: m_t(t)
+		{}
+
+		operator QPen () const
+		{
+			return m_t.pen();
+		}
+
+		void operator = (const QPen& pValue)
+		{
+			m_t.setPen(pValue);
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, QtPenApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QtPenApt<T>& tValue)
+		{
+			ISerialize<NODE, QPen>::serialize(vNewNode, tValue);
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, QtPenApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, QtPenApt<T>& tValue)
+		{
+			QPen pen;
+			OSerialize<NODE, QPen>::serialize(vNewNode, pen);
+			tValue = pen;
+		}
+	};
+
+	template<class T>
+	class QtBrushApt
+	{
+	public:
+		QtBrushApt(T& t)
+			: m_t(t)
+		{}
+
+		operator QBrush () const
+		{
+			return m_t.brush();
+		}
+
+		void operator = (const QBrush& bValue)
+		{
+			m_t.setBrush(bValue);
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, QtBrushApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QtBrushApt<T>& tValue)
+		{
+			ISerialize<NODE, QBrush>::serialize(vNewNode, tValue);
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, QtBrushApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, QtBrushApt<T>& tValue)
+		{
+			QBrush brush;
+			OSerialize<NODE, QBrush>::serialize(vNewNode, brush);
+			tValue = brush;
 		}
 	};
 }
