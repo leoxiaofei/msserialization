@@ -352,6 +352,12 @@ namespace MSRPC
 			QStringList listFunc = strValue.split(";");
 			if (!listFunc.isEmpty())
 			{
+				static const char* szTfRegExp[_TK_TOTAL_] = {
+					"translate\\s*\\(\\s*(\\d+\\.?\\d*)\\s*,\\s*(\\d+\\.?\\d*)\\s*\\)",
+					"scale\\s*\\(\\s*(\\d+\\.?\\d*)\\s*,\\s*(\\d+\\.?\\d*)\\s*\\)",
+					"rotate\\s*\\(\\s*(\\d+\\.?\\d*)\\s*,\\s*(\\d)\\s*\\)",
+				};
+
 				QRegExp re[_TK_TOTAL_];
 				for (int ix = 0; ix != _TK_TOTAL_; ++ix)
 				{
@@ -595,6 +601,138 @@ namespace MSRPC
 			QBrush brush;
 			OSerialize<NODE, QBrush>::serialize(vNewNode, brush);
 			tValue = brush;
+		}
+	};
+
+	template<class T>
+	class QtSceneRectApt
+	{
+	public:
+		QtSceneRectApt(T& t)
+			: m_t(t)
+		{}
+
+		operator QRectF () const
+		{
+			return m_t.sceneRect();
+		}
+
+		void operator = (const QRectF& rfValue)
+		{
+			m_t.setSceneRect(rfValue);
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, QtSceneRectApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QtSceneRectApt<T>& tValue)
+		{
+			ISerialize<NODE, QRectF>::serialize(vNewNode, tValue);
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, QtSceneRectApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, QtSceneRectApt<T>& tValue)
+		{
+			QRectF rfValue;
+			OSerialize<NODE, QRectF>::serialize(vNewNode, rfValue);
+			tValue = rfValue;
+		}
+	};
+
+	template<class T>
+	class QtForegroundBrushApt
+	{
+	public:
+		QtForegroundBrushApt(T& t)
+			: m_t(t)
+		{}
+
+		operator QBrush () const
+		{
+			return m_t.foregroundBrush();
+		}
+
+		void operator = (const QBrush& rfValue)
+		{
+			m_t.setForegroundBrush(rfValue);
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, QtForegroundBrushApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QtForegroundBrushApt<T>& tValue)
+		{
+			ISerialize<NODE, QBrush>::serialize(vNewNode, tValue);
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, QtForegroundBrushApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, QtForegroundBrushApt<T>& tValue)
+		{
+			QBrush rfValue;
+			OSerialize<NODE, QBrush>::serialize(vNewNode, rfValue);
+			tValue = rfValue;
+		}
+	};
+
+	template<class T>
+	class QtBackgroundBrushApt
+	{
+	public:
+		QtBackgroundBrushApt(T& t)
+			: m_t(t)
+		{}
+
+		operator QBrush () const
+		{
+			return m_t.backgroundBrush();
+		}
+
+		void operator = (const QBrush& rfValue)
+		{
+			m_t.setBackgroundBrush(rfValue);
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, QtBackgroundBrushApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QtBackgroundBrushApt<T>& tValue)
+		{
+			ISerialize<NODE, QBrush>::serialize(vNewNode, tValue);
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, QtBackgroundBrushApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, QtBackgroundBrushApt<T>& tValue)
+		{
+			QBrush rfValue;
+			OSerialize<NODE, QBrush>::serialize(vNewNode, rfValue);
+			tValue = rfValue;
 		}
 	};
 }

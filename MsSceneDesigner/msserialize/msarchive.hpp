@@ -155,8 +155,6 @@ namespace MSRPC
 		}
 	};
 
-
-
 	template <class NODE>
 	class IArchiveHelper
 	{

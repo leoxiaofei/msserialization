@@ -1,6 +1,7 @@
 #ifndef MSARCHIVE_QT_H__
 #define MSARCHIVE_QT_H__
 
+#include "msarchive.hpp"
 #include <QString>
 #include <QTextStream>
 
