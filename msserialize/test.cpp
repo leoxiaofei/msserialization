@@ -7,6 +7,7 @@
 #include <QGraphicsItem>
 #include <QDebug>
 #include <QVector>
+#include "msnodeapt.hpp"
 
 namespace MSRPC
 {
@@ -53,12 +54,16 @@ namespace MSRPC
 
 namespace
 {
+	enum EnumTest { E_T1, E_T2, E_T3 };
+	const char* szEnumTest[] = { "E_T1", "E_T2", "E_T3" };
+
 	class A
 	{
 	public:
 		int i;
 		double d;
 		QString str;
+		EnumTest eTest;
 		QSharedPointer<QGraphicsItem> item;
 		long long l;
 
@@ -88,6 +93,7 @@ namespace
 		ar.io("str", tValue.str);
 		ar.io("item", tValue.item);
 		ar.io("l", tValue.l);
+		ar.io("test", MSRPC::EnumApt<EnumTest>(tValue.eTest, szEnumTest));
 	}
 
 	template<class Ar>
@@ -101,33 +107,38 @@ namespace
 
 #include <QJsonDocument>
 
-void JsonTest()
+class JsonTest
 {
-	A a;
-	a.i = 123;
-	a.d = 3.21;
-	a.str = "aaa";
-	a.item = QSharedPointer<QGraphicsRectItem>(new QGraphicsRectItem);
-	a.item->setPos(10, 20);
+public:
+	JsonTest()
+	{
+		A a;
+		a.i = 123;
+		a.d = 3.21;
+		a.str = "aaa";
+		a.eTest = E_T1;
+		a.item = QSharedPointer<QGraphicsRectItem>(new QGraphicsRectItem);
+		a.item->setPos(10, 20);
 
-	B b;
-	b.szA.append(a);
-	b.szA.append(a);
+		B b;
+		b.szA.append(a);
+		b.szA.append(a);
 
-	MSRPC::IJsonArc::Node nObjI;
-	MSRPC::IJsonArc ia(nObjI);
-	ia & b;
+		MSRPC::IJsonArc::Node nObjI;
+		MSRPC::IJsonArc ia(nObjI);
+		ia & b;
 
-	QJsonObject obj = nObjI.data().toObject();
-	QJsonDocument jd(obj);
-	QByteArray ba = jd.toJson();
+		QJsonObject obj = nObjI.data().toObject();
+		QJsonDocument jd(obj);
+		QByteArray ba = jd.toJson();
 
-	B c;
+		B c;
 
-	QJsonDocument od = QJsonDocument::fromJson(ba);
-	MSRPC::OJsonArc::Node objO(od.object());
-	MSRPC::OJsonArc oa(objO);
-	oa & c;
+		QJsonDocument od = QJsonDocument::fromJson(ba);
+		MSRPC::OJsonArc::Node objO(od.object());
+		MSRPC::OJsonArc oa(objO);
+		oa & c;
 
-	qDebug() << c.szA.size();
-}
+		qDebug() << c.szA.size();
+	}
+}a;

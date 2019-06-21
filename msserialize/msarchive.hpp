@@ -149,7 +149,7 @@ namespace MSRPC
 	class ISerialize<NODE, char*>
 	{
 	public:
-		static void serialize(NODE& vNewNode, const char*& tValue)
+		static void serialize(NODE& vNewNode, const char* tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
