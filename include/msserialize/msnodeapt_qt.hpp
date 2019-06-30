@@ -98,6 +98,49 @@ namespace MSRPC
 	};
 
 	template<class T>
+	class QtPolygonApt
+	{
+	public:
+		QtPolygonApt(T& t)
+			: m_t(t) {}
+
+		operator QPolygonF () const
+		{
+			return m_t.polygon();
+		}
+
+		void operator = (const QPolygonF& pgValue)
+		{
+			m_t.setPolygon(pgValue);
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, QtPolygonApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QtPolygonApt<T>& tValue)
+		{
+			ISerialize<NODE, QPolygonF>::serialize(vNewNode, tValue);
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, QtPolygonApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, QtPolygonApt<T>& tValue)
+		{
+			QPolygonF rfValue;
+			OSerialize<NODE, QPolygonF>::serialize(vNewNode, rfValue);
+			tValue = rfValue;
+		}
+	};
+
+	template<class T>
 	class QtLineApt
 	{
 	public:
@@ -732,6 +775,50 @@ namespace MSRPC
 		{
 			QBrush rfValue;
 			OSerialize<NODE, QBrush>::serialize(vNewNode, rfValue);
+			tValue = rfValue;
+		}
+	};
+
+	template<class T>
+	class QtFillRuleApt
+	{
+	public:
+		QtFillRuleApt(T& t)
+			: m_t(t)
+		{}
+
+		operator int () const
+		{
+			return m_t.fillRule();
+		}
+
+		void operator = (const int& rfValue)
+		{
+			m_t.setFillRule(static_cast<Qt::FillRule>(rfValue));
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, QtFillRuleApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QtFillRuleApt<T>& tValue)
+		{
+			ISerialize<NODE, int>::serialize(vNewNode, tValue);
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, QtFillRuleApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, QtFillRuleApt<T>& tValue)
+		{
+			int rfValue;
+			OSerialize<NODE, int>::serialize(vNewNode, rfValue);
 			tValue = rfValue;
 		}
 	};

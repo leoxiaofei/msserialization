@@ -285,7 +285,7 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, const QLineF& tValue)
 		{
-			QString strValue = QString("%1,%2,%3,%4").arg(tValue.x1())
+			QString strValue = QString("%1,%2 %3,%4").arg(tValue.x1())
 				.arg(tValue.y1()).arg(tValue.x2()).arg(tValue.y2());
 
 			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
@@ -300,14 +300,58 @@ namespace MSRPC
 		{
 			QString strValue;
 			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			qreal dX1(0);
-			qreal dY1(0);
+			qreal dX(0);
+			qreal dY(0);
 			qreal dX2(0);
 			qreal dY2(0);
 			char ch(0);
 			QTextStream ts(const_cast<QString*>(&strValue));
-			ts >> dX1 >> ch >> dY1 >> ch >> dX2 >> ch >> dY2;
-			tValue.setLine(dX1, dY1, dX2, dY2);
+			ts >> dX >> ch >> dY >> ch >> dX2 >> ch >> dY2;
+			tValue.setLine(dX, dY, dX2, dY2);
+		}
+	};
+
+	template<class NODE>
+	class ISerialize<NODE, QPolygonF>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QPolygonF& tValue)
+		{
+			QString strValue;
+			QTextStream ts(&strValue);
+
+			for (QPolygonF::const_iterator citor = tValue.constBegin();
+				citor != tValue.constEnd(); ++citor)
+			{
+				ts << citor->x() << ',' << citor->y() << ' ';
+			}
+			
+			if (strValue.endsWith(' '))
+			{
+				strValue.chop(1);
+			}
+
+			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, QPolygonF>
+	{
+	public:
+		static void serialize(NODE& vNewNode, QPolygonF& tValue)
+		{
+			QString strValue;
+			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
+			qreal dX(0);
+			qreal dY(0);
+			char ch(0);
+			QTextStream ts(const_cast<QString*>(&strValue));
+			while (!ts.status())
+			{
+				ts >> dX >> ch >> dY >> ch;
+				tValue.append(QPointF(dX, dY));
+			}
 		}
 	};
 }

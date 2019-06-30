@@ -47,7 +47,10 @@ namespace MSRPC
 					ISerialize<NODE, QGraphicsTextItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsTextItem*>(tValue));
 					break;
-
+				case QGraphicsPolygonItem::Type:
+					ISerialize<NODE, QGraphicsPolygonItem*>::serialize(vNewNode,
+						qgraphicsitem_cast<const QGraphicsPolygonItem*>(tValue));
+					break;
 				default:
 					break;
 				}
@@ -108,6 +111,13 @@ namespace MSRPC
 				tValue = pVal;
 				break;
 			}
+			case QGraphicsPolygonItem::Type:
+			{
+				QGraphicsPolygonItem* pVal = 0;
+				OSerialize<NODE, QGraphicsPolygonItem*>::serialize(vNewNode, pVal);
+				tValue = pVal;
+				break;
+			}
 			default:
 				break;
 			}
@@ -147,6 +157,19 @@ namespace MSRPC
 		ar.io("brush", QtBrushApt<QAbstractGraphicsShapeItem>(tValue));
 		ar.io("pen", QtPenApt<QAbstractGraphicsShapeItem>(tValue));
 		ar.io("rect", QtRectApt<QGraphicsEllipseItem>(tValue));
+	}
+
+	template<class Ar>
+	void ex_serialize(Ar& ar, QGraphicsPolygonItem& tValue)
+	{
+		ar.io("name", QtDataApt<QGraphicsItem>(tValue, IDK_NAME));
+		ar.io("pos", QtPosApt<QGraphicsItem>(tValue));
+		ar.io("zValue", QtZValueApt<QGraphicsItem>(tValue));
+		ar.io("transform", QtTransformApt<QGraphicsItem>(tValue, IDK_TRANSFORM));
+		ar.io("brush", QtBrushApt<QAbstractGraphicsShapeItem>(tValue));
+		ar.io("pen", QtPenApt<QAbstractGraphicsShapeItem>(tValue));
+		ar.io("polygon", QtPolygonApt<QGraphicsPolygonItem>(tValue));
+		ar.io("fillRule", QtFillRuleApt<QGraphicsPolygonItem>(tValue));
 	}
 
 	template<class Ar>
