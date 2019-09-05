@@ -4,7 +4,7 @@
 
 namespace MSRPC
 {
-	template <class Enum>
+	template <typename Enum>
 	class EnumApt
 	{
 	public:
@@ -39,13 +39,35 @@ namespace MSRPC
 		int m_n;
 	};
 
+	template <typename Enum>
+	class StrApt<EnumApt<Enum> >
+	{
+	public:
+		EnumApt<Enum>& m_data;
+
+	public:
+		StrApt(EnumApt<Enum>& data) : m_data(data) {}
+		StrApt(const EnumApt<Enum>& data) 
+			: m_data(const_cast<EnumApt<Enum>&>(data)) {}
+
+		const char* Get() const
+		{
+			return m_data;
+		}
+
+		void Set(const char* tValue, const size_t& sSize)
+		{
+			m_data = tValue;
+		}
+	};
+
 	template<class NODE, class T>
 	class ISerialize<NODE, EnumApt<T> >
 	{
 	public:
 		static void serialize(NODE& vNewNode, const EnumApt<T>& tValue)
 		{
-			ISerialize<NODE, char*>::serialize(vNewNode, tValue);
+			vNewNode.in_serialize(StrApt<EnumApt<T> >(tValue));
 		}
 	};
 
@@ -55,9 +77,7 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, EnumApt<T>& tValue)
 		{
-			char* pValue = 0;
-			OSerialize<NODE, char*>::serialize(vNewNode, pValue);
-			tValue = pValue;
+			vNewNode.in_serialize(StrApt<EnumApt<T> >(tValue));
 		}
 	};
 }

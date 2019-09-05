@@ -71,6 +71,26 @@ namespace MSRPC
 		}
 	};
 
+	template<typename T>
+	class StrApt
+	{
+	public:
+		/// 两个Get选其一：带const的在rapidjson下可以少拷贝一次。
+		const char* Get() const
+		{
+			return 0;
+		}
+
+		char* Get() const
+		{
+			return 0;
+		}
+
+		void Set (const char* tValue, const size_t& sSize)
+		{
+		}
+	};
+
 	//template <class AR, typename T>
 	//void ex_serialize(AR& ar, T& tValue);
 
@@ -98,7 +118,6 @@ namespace MSRPC
 				vNewNode.push_node(vNode);
 			}
 		}
-
 	};
 
 	template<class NODE, typename T>
@@ -115,6 +134,37 @@ namespace MSRPC
 	};
 
 	template<class NODE>
+	class ISerialize<NODE, bool>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const bool& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
+
+
+	template<class NODE>
+	class ISerialize<NODE, short>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const short& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
+
+	template<class NODE>
+	class ISerialize<NODE, unsigned short>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const unsigned short& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
+
+	template<class NODE>
 	class ISerialize<NODE, int>
 	{
 	public:
@@ -123,6 +173,17 @@ namespace MSRPC
 			vNewNode.in_serialize(tValue);
 		}
 	};
+
+	template<class NODE>
+	class ISerialize<NODE, unsigned int>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const long int& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
+
 
 	template<class NODE>
 	class ISerialize<NODE, long long>
@@ -134,12 +195,31 @@ namespace MSRPC
 		}
 	};
 
+	template<class NODE>
+	class ISerialize<NODE, unsigned long long>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const unsigned long long& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
 
 	template<class NODE>
 	class ISerialize<NODE, double>
 	{
 	public:
 		static void serialize(NODE& vNewNode, const double& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
+
+	template<class NODE>
+	class ISerialize<NODE, float>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const float& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
@@ -153,7 +233,24 @@ namespace MSRPC
 		{
 			vNewNode.in_serialize(tValue);
 		}
+
+		static void serialize(NODE& vNewNode, char* tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+
 	};
+
+	template<class NODE, int N>
+	class ISerialize<NODE, char[N]>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const char(&tValue)[N])
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
+
 
 	template <class NODE>
 	class IArchiveHelper
@@ -226,6 +323,36 @@ namespace MSRPC
 	};
 
 	template<class NODE>
+	class OSerialize<NODE, bool>
+	{
+	public:
+		static void serialize(NODE& vNewNode, bool& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, short>
+	{
+	public:
+		static void serialize(NODE& vNewNode, short& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, unsigned short>
+	{
+	public:
+		static void serialize(NODE& vNewNode, unsigned short& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
+
+	template<class NODE>
 	class OSerialize<NODE, int>
 	{
 	public:
@@ -236,10 +363,31 @@ namespace MSRPC
 	};
 
 	template<class NODE>
+	class OSerialize<NODE, unsigned int>
+	{
+	public:
+		static void serialize(NODE& vNewNode, unsigned int& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
+
+
+	template<class NODE>
 	class OSerialize<NODE, long long>
 	{
 	public:
 		static void serialize(NODE& vNewNode, long long& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, unsigned long long>
+	{
+	public:
+		static void serialize(NODE& vNewNode, unsigned long long& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
@@ -256,19 +404,45 @@ namespace MSRPC
 	};
 
 	template<class NODE>
+	class OSerialize<NODE, float>
+	{
+	public:
+		static void serialize(NODE& vNewNode, float& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
+
+	template<class NODE>
 	class OSerialize<NODE, char*>
 	{
 	public:
-		static void serialize(NODE& vNewNode, char*& tValue)
+		static void serialize(NODE& vNewNode, const char*& tValue)
 		{
 			vNewNode.in_serialize(tValue);
+		}
+
+		static void serialize(NODE& vNewNode, char*& tValue)
+		{
+			vNewNode.in_serialize(const_cast<const char*&>(tValue));
+		}
+
+	};
+
+	template<class NODE, int N>
+	class OSerialize<NODE, char[N]>
+	{
+	public:
+		static void serialize(NODE& vNewNode, char(&tValue)[N])
+		{
+			vNewNode.in_serialize(tValue, N);
 		}
 	};
 
 
 	template <class NODE>
 	class OArchiveHelper
-                                                                                                                                                    	{
+	{
 	private:
 		NODE& m_vCurNode;
 
@@ -287,11 +461,11 @@ namespace MSRPC
 		}
 
 		template <class T>
-		OArchiveHelper& io(const char* strName, T& tValue)
+		OArchiveHelper& io(const char* strName, const T& tValue)
 		{
 			if (NODE vNewNode = m_vCurNode.sub_member(strName))
 			{
-				OSerialize<NODE, T>::serialize(vNewNode, tValue);
+				OSerialize<NODE, T>::serialize(vNewNode, const_cast<T&>(tValue));
 			}
 
 			return *this;

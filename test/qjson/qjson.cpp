@@ -1,13 +1,12 @@
-#include "msarchive_qt.hpp"
-#include "qjsonnode.hpp"
-#include "msnodeapt_qt.hpp"
-
+#include "msserialize/msarchive_qt.hpp"
+#include "msserialize/qjsonnode.hpp"
+#include "msserialize/msnodeapt_qt.hpp"
+#include "msserialize/msnodeapt.hpp"
 
 #include <QSharedPointer>
 #include <QGraphicsItem>
 #include <QDebug>
 #include <QVector>
-#include "msnodeapt.hpp"
 
 namespace MSRPC
 {
