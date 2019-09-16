@@ -125,24 +125,34 @@ namespace MSRPC
 	};
 
 	template<class Ar>
-	void ex_serialize(Ar& ar, QGraphicsRectItem& tValue)
+	void ex_serialize(Ar& ar, QGraphicsItem& tValue)
 	{
 		ar.io("name", QtDataApt<QGraphicsItem>(tValue, IDK_NAME));
 		ar.io("pos", QtPosApt<QGraphicsItem>(tValue));
 		ar.io("zValue", QtZValueApt<QGraphicsItem>(tValue));
 		ar.io("transform", QtTransformApt<QGraphicsItem>(tValue, IDK_TRANSFORM));
+		ar.io("custom", QtHashDataApt<QGraphicsItem>(tValue, IDK_CUSTOM));
+	}
+
+	template<class Ar>
+	void ex_serialize(Ar& ar, QAbstractGraphicsShapeItem& tValue)
+	{
+		ex_serialize(ar, static_cast<QGraphicsItem&>(tValue));
 		ar.io("brush", QtBrushApt<QAbstractGraphicsShapeItem>(tValue));
 		ar.io("pen", QtPenApt<QAbstractGraphicsShapeItem>(tValue));
+	}
+
+	template<class Ar>
+	void ex_serialize(Ar& ar, QGraphicsRectItem& tValue)
+	{
+		ex_serialize(ar, static_cast<QAbstractGraphicsShapeItem&>(tValue));
 		ar.io("rect", QtRectApt<QGraphicsRectItem>(tValue));
 	}
 
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsLineItem& tValue)
 	{
-		ar.io("name", QtDataApt<QGraphicsItem>(tValue, IDK_NAME));
-		ar.io("pos", QtPosApt<QGraphicsItem>(tValue));
-		ar.io("zValue", QtZValueApt<QGraphicsItem>(tValue));
-		ar.io("transform", QtTransformApt<QGraphicsItem>(tValue, IDK_TRANSFORM));
+		ex_serialize(ar, static_cast<QGraphicsItem&>(tValue));
 		ar.io("pen", QtPenApt<QGraphicsLineItem>(tValue));
 		ar.io("line", QtLineApt<QGraphicsLineItem>(tValue));
 	}
@@ -150,24 +160,14 @@ namespace MSRPC
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsEllipseItem& tValue)
 	{
-		ar.io("name", QtDataApt<QGraphicsItem>(tValue, IDK_NAME));
-		ar.io("pos", QtPosApt<QGraphicsItem>(tValue));
-		ar.io("zValue", QtZValueApt<QGraphicsItem>(tValue));
-		ar.io("transform", QtTransformApt<QGraphicsItem>(tValue, IDK_TRANSFORM));
-		ar.io("brush", QtBrushApt<QAbstractGraphicsShapeItem>(tValue));
-		ar.io("pen", QtPenApt<QAbstractGraphicsShapeItem>(tValue));
+		ex_serialize(ar, static_cast<QAbstractGraphicsShapeItem&>(tValue));
 		ar.io("rect", QtRectApt<QGraphicsEllipseItem>(tValue));
 	}
 
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsPolygonItem& tValue)
 	{
-		ar.io("name", QtDataApt<QGraphicsItem>(tValue, IDK_NAME));
-		ar.io("pos", QtPosApt<QGraphicsItem>(tValue));
-		ar.io("zValue", QtZValueApt<QGraphicsItem>(tValue));
-		ar.io("transform", QtTransformApt<QGraphicsItem>(tValue, IDK_TRANSFORM));
-		ar.io("brush", QtBrushApt<QAbstractGraphicsShapeItem>(tValue));
-		ar.io("pen", QtPenApt<QAbstractGraphicsShapeItem>(tValue));
+		ex_serialize(ar, static_cast<QAbstractGraphicsShapeItem&>(tValue));
 		ar.io("polygon", QtPolygonApt<QGraphicsPolygonItem>(tValue));
 		ar.io("fillRule", QtFillRuleApt<QGraphicsPolygonItem>(tValue));
 	}
@@ -175,30 +175,21 @@ namespace MSRPC
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsPixmapItem& tValue)
 	{
-		ar.io("name", QtDataApt<QGraphicsItem>(tValue, IDK_NAME));
-		ar.io("pos", QtPosApt<QGraphicsItem>(tValue));
-		ar.io("zValue", QtZValueApt<QGraphicsItem>(tValue));
-		ar.io("transform", QtTransformApt<QGraphicsItem>(tValue, IDK_TRANSFORM));
+		ex_serialize(ar, static_cast<QGraphicsItem&>(tValue));
 		ar.io("image", QtPixmapApt<QGraphicsPixmapItem>(tValue, IDK_PIXMAP));
 	}
 
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsSvgItem& tValue)
 	{
-		ar.io("name", QtDataApt<QGraphicsItem>(tValue, IDK_NAME));
-		ar.io("pos", QtPosApt<QGraphicsItem>(tValue));
-		ar.io("zValue", QtZValueApt<QGraphicsItem>(tValue));
-		ar.io("transform", QtTransformApt<QGraphicsItem>(tValue, IDK_TRANSFORM));
+		ex_serialize(ar, static_cast<QGraphicsItem&>(tValue));
 		ar.io("image", QtSvgApt<QGraphicsSvgItem>(tValue, IDK_SVG));
 	}
 
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsTextItem& tValue)
 	{
-		ar.io("name", QtDataApt<QGraphicsItem>(tValue, IDK_NAME));
-		ar.io("pos", QtPosApt<QGraphicsItem>(tValue));
-		ar.io("zValue", QtZValueApt<QGraphicsItem>(tValue));
-		ar.io("transform", QtTransformApt<QGraphicsItem>(tValue, IDK_TRANSFORM));
+		ex_serialize(ar, static_cast<QGraphicsItem&>(tValue));
 		ar.io("font", QtFontApt<QGraphicsTextItem>(tValue));
 		ar.io("text", QtHtmlApt<QGraphicsTextItem>(tValue));
 	}

@@ -59,10 +59,10 @@ namespace MSRPC
 			}
 		};
 
-		typedef ONodeTestIter ITER;
-		ITER sub_node()
+		typedef ONodeTestIter ArrIter;
+		ArrIter sub_nodes()
 		{
-			return ITER();
+			return ArrIter();
 		}
 
 		operator bool()
@@ -75,7 +75,7 @@ namespace MSRPC
 	class StrApt
 	{
 	public:
-		/// Á½¸öGetÑ¡ÆäÒ»£º´øconstµÄÔÚrapidjsonÏÂ¿ÉÒÔÉÙ¿½±´Ò»´Î¡£
+		/// ï¿½ï¿½ï¿½ï¿½GetÑ¡ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½constï¿½ï¿½ï¿½ï¿½rapidjsonï¿½Â¿ï¿½ï¿½ï¿½ï¿½Ù¿ï¿½ï¿½ï¿½Ò»ï¿½Î¡ï¿½
 		const char* Get() const
 		{
 			return 0;
@@ -262,11 +262,14 @@ namespace MSRPC
 		typedef NODE Node;
 
 	public:
-		IArchiveHelper(NODE& vNode)
-			: m_vCurNode(vNode) {}
+		IArchiveHelper(NODE &vNode)
+			: m_vCurNode(vNode)
+		{
+			m_vCurNode.set_object(true);
+		}
 
 		template <class T>
-		IArchiveHelper& operator & (const T& tValue)
+		IArchiveHelper &operator&(const T &tValue)
 		{
 			ISerialize<NODE, T>::serialize(m_vCurNode, tValue);
 			return *this;
@@ -302,7 +305,7 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, T(&tValue)[N])
 		{
-			typename NODE::ITER itor = vNewNode.sub_node();
+			typename NODE::ArrIter itor = vNewNode.sub_nodes();
 			for (int ix = 0; ix != N && itor; ++itor, ++ix)
 			{
 				OSerialize<NODE, T>::serialize(*itor, tValue[ix]);

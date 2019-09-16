@@ -44,23 +44,29 @@ namespace MSRPC
 			return INodeJson(m_allocator);
 		}
 
-		void add_member(const char* strName, INodeJson& vNode)
+		void set_object(bool bIO = false)
 		{
 			if (!m_node->IsObject())
 			{
 				m_node->SetObject();
 			}
+		}
 
+		void add_member(const char* strName, INodeJson& vNode)
+		{
 			m_node->AddMember(rapidjson::StringRef(strName), *vNode.m_node, *m_allocator);
 		}
 
-		void push_node(INodeJson& vNode)
+		void set_array()
 		{
 			if (!m_node->IsArray())
 			{
 				m_node->SetArray();
 			}
+		}
 
+		void push_node(INodeJson& vNode)
+		{
 			m_node->PushBack(*vNode.m_node, *m_allocator);
 		}
 
@@ -113,17 +119,6 @@ namespace MSRPC
 				Set(m_node->GetString(), m_node->GetStringLength());
 		}
 
-		//void in_serialize(char*& tValue) const
-		//{
-		//	const char* str = m_node->GetString();
-
-		//	size_t nSize = strlen(str) + 1;
-
-		//	tValue = new char[nSize];
-
-		//	memcpy(tValue, str, nSize);
-		//}
-
 		void in_serialize(char* tValue, size_t nSize) const
 		{
 			const char* str = m_node->GetString();
@@ -141,13 +136,13 @@ namespace MSRPC
 			return ONodeJson((*m_node)[strName]);
 		}
 
-		class ONodeJsonIter
+		class ONodeArrIter
 		{
 		public:
 			rapidjson::Value::ConstValueIterator citCur;
 			rapidjson::Value::ConstValueIterator citEnd;
 
-			ONodeJsonIter(const rapidjson::Value* node)
+			ONodeArrIter(const rapidjson::Value* node)
 				: citCur(node->Begin())
 				, citEnd(node->End())
 			{}
@@ -163,18 +158,18 @@ namespace MSRPC
 				return citCur != citEnd;
 			}
 
-			ONodeJsonIter& operator ++ ()
+			ONodeArrIter& operator ++ ()
 			{
 				++citCur;
 				return *this;
 			}
 		};
 
-		typedef ONodeJsonIter ITER;
+		typedef ONodeArrIter ArrIter;
 
-		ITER sub_node() const
+		ArrIter sub_nodes() const
 		{
-			return ITER(m_node);
+			return ArrIter(m_node);
 		}
 
 		operator bool() const

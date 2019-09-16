@@ -65,6 +65,7 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, const std::vector<T>& tValue)
 		{
+			vNewNode.set_array();
 			for (int ix = 0; ix != tValue.size(); ++ix)
 			{
 				NODE vNode = vNewNode.new_node();
@@ -80,7 +81,7 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, std::vector<T>& tValue)
 		{
-			typename NODE::ITER itor = vNewNode.sub_node();
+			typename NODE::ArrIter itor = vNewNode.sub_nodes();
 			for (; itor; ++itor)
 			{
 				T t;

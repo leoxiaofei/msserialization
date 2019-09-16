@@ -438,7 +438,6 @@ namespace MSRPC
 
 				m_t.setTransform(tf);
 			}
-
 		}
 
 	private:
@@ -820,6 +819,53 @@ namespace MSRPC
 			int rfValue;
 			OSerialize<NODE, int>::serialize(vNewNode, rfValue);
 			tValue = rfValue;
+		}
+	};
+
+	template<class T>
+	class QtHashDataApt
+	{
+	public:
+		QtHashDataApt(T& t, int nKey)
+			: m_t(t)
+			, m_nKey(nKey)
+		{}
+
+		operator QHash<QString, QString> () const
+		{
+			return m_t.data(m_nKey).value<QHash<QString, QString> >();
+		}
+
+		void operator = (const QHash<QString, QString>& hsValue)
+		{
+			m_t.setData(m_nKey, QVariant::fromValue(hsValue));
+		}
+
+	private:
+		T& m_t;
+		int m_nKey;
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, QtHashDataApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QtHashDataApt<T>& tValue)
+		{
+			QHash<QString, QString> hsValue = tValue;
+			ISerialize<NODE, QHash<QString, QString> >::serialize(vNewNode, hsValue);
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, QtHashDataApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, QtHashDataApt<T>& tValue)
+		{
+			QHash<QString, QString> hsValue;
+			OSerialize<NODE, QHash<QString, QString> >::serialize(vNewNode, hsValue);
+			tValue = hsValue;
 		}
 	};
 }
