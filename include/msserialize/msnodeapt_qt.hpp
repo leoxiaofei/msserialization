@@ -396,9 +396,9 @@ namespace MSRPC
 			if (!listFunc.isEmpty())
 			{
 				static const char* szTfRegExp[_TK_TOTAL_] = {
-					"translate\\s*\\(\\s*(\\d+\\.?\\d*)\\s*,\\s*(\\d+\\.?\\d*)\\s*\\)",
-					"scale\\s*\\(\\s*(\\d+\\.?\\d*)\\s*,\\s*(\\d+\\.?\\d*)\\s*\\)",
-					"rotate\\s*\\(\\s*(\\d+\\.?\\d*)\\s*,\\s*(\\d)\\s*\\)",
+					"translate\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)",
+					"scale\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)",
+					"rotate\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(\\d)\\s*\\)",
 				};
 
 				QRegExp re[_TK_TOTAL_];
