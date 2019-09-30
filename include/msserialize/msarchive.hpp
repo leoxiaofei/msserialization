@@ -75,7 +75,7 @@ namespace MSRPC
 	class StrApt
 	{
 	public:
-		/// ����Getѡ��һ����const����rapidjson�¿����ٿ���һ�Ρ�
+		/// 两个Get选其一：带const的在rapidjson下可以少拷贝一次。
 		const char* Get() const
 		{
 			return 0;
@@ -111,6 +111,8 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, const T(&tValue)[N])
 		{
+			vNewNode.set_array();
+
 			for (int ix = 0; ix != N; ++ix)
 			{
 				NODE vNode = vNewNode.new_node();

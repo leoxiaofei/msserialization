@@ -6,7 +6,7 @@ set(TESTS
     qjson
     rajson)
 
-include_directories("../include/")
+include_directories("../include/" ${RAPIDJSON_PATH}/include)
 
 
 foreach (example ${TESTS})
@@ -14,4 +14,3 @@ foreach (example ${TESTS})
 endforeach()
 
 
-add_custom_target(tests ALL DEPENDS ${TESTS})
