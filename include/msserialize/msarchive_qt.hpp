@@ -114,7 +114,7 @@ namespace MSRPC
 		static void serialize(NODE& vNewNode, const QHash<QString, T>& tValue)
 		{
 			vNewNode.set_object();
-			for (QHash<QString, T>::const_iterator citor = tValue.constBegin(); 
+			for (typename QHash<QString, T>::const_iterator citor = tValue.constBegin(); 
 			citor != tValue.constEnd(); ++citor)
 			{
 				QByteArray baKey = citor.key().toUtf8();
