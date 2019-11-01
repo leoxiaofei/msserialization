@@ -180,7 +180,7 @@ namespace MSRPC
 	class ISerialize<NODE, unsigned int>
 	{
 	public:
-		static void serialize(NODE& vNewNode, const long int& tValue)
+		static void serialize(NODE& vNewNode, const unsigned int& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
