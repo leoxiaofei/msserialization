@@ -75,7 +75,7 @@ namespace MSRPC
 	class StrApt
 	{
 	public:
-		/// 两个Get选其一：带const的在rapidjson下可以少拷贝一次。
+		/// 两个Get选其一：带const的在rapidjson下可以少拷贝一次�?
 		const char* Get() const
 		{
 			return 0;
@@ -318,7 +318,7 @@ namespace MSRPC
 	class OSerialize
 	{
 	public:
-		static void serialize(NODE& vNewNode, T& tValue)
+		static void serialize(const NODE& vNewNode, T& tValue)
 		{
 			OArchiveHelper<NODE> oh(vNewNode);
 			ex_serialize(oh, tValue);
@@ -329,7 +329,7 @@ namespace MSRPC
 	class OSerialize<NODE, T[N]>
 	{
 	public:
-		static void serialize(NODE& vNewNode, T(&tValue)[N])
+		static void serialize(const NODE& vNewNode, T(&tValue)[N])
 		{
 			typename NODE::ArrIter itor = vNewNode.sub_nodes();
 			for (int ix = 0; ix != N && itor; ++itor, ++ix)
@@ -344,7 +344,7 @@ namespace MSRPC
 	class OSerialize<NODE, T*>
 	{
 	public:
-		static void serialize(NODE& vNewNode, T*& tValue)
+		static void serialize(const NODE& vNewNode, T*& tValue)
 		{
 			tValue = new T;
 			OSerialize<NODE, T>::serialize(vNewNode, *tValue);
@@ -355,7 +355,7 @@ namespace MSRPC
 	class OSerialize<NODE, bool>
 	{
 	public:
-		static void serialize(NODE& vNewNode, bool& tValue)
+		static void serialize(const NODE& vNewNode, bool& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
@@ -365,7 +365,7 @@ namespace MSRPC
 	class OSerialize<NODE, char>
 	{
 	public:
-		static void serialize(NODE& vNewNode, char& tValue)
+		static void serialize(const NODE& vNewNode, char& tValue)
 		{
 			short uValue(0);
 			vNewNode.in_serialize(uValue);
@@ -377,7 +377,7 @@ namespace MSRPC
 	class OSerialize<NODE, unsigned char>
 	{
 	public:
-		static void serialize(NODE& vNewNode, unsigned char& tValue)
+		static void serialize(const NODE& vNewNode, unsigned char& tValue)
 		{
 			unsigned short uValue(0);
 			vNewNode.in_serialize(uValue);
@@ -389,7 +389,7 @@ namespace MSRPC
 	class OSerialize<NODE, short>
 	{
 	public:
-		static void serialize(NODE& vNewNode, short& tValue)
+		static void serialize(const NODE& vNewNode, short& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
@@ -399,7 +399,7 @@ namespace MSRPC
 	class OSerialize<NODE, unsigned short>
 	{
 	public:
-		static void serialize(NODE& vNewNode, unsigned short& tValue)
+		static void serialize(const NODE& vNewNode, unsigned short& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
@@ -409,7 +409,7 @@ namespace MSRPC
 	class OSerialize<NODE, int>
 	{
 	public:
-		static void serialize(NODE& vNewNode, int& tValue)
+		static void serialize(const NODE& vNewNode, int& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
@@ -419,7 +419,7 @@ namespace MSRPC
 	class OSerialize<NODE, unsigned int>
 	{
 	public:
-		static void serialize(NODE& vNewNode, unsigned int& tValue)
+		static void serialize(const NODE& vNewNode, unsigned int& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
@@ -430,7 +430,7 @@ namespace MSRPC
 	class OSerialize<NODE, long long>
 	{
 	public:
-		static void serialize(NODE& vNewNode, long long& tValue)
+		static void serialize(const NODE& vNewNode, long long& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
@@ -440,7 +440,7 @@ namespace MSRPC
 	class OSerialize<NODE, unsigned long long>
 	{
 	public:
-		static void serialize(NODE& vNewNode, unsigned long long& tValue)
+		static void serialize(const NODE& vNewNode, unsigned long long& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
@@ -450,7 +450,7 @@ namespace MSRPC
 	class OSerialize<NODE, double>
 	{
 	public:
-		static void serialize(NODE& vNewNode, double& tValue)
+		static void serialize(const NODE& vNewNode, double& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
@@ -460,7 +460,7 @@ namespace MSRPC
 	class OSerialize<NODE, float>
 	{
 	public:
-		static void serialize(NODE& vNewNode, float& tValue)
+		static void serialize(const NODE& vNewNode, float& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
@@ -470,12 +470,12 @@ namespace MSRPC
 	class OSerialize<NODE, char*>
 	{
 	public:
-		static void serialize(NODE& vNewNode, const char*& tValue)
+		static void serialize(const NODE& vNewNode, const char*& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
 
-		static void serialize(NODE& vNewNode, char*& tValue)
+		static void serialize(const NODE& vNewNode, char*& tValue)
 		{
 			vNewNode.in_serialize(const_cast<const char*&>(tValue));
 		}
@@ -486,7 +486,7 @@ namespace MSRPC
 	class OSerialize<NODE, char[N]>
 	{
 	public:
-		static void serialize(NODE& vNewNode, char(&tValue)[N])
+		static void serialize(const NODE& vNewNode, char(&tValue)[N])
 		{
 			vNewNode.in_serialize(tValue, N);
 		}

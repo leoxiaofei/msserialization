@@ -23,7 +23,7 @@ namespace MSRPC
 	class OSerialize<NODE, cv::Point_<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, cv::Point_<T>& tValue)
+		static void serialize(const NODE& vNewNode, cv::Point_<T>& tValue)
 		{
 			std::string strValue;
 			OSerialize<NODE, std::string>::serialize(vNewNode, strValue);
@@ -49,7 +49,7 @@ namespace MSRPC
 	class OSerialize<NODE, cv::Rect_<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, cv::Rect_<T>& tValue)
+		static void serialize(const NODE& vNewNode, cv::Rect_<T>& tValue)
 		{
 			std::string strValue;
 			OSerialize<NODE, std::string>::serialize(vNewNode, strValue);

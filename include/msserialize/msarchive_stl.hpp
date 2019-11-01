@@ -50,7 +50,7 @@ namespace MSRPC
 	class OSerialize<NODE, std::string>
 	{
 	public:
-		static void serialize(NODE& vNewNode, std::string& tValue)
+		static void serialize(const NODE& vNewNode, std::string& tValue)
 		{
 			vNewNode.in_serialize(StrApt<std::string>(tValue));
 		}
@@ -79,7 +79,43 @@ namespace MSRPC
 	class OSerialize<NODE, std::vector<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, std::vector<T>& tValue)
+		static void serialize(const NODE& vNewNode, std::vector<T>& tValue)
+		{
+			typename NODE::ArrIter itor = vNewNode.sub_nodes();
+			for (; itor; ++itor)
+			{
+				T t;
+				OSerialize<NODE, T>::serialize(*itor, t);
+				tValue.push_back(t);
+			}
+
+		}
+	};
+
+	//////////////////////////////////////////////////////////////////////////
+	// std::list<T> 
+
+	template<class NODE, class T>
+	class ISerialize<NODE, std::list<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const std::list<T>& tValue)
+		{
+			vNewNode.set_array();
+			for (int ix = 0; ix != tValue.size(); ++ix)
+			{
+				NODE vNode = vNewNode.new_node();
+				ISerialize<NODE, T>::serialize(vNode, tValue[ix]);
+				vNewNode.push_node(vNode);
+			}
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, std::list<T> >
+	{
+	public:
+		static void serialize(const NODE& vNewNode, std::list<T>& tValue)
 		{
 			typename NODE::ArrIter itor = vNewNode.sub_nodes();
 			for (; itor; ++itor)

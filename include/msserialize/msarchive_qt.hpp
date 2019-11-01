@@ -26,7 +26,7 @@ namespace MSRPC
 	class OSerialize<NODE, QString>
 	{
 	public:
-		static void serialize(NODE& vNewNode, QString& tValue)
+		static void serialize(const NODE& vNewNode, QString& tValue)
 		{
 #ifdef NODE_WITH_QT
 			vNewNode.in_serialize(tValue);
@@ -62,7 +62,7 @@ namespace MSRPC
 	class OSerialize<NODE, QVector<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QVector<T>& tValue)
+		static void serialize(const NODE& vNewNode, QVector<T>& tValue)
 		{
 			typename NODE::ArrIter itor = vNewNode.sub_nodes();
 			for (; itor; ++itor)
@@ -95,7 +95,7 @@ namespace MSRPC
 	class OSerialize<NODE, QList<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QList<T>& tValue)
+		static void serialize(const NODE& vNewNode, QList<T>& tValue)
 		{
 			typename NODE::ArrIter itor = vNewNode.sub_nodes();
 			for (; itor; ++itor)
@@ -129,7 +129,7 @@ namespace MSRPC
 	class OSerialize<NODE, QHash<QString, T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QHash<QString, T>& tValue)
+		static void serialize(const NODE& vNewNode, QHash<QString, T>& tValue)
 		{
 			typename NODE::ObjIter itor = vNewNode.sub_members();
 			for (; itor; ++itor)
@@ -179,7 +179,7 @@ namespace MSRPC
 	class OSerialize<NODE, QHash<K, T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QHash<K, T>& tValue)
+		static void serialize(const NODE& vNewNode, QHash<K, T>& tValue)
 		{
 			NODE vKeyNode = vNewNode.sub_member("key");
 			NODE vValueNode = vNewNode.sub_member("value");
@@ -238,7 +238,7 @@ namespace MSRPC
 	class OSerialize<NODE, QMap<K, T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QMap<K, T>& tValue)
+		static void serialize(const NODE& vNewNode, QMap<K, T>& tValue)
 		{
 			NODE vKeyNode = vNewNode.sub_member("key");
 			NODE vValueNode = vNewNode.sub_member("value");
@@ -273,7 +273,7 @@ namespace MSRPC
 	class OSerialize<NODE, QSharedPointer<T>>
 	{
 	public:
-		static void serialize(NODE& vNewNode, QSharedPointer<T>& tValue)
+		static void serialize(const NODE& vNewNode, QSharedPointer<T>& tValue)
 		{
 			tValue = QSharedPointer<T>(new T);
 			OSerialize<NODE, T>::serialize(vNewNode, *tValue);
@@ -294,7 +294,7 @@ namespace MSRPC
 	class OSerialize<NODE, QFont>
 	{
 	public:
-		static void serialize(NODE& vNewNode, QFont& tValue)
+		static void serialize(const NODE& vNewNode, QFont& tValue)
 		{
 			QString strValue;
 			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
@@ -317,7 +317,7 @@ namespace MSRPC
 	class OSerialize<NODE, QBrush>
 	{
 	public:
-		static void serialize(NODE& vNewNode, QBrush& tValue)
+		static void serialize(const NODE& vNewNode, QBrush& tValue)
 		{
 			QString strValue;
 			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
@@ -347,7 +347,7 @@ namespace MSRPC
 	class OSerialize<NODE, QPen>
 	{
 	public:
-		static void serialize(NODE& vNewNode, QPen& tValue)
+		static void serialize(const NODE& vNewNode, QPen& tValue)
 		{
 			QString strValue;
 			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
@@ -391,7 +391,7 @@ namespace MSRPC
 	class OSerialize<NODE, QPointF>
 	{
 	public:
-		static void serialize(NODE& vNewNode, QPointF& tValue)
+		static void serialize(const NODE& vNewNode, QPointF& tValue)
 		{
 			QString strValue;
 			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
@@ -418,7 +418,7 @@ namespace MSRPC
 	class OSerialize<NODE, QRectF>
 	{
 	public:
-		static void serialize(NODE& vNewNode, QRectF& tValue)
+		static void serialize(const NODE& vNewNode, QRectF& tValue)
 		{
 			QString strValue;
 			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
@@ -450,7 +450,7 @@ namespace MSRPC
 	class OSerialize<NODE, QLineF>
 	{
 	public:
-		static void serialize(NODE& vNewNode, QLineF& tValue)
+		static void serialize(const NODE& vNewNode, QLineF& tValue)
 		{
 			QString strValue;
 			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
@@ -493,7 +493,7 @@ namespace MSRPC
 	class OSerialize<NODE, QPolygonF>
 	{
 	public:
-		static void serialize(NODE& vNewNode, QPolygonF& tValue)
+		static void serialize(const NODE& vNewNode, QPolygonF& tValue)
 		{
 			QString strValue;
 			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
