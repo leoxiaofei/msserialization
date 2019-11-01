@@ -141,6 +141,124 @@ namespace MSRPC
 		}
 	};
 
+	template<class NODE, class K, class T>
+	class ISerialize<NODE, QHash<K, T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QHash<K, T>& tValue)
+		{
+			vNewNode.set_object();
+
+			if (!tValue.isEmpty())
+			{
+				NODE vKeyNode = vNewNode.new_node();
+				vKeyNode.set_array();
+
+				NODE vValueNode = vNewNode.new_node();
+				vValueNode.set_array();
+
+				for (typename QHash<K, T>::const_iterator citor = tValue.constBegin();
+					 citor != tValue.constEnd(); ++citor)
+				{
+					NODE vKNode = vKeyNode.new_node();
+					ISerialize<NODE, K>::serialize(vKNode, citor.key());
+					vKeyNode.push_node(vKNode);
+
+					NODE vVNode = vValueNode.new_node();
+					ISerialize<NODE, T>::serialize(vVNode, citor.value());
+					vValueNode.push_node(vVNode);
+				}
+
+				vNewNode.add_member("key", vKeyNode);
+				vNewNode.add_member("value", vValueNode);
+			}
+		}
+	};
+
+	template<class NODE, class K, class T>
+	class OSerialize<NODE, QHash<K, T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, QHash<K, T>& tValue)
+		{
+			NODE vKeyNode = vNewNode.sub_member("key");
+			NODE vValueNode = vNewNode.sub_member("value");
+
+			if (vKeyNode && vValueNode)
+			{
+				typename NODE::ArrIter itorKey = vKeyNode.sub_nodes();
+				typename NODE::ArrIter itorValue = vValueNode.sub_nodes();
+				for (; itorKey && itorValue; ++itorKey, ++itorValue)
+				{
+					K k;
+					OSerialize<NODE, K>::serialize(*itorKey, k);
+					T t;
+					OSerialize<NODE, T>::serialize(*itorValue, t);
+					tValue[k] = t;
+				}
+			}
+		}
+	};
+
+	template<class NODE, class K, class T>
+	class ISerialize<NODE, QMap<K, T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QMap<K, T>& tValue)
+		{
+			vNewNode.set_object();
+
+			if (!tValue.isEmpty())
+			{
+				NODE vKeyNode = vNewNode.new_node();
+				vKeyNode.set_array();
+
+				NODE vValueNode = vNewNode.new_node();
+				vValueNode.set_array();
+
+				for (typename QMap<K, T>::const_iterator citor = tValue.constBegin();
+					 citor != tValue.constEnd(); ++citor)
+				{
+					NODE vKNode = vKeyNode.new_node();
+					ISerialize<NODE, K>::serialize(vKNode, citor.key());
+					vKeyNode.push_node(vKNode);
+
+					NODE vVNode = vValueNode.new_node();
+					ISerialize<NODE, T>::serialize(vVNode, citor.value());
+					vValueNode.push_node(vVNode);
+				}
+
+				vNewNode.add_member("key", vKeyNode);
+				vNewNode.add_member("value", vValueNode);
+			}
+		}
+	};
+
+	template<class NODE, class K, class T>
+	class OSerialize<NODE, QMap<K, T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, QMap<K, T>& tValue)
+		{
+			NODE vKeyNode = vNewNode.sub_member("key");
+			NODE vValueNode = vNewNode.sub_member("value");
+
+			if (vKeyNode && vValueNode)
+			{
+				typename NODE::ArrIter itorKey = vKeyNode.sub_nodes();
+				typename NODE::ArrIter itorValue = vValueNode.sub_nodes();
+				for (; itorKey && itorValue; ++itorKey, ++itorValue)
+				{
+					K k;
+					OSerialize<NODE, K>::serialize(*itorKey, k);
+					T t;
+					OSerialize<NODE, T>::serialize(*itorValue, t);
+					tValue[k] = t;
+				}
+			}
+		}
+	};
+
 	template<class NODE, typename T>
 	class ISerialize<NODE, QSharedPointer<T>>
 	{

@@ -91,8 +91,11 @@ namespace MSRPC
 		}
 	};
 
-	//template <class AR, typename T>
-	//void ex_serialize(AR& ar, T& tValue);
+	template <class NODE>
+	class IArchiveHelper;
+
+	template <class AR, typename T>
+	void ex_serialize(AR& ar, T& tValue);
 
 	template <class NODE, typename T>
 	class ISerialize
@@ -145,6 +148,25 @@ namespace MSRPC
 		}
 	};
 
+	template<class NODE>
+	class ISerialize<NODE, char>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const char& tValue)
+		{
+			vNewNode.in_serialize(static_cast<short>(tValue));
+		}
+	};
+
+	template<class NODE>
+	class ISerialize<NODE, unsigned char>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const unsigned char& tValue)
+		{
+			vNewNode.in_serialize(static_cast<unsigned short>(tValue));
+		}
+	};
 
 	template<class NODE>
 	class ISerialize<NODE, short>
@@ -289,6 +311,8 @@ namespace MSRPC
 		 
 	};
 
+	template <class NODE>
+	class OArchiveHelper;
 
 	template<class NODE, typename T>
 	class OSerialize
@@ -334,6 +358,30 @@ namespace MSRPC
 		static void serialize(NODE& vNewNode, bool& tValue)
 		{
 			vNewNode.in_serialize(tValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, char>
+	{
+	public:
+		static void serialize(NODE& vNewNode, char& tValue)
+		{
+			short uValue(0);
+			vNewNode.in_serialize(uValue);
+			tValue = uValue;
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, unsigned char>
+	{
+	public:
+		static void serialize(NODE& vNewNode, unsigned char& tValue)
+		{
+			unsigned short uValue(0);
+			vNewNode.in_serialize(uValue);
+			tValue = uValue;
 		}
 	};
 
