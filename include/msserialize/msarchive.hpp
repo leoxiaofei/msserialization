@@ -497,13 +497,13 @@ namespace MSRPC
 	class OArchiveHelper
 	{
 	private:
-		NODE& m_vCurNode;
+		const NODE& m_vCurNode;
 
 	public:
 		typedef NODE Node;
 
 	public:
-		OArchiveHelper(NODE& vNode)
+		OArchiveHelper(const NODE& vNode)
 			: m_vCurNode(vNode) {}
 
 		template <class T>
