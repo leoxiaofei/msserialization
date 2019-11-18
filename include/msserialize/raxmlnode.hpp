@@ -2,7 +2,7 @@
 #define RAXMLNODE_H__
 
 #include "msarchive.hpp"
-#include <rapidxml.hpp>
+#include <rapidxml/rapidxml.hpp>
 #include <sstream>
 
 

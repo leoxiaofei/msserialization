@@ -31,13 +31,9 @@ namespace MSRPC
 #ifdef NODE_WITH_QT
 			vNewNode.in_serialize(tValue);
 #else
-			char* p = 0;
+			const char* p = 0;
 			vNewNode.in_serialize(p);
-			if (p)
-			{
-				tValue = QString::fromUtf8(p);
-				delete p;
-			}
+			tValue = QString::fromUtf8(p);
 #endif
 		}
 	};
