@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <string>
+#include <list>
 
 
 namespace MSRPC
@@ -125,6 +126,27 @@ namespace MSRPC
 				tValue.push_back(t);
 			}
 
+		}
+	};
+
+	template<class NODE, typename T>
+	class ISerialize<NODE, std::shared_ptr<T>>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const std::shared_ptr<T>& tValue)
+		{
+			ISerialize<NODE, T>::serialize(vNewNode, *tValue);
+		}
+	};
+
+	template<class NODE, typename T>
+	class OSerialize<NODE, std::shared_ptr<T>>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, std::shared_ptr<T>& tValue)
+		{
+			tValue = std::shared_ptr<T>(new T);
+			OSerialize<NODE, T>::serialize(vNewNode, *tValue);
 		}
 	};
 }

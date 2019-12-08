@@ -76,6 +76,11 @@ namespace MSRPC
 			return *m_node;
 		}
 
+		operator bool() const
+		{
+			return m_node && !m_node->IsNull();
+		}
+
 		INodeJson(rapidjson::Document::AllocatorType* allocator)
 			: m_node(&m_data)
 			, m_allocator(allocator)
@@ -83,9 +88,9 @@ namespace MSRPC
 
 		}
 
-		INodeJson(rapidjson::Document& doc)
-			: m_node(&doc)
-			, m_allocator(&doc.GetAllocator())
+		INodeJson(rapidjson::Document* doc)
+			: m_node(doc)
+			, m_allocator(&doc->GetAllocator())
 		{
 
 		}
@@ -97,8 +102,8 @@ namespace MSRPC
 	public:
 		const rapidjson::Value* m_node;
 
-		ONodeJson(const rapidjson::Value& node) 
-			: m_node(&node) {}
+		ONodeJson(const rapidjson::Value* node)
+			: m_node(node) {}
 
 	public:
 		template <class T>
@@ -133,7 +138,7 @@ namespace MSRPC
 
 		ONodeJson sub_member(const char* strName) const
 		{
-			return ONodeJson((*m_node)[strName]);
+			return ONodeJson(&(*m_node)[strName]);
 		}
 
 		class ONodeArrIter
@@ -150,7 +155,7 @@ namespace MSRPC
 		public:
 			ONodeJson operator *() const
 			{
-				return ONodeJson(*citCur);
+				return ONodeJson(citCur);
 			}
 
 			operator bool() const

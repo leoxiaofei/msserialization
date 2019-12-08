@@ -507,7 +507,7 @@ namespace MSRPC
 			: m_vCurNode(vNode) {}
 
 		template <class T>
-		OArchiveHelper& operator & (T& tValue)
+		const OArchiveHelper& operator & (T& tValue) const
 		{
 			OSerialize<NODE, T>::serialize(m_vCurNode, tValue);
 			return *this;
@@ -522,6 +522,11 @@ namespace MSRPC
 			}
 
 			return *this;
+		}
+
+		const NODE& node() const
+		{
+			return m_vCurNode;
 		}
 
 	};
