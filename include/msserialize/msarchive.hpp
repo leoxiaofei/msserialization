@@ -108,6 +108,17 @@ namespace MSRPC
 		}
 	};
 
+	template <class NODE, class T>
+	class ISerialize<NODE, T&>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const T& tValue)
+		{
+			ISerialize<NODE, T>::serialize(vNewNode, tValue);
+		}
+	};
+
+
 	template<class NODE, typename T, int N>
 	class ISerialize<NODE, T[N]>
 	{
@@ -351,6 +362,16 @@ namespace MSRPC
 		}
 	};
 
+	template<class NODE, typename T>
+	class OSerialize<NODE, T&>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, T& tValue)
+		{
+			OSerialize<NODE, T>::serialize(vNewNode, tValue);
+		}
+	};
+
 	template<class NODE>
 	class OSerialize<NODE, bool>
 	{
@@ -531,6 +552,29 @@ namespace MSRPC
 
 	};
 
+#define DiExSe(EX) \
+	namespace MSRPC { \
+	template <class NODE> \
+	class ISerialize<NODE, EX> \
+	{ \
+	public: \
+		static void serialize(NODE& vNewNode, const EX& tValue) \
+		{ \
+			IArchiveHelper<NODE> oh(vNewNode); \
+			ex_serialize(oh, const_cast<EX&>(tValue)); \
+		} \
+	}; \
+	template<class NODE> \
+	class OSerialize<NODE, EX> \
+	{ \
+	public: \
+		static void serialize(const NODE& vNewNode, EX& tValue) \
+		{ \
+			OArchiveHelper<NODE> oh(vNewNode); \
+			ex_serialize(oh, tValue); \
+		} \
+	}; \
+	}
 }
 
 #endif // MSARCHIVE_H__

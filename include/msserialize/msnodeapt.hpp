@@ -17,6 +17,15 @@ namespace MSRPC
 
 		}
 
+		EnumApt(Enum& en, const char** str, int nN)
+			: m_en(en)
+			, m_szText(str)
+			, m_n(nN)
+		{
+
+		}
+
+
 		operator const char* () const
 		{
 			return m_szText[m_en];
