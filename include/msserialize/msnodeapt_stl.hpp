@@ -34,12 +34,12 @@ namespace MSRPC
 
 		item_type push()
 		{
-			if (idx++ >= conta.size())
+			if (idx >= conta.size())
 			{
 				ELEM t;
 				conta.push_back(t);
 			}
-			return func(conta[idx]);
+			return func(conta[idx++]);
 		}
 
 		void operator ++() const

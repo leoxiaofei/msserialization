@@ -135,7 +135,10 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, const std::shared_ptr<T>& tValue)
 		{
-			ISerialize<NODE, T>::serialize(vNewNode, *tValue);
+			if (tValue)
+			{
+				ISerialize<NODE, T>::serialize(vNewNode, *tValue);
+			}
 		}
 	};
 

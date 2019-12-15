@@ -138,7 +138,11 @@ namespace MSRPC
 
 		ONodeJson sub_member(const char* strName) const
 		{
-			return ONodeJson(&(*m_node)[strName]);
+			rapidjson::Value::ConstMemberIterator itrFind
+				= m_node->FindMember(strName);
+			
+			return ONodeJson(itrFind != m_node->MemberEnd() ?
+				&itrFind->value : 0);
 		}
 
 		class ONodeArrIter
