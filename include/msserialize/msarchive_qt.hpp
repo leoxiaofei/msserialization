@@ -4,6 +4,9 @@
 #include "msarchive.hpp"
 #include <QString>
 #include <QTextStream>
+#include <QSharedPointer>
+#include <QPolygon>
+#include <QDateTime>
 
 namespace MSRPC
 {
@@ -60,14 +63,17 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, QVector<T>& tValue)
 		{
+			QVector<T> val;
+
 			typename NODE::ArrIter itor = vNewNode.sub_nodes();
 			for (; itor; ++itor)
 			{
 				T t;
 				OSerialize<NODE, T>::serialize(*itor, t);
-				tValue.append(t);
+				val.append(t);
 			}
 
+			tValue.swap(val);
 		}
 	};
 
@@ -93,13 +99,17 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, QList<T>& tValue)
 		{
+			QList<T> val;
+
 			typename NODE::ArrIter itor = vNewNode.sub_nodes();
 			for (; itor; ++itor)
 			{
 				T t;
 				OSerialize<NODE, T>::serialize(*itor, t);
-				tValue.append(t);
+				val.append(t);
 			}
+
+			val.swap(tValue);
 		}
 	};
 
@@ -127,13 +137,17 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, QHash<QString, T>& tValue)
 		{
+			QHash<QString, T> val;
+
 			typename NODE::ObjIter itor = vNewNode.sub_members();
 			for (; itor; ++itor)
 			{
 				T t;
 				OSerialize<NODE, T>::serialize(*itor, t);
-				tValue[itor.key()] = t;
+				val[itor.key()] = t;
 			}
+
+			val.swap(tValue);
 		}
 	};
 
@@ -182,6 +196,8 @@ namespace MSRPC
 
 			if (vKeyNode && vValueNode)
 			{
+				QHash<K, T> val;
+
 				typename NODE::ArrIter itorKey = vKeyNode.sub_nodes();
 				typename NODE::ArrIter itorValue = vValueNode.sub_nodes();
 				for (; itorKey && itorValue; ++itorKey, ++itorValue)
@@ -190,8 +206,10 @@ namespace MSRPC
 					OSerialize<NODE, K>::serialize(*itorKey, k);
 					T t;
 					OSerialize<NODE, T>::serialize(*itorValue, t);
-					tValue[k] = t;
+					val[k] = t;
 				}
+
+				val.swap(tValue);
 			}
 		}
 	};
@@ -241,6 +259,8 @@ namespace MSRPC
 
 			if (vKeyNode && vValueNode)
 			{
+				QMap<K, T> val;
+
 				typename NODE::ArrIter itorKey = vKeyNode.sub_nodes();
 				typename NODE::ArrIter itorValue = vValueNode.sub_nodes();
 				for (; itorKey && itorValue; ++itorKey, ++itorValue)
@@ -249,8 +269,10 @@ namespace MSRPC
 					OSerialize<NODE, K>::serialize(*itorKey, k);
 					T t;
 					OSerialize<NODE, T>::serialize(*itorValue, t);
-					tValue[k] = t;
+					val[k] = t;
 				}
+
+				val.swap(tValue);
 			}
 		}
 	};
@@ -502,6 +524,30 @@ namespace MSRPC
 				ts >> dX >> ch >> dY >> ch;
 				tValue.append(QPointF(dX, dY));
 			}
+		}
+	};
+
+	template<class NODE>
+	class ISerialize<NODE, QDateTime>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QDateTime& tValue)
+		{
+			QString strValue = tValue.toString(Qt::ISODate);
+
+			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, QDateTime>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QDateTime& tValue)
+		{
+			QString strValue;
+			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
+			tValue = QDateTime::fromString(strValue, Qt::ISODate);
 		}
 	};
 }
