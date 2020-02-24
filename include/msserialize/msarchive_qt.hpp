@@ -4,9 +4,13 @@
 #include "msarchive.hpp"
 #include <QString>
 #include <QTextStream>
+#include <QDataStream>
 #include <QSharedPointer>
 #include <QPolygon>
 #include <QDateTime>
+#include <QMetaType>
+#include <QLine>
+#include <QFont>
 
 namespace MSRPC
 {
@@ -211,6 +215,44 @@ namespace MSRPC
 
 				val.swap(tValue);
 			}
+		}
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, QMap<QString, T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QMap<QString, T>& tValue)
+		{
+			vNewNode.set_object();
+			for (typename QMap<QString, T>::const_iterator citor = tValue.constBegin();
+				citor != tValue.constEnd(); ++citor)
+			{
+				QByteArray baKey = citor.key().toUtf8();
+				NODE vNode = vNewNode.new_node();
+				ISerialize<NODE, T>::serialize(vNode, *citor);
+				vNewNode.add_member(baKey.data(), vNode);
+			}
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, QMap<QString, T> >
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QMap<QString, T>& tValue)
+		{
+			QMap<QString, T> val;
+
+			typename NODE::ObjIter itor = vNewNode.sub_members();
+			for (; itor; ++itor)
+			{
+				T t;
+				OSerialize<NODE, T>::serialize(*itor, t);
+				val[itor.key()] = t;
+			}
+
+			val.swap(tValue);
 		}
 	};
 
@@ -420,6 +462,81 @@ namespace MSRPC
 	};
 
 	template<class NODE>
+	class ISerialize<NODE, QPoint>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QPoint& tValue)
+		{
+			QString strValue = QString("%1,%2").arg(tValue.x()).arg(tValue.y());
+			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, QPoint>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QPoint& tValue)
+		{
+			QString strValue;
+			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
+			char ch(0);
+			QTextStream ts(const_cast<QString*>(&strValue));
+			ts >> tValue.rx() >> ch >> tValue.ry();
+		}
+	};
+
+	template<class NODE>
+	class ISerialize<NODE, QSizeF>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QSizeF& tValue)
+		{
+			QString strValue = QString("%1,%2").arg(tValue.width()).arg(tValue.height());
+			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, QSizeF>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QSizeF& tValue)
+		{
+			QString strValue;
+			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
+			char ch(0);
+			QTextStream ts(const_cast<QString*>(&strValue));
+			ts >> tValue.rwidth() >> ch >> tValue.rheight();
+		}
+	};
+
+	template<class NODE>
+	class ISerialize<NODE, QSize>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QSize& tValue)
+		{
+			QString strValue = QString("%1,%2").arg(tValue.width()).arg(tValue.height());
+			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, QSize>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QSize& tValue)
+		{
+			QString strValue;
+			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
+			char ch(0);
+			QTextStream ts(const_cast<QString*>(&strValue));
+			ts >> tValue.rwidth() >> ch >> tValue.rheight();
+		}
+	};
+
+	template<class NODE>
 	class ISerialize<NODE, QRectF>
 	{
 	public:
@@ -450,6 +567,39 @@ namespace MSRPC
 			tValue.setRect(dX, dY, dW, dH);
 		}
 	};
+
+	template<class NODE>
+	class ISerialize<NODE, QRect>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QRect& tValue)
+		{
+			QString strValue = QString("%1,%2,%3,%4").arg(tValue.x())
+				.arg(tValue.y()).arg(tValue.width()).arg(tValue.height());
+
+			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, QRect>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QRect& tValue)
+		{
+			QString strValue;
+			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
+			int nX(0);
+			int nY(0);
+			int nW(0);
+			int nH(0);
+			char ch(0);
+			QTextStream ts(const_cast<QString*>(&strValue));
+			ts >> nX >> ch >> nY >> ch >> nW >> ch >> nH;
+			tValue.setRect(nX, nY, nW, nH);
+		}
+	};
+
 
 	template<class NODE>
 	class ISerialize<NODE, QLineF>
@@ -484,26 +634,44 @@ namespace MSRPC
 	};
 
 	template<class NODE>
+	class ISerialize<NODE, QLine>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QLine& tValue)
+		{
+			QString strValue = QString("%1,%2 %3,%4").arg(tValue.x1())
+				.arg(tValue.y1()).arg(tValue.x2()).arg(tValue.y2());
+
+			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, QLine>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QLine& tValue)
+		{
+			QString strValue;
+			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
+			int nX(0);
+			int nY(0);
+			int nX2(0);
+			int nY2(0);
+			char ch(0);
+			QTextStream ts(const_cast<QString*>(&strValue));
+			ts >> nX >> ch >> nY >> ch >> nX2 >> ch >> nY2;
+			tValue.setLine(nX, nY, nX2, nY2);
+		}
+	};
+
+	template<class NODE>
 	class ISerialize<NODE, QPolygonF>
 	{
 	public:
 		static void serialize(NODE& vNewNode, const QPolygonF& tValue)
 		{
-			QString strValue;
-			QTextStream ts(&strValue);
-
-			for (QPolygonF::const_iterator citor = tValue.constBegin();
-				citor != tValue.constEnd(); ++citor)
-			{
-				ts << citor->x() << ',' << citor->y() << ' ';
-			}
-			
-			if (strValue.endsWith(' '))
-			{
-				strValue.chop(1);
-			}
-
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+			ISerialize<NODE, QVector<QPointF> >::serialize(vNewNode, tValue);
 		}
 	};
 
@@ -513,17 +681,75 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, QPolygonF& tValue)
 		{
+			OSerialize<NODE, QVector<QPointF> >::serialize(vNewNode, tValue);
+		}
+	};
+
+	template<class NODE>
+	class ISerialize<NODE, QPolygon>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QPolygon& tValue)
+		{
+			ISerialize<NODE, QVector<QPoint> >::serialize(vNewNode, tValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, QPolygon>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QPolygon& tValue)
+		{
+			OSerialize<NODE, QVector<QPoint> >::serialize(vNewNode, tValue);
+		}
+	};
+
+	template<class NODE>
+	class ISerialize<NODE, QDate>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QDate& tValue)
+		{
+			QString strValue = tValue.toString(Qt::ISODate);
+
+			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, QDate>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QDate& tValue)
+		{
 			QString strValue;
 			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			qreal dX(0);
-			qreal dY(0);
-			char ch(0);
-			QTextStream ts(const_cast<QString*>(&strValue));
-			while (!ts.status())
-			{
-				ts >> dX >> ch >> dY >> ch;
-				tValue.append(QPointF(dX, dY));
-			}
+			tValue = QDate::fromString(strValue, Qt::ISODate);
+		}
+	};
+
+	template<class NODE>
+	class ISerialize<NODE, QTime>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QTime& tValue)
+		{
+			QString strValue = tValue.toString(Qt::ISODate);
+
+			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, QTime>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QTime& tValue)
+		{
+			QString strValue;
+			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
+			tValue = QTime::fromString(strValue, Qt::ISODate);
 		}
 	};
 
@@ -548,6 +774,387 @@ namespace MSRPC
 			QString strValue;
 			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
 			tValue = QDateTime::fromString(strValue, Qt::ISODate);
+		}
+	};
+
+	template<class NODE>
+	class ISerialize<NODE, QByteArray>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QByteArray& tValue)
+		{
+			QByteArray baBuffer = tValue.toBase64();
+			vNewNode.in_serialize(baBuffer.data());
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, QByteArray>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QByteArray& tValue)
+		{
+			const char* p = 0;
+			vNewNode.in_serialize(p);
+			tValue = QByteArray::fromBase64(
+				QByteArray::fromRawData(p, strlen(p)));
+		}
+	};
+
+	template<class NODE>
+	class ISerialize<NODE, QStringList>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QStringList& tValue)
+		{
+			ISerialize<NODE, QList<QString> >::serialize(vNewNode, tValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, QStringList>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QStringList& tValue)
+		{
+			OSerialize<NODE, QList<QString> >::serialize(vNewNode, tValue);
+		}
+	};
+
+	template<class NODE>
+	class ISerialize<NODE, QVariant>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QVariant& tValue)
+		{
+			vNewNode.set_object();
+
+			///保存QVariant内部数据类型
+			NODE vNodeType = vNewNode.new_node();
+			ISerialize<NODE, char*>::serialize(vNodeType, tValue.typeName());
+			vNewNode.add_member("type", vNodeType);
+
+			NODE vNodeValue = vNewNode.new_node();
+
+			///根据类型保存值
+			///这里其实我想用Map，但是这是个纯头文件的库，Map的数据保存在哪里还没想清楚，
+			///只好靠C++编译器优化switch了。
+			switch (tValue.type())
+			{
+			case QMetaType::Bool:
+				ISerialize<NODE, bool>::serialize(vNodeValue, tValue.toBool());
+				break;
+			case QMetaType::Int:
+				ISerialize<NODE, int>::serialize(vNodeValue, tValue.toInt());
+				break;
+			case QMetaType::UInt:
+				ISerialize<NODE, unsigned int>::serialize(vNodeValue, tValue.toUInt());
+				break;
+			case QMetaType::LongLong:
+				ISerialize<NODE, long long>::serialize(vNodeValue, tValue.toLongLong());
+				break;
+			case QMetaType::ULongLong:
+				ISerialize<NODE, unsigned long long>::serialize(vNodeValue, tValue.toULongLong());
+				break;
+			case QMetaType::Double:
+				ISerialize<NODE, double>::serialize(vNodeValue, tValue.toDouble());
+				break;
+			case QMetaType::QVariantMap:
+				ISerialize<NODE, QVariantMap>::serialize(
+					vNodeValue, *static_cast<const QVariantMap*>(tValue.data()));
+				break;
+			case QMetaType::QVariantList:
+				ISerialize<NODE, QVariantList>::serialize(
+					vNodeValue, *static_cast<const QVariantList*>(tValue.data()));
+				break;
+			case QMetaType::QString:
+				ISerialize<NODE, QString>::serialize(
+					vNodeValue, *static_cast<const QString*>(tValue.data()));
+				break;
+			case QMetaType::QStringList:
+				ISerialize<NODE, QStringList>::serialize(
+					vNodeValue, *static_cast<const QStringList*>(tValue.data()));
+				break;
+			case QMetaType::QByteArray:
+				ISerialize<NODE, QByteArray>::serialize(
+					vNodeValue, *static_cast<const QByteArray*>(tValue.data()));
+				break;
+			case QMetaType::QDate:
+				ISerialize<NODE, QDate>::serialize(
+					vNodeValue, *static_cast<const QDate*>(tValue.data()));
+				break;
+			case QMetaType::QTime:
+				ISerialize<NODE, QTime>::serialize(
+					vNodeValue, *static_cast<const QTime*>(tValue.data()));
+				break;
+			case QMetaType::QDateTime:
+				ISerialize<NODE, QDateTime>::serialize(
+					vNodeValue, *static_cast<const QDateTime*>(tValue.data()));
+				break;
+			case QMetaType::QRect:
+				ISerialize<NODE, QRect>::serialize(
+					vNodeValue, *static_cast<const QRect*>(tValue.data()));
+				break;
+			case QMetaType::QRectF:
+				ISerialize<NODE, QRectF>::serialize(
+					vNodeValue, *static_cast<const QRectF*>(tValue.data()));
+				break;
+			case QMetaType::QSize:
+				ISerialize<NODE, QSize>::serialize(
+					vNodeValue, *static_cast<const QSize*>(tValue.data()));
+				break;
+			case QMetaType::QSizeF:
+				ISerialize<NODE, QSizeF>::serialize(
+					vNodeValue, *static_cast<const QSizeF*>(tValue.data()));
+				break;
+			case QMetaType::QLine:
+				ISerialize<NODE, QLine>::serialize(
+					vNodeValue, *static_cast<const QLine*>(tValue.data()));
+				break;
+			case QMetaType::QLineF:
+				ISerialize<NODE, QLineF>::serialize(
+					vNodeValue, *static_cast<const QLineF*>(tValue.data()));
+				break;
+			case QMetaType::QPoint:
+				ISerialize<NODE, QPoint>::serialize(
+					vNodeValue, *static_cast<const QPoint*>(tValue.data()));
+				break;
+			case QMetaType::QPointF:
+				ISerialize<NODE, QPointF>::serialize(
+					vNodeValue, *static_cast<const QPointF*>(tValue.data()));
+				break;
+			case QMetaType::QVariantHash:
+				ISerialize<NODE, QVariantHash>::serialize(
+					vNodeValue, *static_cast<const QVariantHash*>(tValue.data()));
+				break;
+			case QMetaType::QFont:
+				ISerialize<NODE, QFont>::serialize(
+					vNodeValue, *static_cast<const QFont*>(tValue.data()));
+				break;
+			case QMetaType::QPolygon:
+				ISerialize<NODE, QPolygon>::serialize(
+					vNodeValue, *static_cast<const QPolygon*>(tValue.data()));
+				break;
+			default:
+			{
+				QByteArray ba;
+				QDataStream ds(&ba, QIODevice::WriteOnly);
+				ds << tValue;
+				ISerialize<NODE, QByteArray>::serialize(vNodeValue, ba);
+				break;
+			}
+			}
+
+			vNewNode.add_member("value", vNodeValue);
+
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, QVariant>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QVariant& tValue)
+		{
+			NODE vNodeType = vNewNode.sub_member("type");
+			NODE vNodeValue = vNewNode.sub_member("value");
+			if (vNodeType && vNodeValue)
+			{
+				const char* strType = 0;
+				vNodeType.in_serialize(strType);
+				int nType = QVariant::nameToType(strType);
+				///这里其实我想用Map，但是这是个纯头文件的库，Map的数据保存在哪里还没想清楚，
+				///只好靠C++编译器优化switch了。
+				switch (nType)
+				{
+				case QMetaType::Bool:
+				{
+					bool val = false;
+					OSerialize<NODE, bool>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::Int:
+				{
+					int val = 0;
+					OSerialize<NODE, int>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::UInt:
+				{
+					unsigned int val = 0;
+					OSerialize<NODE, unsigned int>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::LongLong:
+				{
+					long long val = 0;
+					OSerialize<NODE, long long>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::ULongLong:
+				{
+					unsigned long long val = 0;
+					OSerialize<NODE, unsigned long long>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::Double:
+				{
+					double val = 0;
+					OSerialize<NODE, double>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QVariantMap:
+				{
+					QVariantMap val;
+					OSerialize<NODE, QVariantMap>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QVariantList:
+				{
+					QVariantList val;
+					OSerialize<NODE, QVariantList>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QString:
+				{
+					QString val;
+					OSerialize<NODE, QString>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QStringList:
+				{
+					QStringList val;
+					OSerialize<NODE, QStringList>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QByteArray:
+				{
+					QByteArray val;
+					OSerialize<NODE, QByteArray>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QDate:
+				{
+					QDate val;
+					OSerialize<NODE, QDate>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QTime:
+				{
+					QTime val;
+					OSerialize<NODE, QTime>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QDateTime:
+				{
+					QDateTime val;
+					OSerialize<NODE, QDateTime>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QRect:
+				{
+					QRect val;
+					OSerialize<NODE, QRect>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+					OSerialize<NODE, QRect>::serialize(
+						vNodeValue, *static_cast<QRect*>(tValue.data()));
+					break;
+				case QMetaType::QRectF:
+				{
+					QRectF val;
+					OSerialize<NODE, QRectF>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QSize:
+				{
+					QSize val;
+					OSerialize<NODE, QSize>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QSizeF:
+				{
+					QSizeF val;
+					OSerialize<NODE, QSizeF>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QLine:
+				{
+					QLine val;
+					OSerialize<NODE, QLine>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QLineF:
+				{
+					QLineF val;
+					OSerialize<NODE, QLineF>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QPoint:
+				{
+					QPoint val;
+					OSerialize<NODE, QPoint>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QPointF:
+				{
+					QPointF val;
+					OSerialize<NODE, QPointF>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QVariantHash:
+				{
+					QVariantHash val;
+					OSerialize<NODE, QVariantHash>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QFont:
+				{
+					QFont val;
+					OSerialize<NODE, QFont>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				case QMetaType::QPolygon:
+				{
+					QPolygon val;
+					OSerialize<NODE, QPolygon>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+				default:
+				{
+					QByteArray baTemp;
+					OSerialize<NODE, QByteArray>::serialize(vNodeValue, baTemp);
+					QDataStream ds(&baTemp, QIODevice::ReadOnly);
+					ds >> tValue;
+					break;
+				}
+				}
+			}
 		}
 	};
 }

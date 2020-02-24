@@ -57,6 +57,11 @@ namespace MSRPC
 			m_node->AddMember(rapidjson::StringRef(strName), *vNode.m_node, *m_allocator);
 		}
 
+		void add_member(char* strName, INodeJson& vNode)
+		{
+			m_node->AddMember(rapidjson::Value(strName, *m_allocator), *vNode.m_node, *m_allocator);
+		}
+
 		void set_array()
 		{
 			if (!m_node->IsArray())
@@ -143,6 +148,47 @@ namespace MSRPC
 			
 			return ONodeJson(itrFind != m_node->MemberEnd() ?
 				&itrFind->value : 0);
+		}
+
+		class ONodeObjIter
+		{
+		public:
+			rapidjson::Value::ConstMemberIterator citCur;
+			rapidjson::Value::ConstMemberIterator citEnd;
+
+			ONodeObjIter(const rapidjson::Value* node)
+				: citCur(node->MemberBegin())
+				, citEnd(node->MemberEnd())
+			{}
+
+		public:
+			ONodeJson operator *() const
+			{
+				return ONodeJson(&citCur->value);
+			}
+
+			const char* key() const
+			{
+				return citCur->name.GetString();
+			}
+
+			operator bool() const
+			{
+				return citCur != citEnd;
+			}
+
+			ONodeObjIter& operator ++ ()
+			{
+				++citCur;
+				return *this;
+			}
+		};
+
+		typedef ONodeObjIter ObjIter;
+
+		ObjIter sub_members() const
+		{
+			return ObjIter(m_node);
 		}
 
 		class ONodeArrIter

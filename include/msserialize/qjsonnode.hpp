@@ -163,7 +163,7 @@ namespace MSRPC
 
 		typedef ONodeObjIter ObjIter;
 
-		ObjIter sub_members()
+		ObjIter sub_members() const
 		{
 			return ObjIter(m_node.toObject());
 		}
