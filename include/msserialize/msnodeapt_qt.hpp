@@ -868,6 +868,58 @@ namespace MSRPC
 			tValue = hsValue;
 		}
 	};
+
+	template<typename C, typename F, typename ELEM>
+	class VecReshape<C, F, QSharedPointer<ELEM> >
+	{
+	public:
+		VecReshape(C& val, const F& f)
+			: conta(val)
+			, func(f)
+			, idx(0)
+		{}
+
+		VecReshape(const VecReshape& other)
+			: conta(other.conta)
+			, func(other.func)
+			, idx(other.idx)
+		{
+
+		}
+
+		typedef typename function_traits<F>::return_type item_type;
+
+		item_type operator*() const
+		{
+			return func(conta[idx]);
+		}
+
+		item_type push()
+		{
+			if (idx >= conta.size())
+			{
+				QSharedPointer<ELEM> t(new ELEM);
+				conta.push_back(t);
+			}
+			return func(conta[idx++]);
+		}
+
+		void operator ++() const
+		{
+			++(const_cast<VecReshape*>(this)->idx);
+		}
+
+		operator bool() const
+		{
+			return idx < conta.size();
+		}
+
+	public:
+		C& conta;
+		F func;
+		size_t idx;
+	};
+
 }
 
 #endif // MSJSONNODEAPT_QT_H__

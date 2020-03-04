@@ -1,6 +1,7 @@
 #ifndef MSNODEAPT_H__
 #define MSNODEAPT_H__
 
+#include "functionhelper.hpp"
 
 namespace MSRPC
 {
@@ -87,6 +88,100 @@ namespace MSRPC
 		static void serialize(NODE& vNewNode, EnumApt<T>& tValue)
 		{
 			vNewNode.in_serialize(StrApt<EnumApt<T> >(tValue));
+		}
+	};
+
+
+	template<typename C, typename F, typename ELEM>
+	class VecReshape
+	{
+	public:
+		VecReshape(C& val, const F& f)
+			: conta(val)
+			, func(f)
+			, idx(0)
+		{}
+
+		VecReshape(const VecReshape& other)
+			: conta(other.conta)
+			, func(other.func)
+			, idx(other.idx)
+		{
+
+		}
+
+		typedef typename function_traits<F>::return_type item_type;
+
+		item_type operator*() const
+		{
+			return func(conta[idx]);
+		}
+
+		item_type push()
+		{
+			if (idx >= conta.size())
+			{
+				ELEM t;
+				conta.push_back(t);
+			}
+			return func(conta[idx++]);
+		}
+
+		void operator ++() const
+		{
+			++(const_cast<VecReshape*>(this)->idx);
+		}
+
+		operator bool() const
+		{
+			return idx < conta.size();
+		}
+
+	public:
+		C& conta;
+		F func;
+		size_t idx;
+	};
+
+	template<typename C, typename F>
+	VecReshape <C, F, typename C::value_type> ReshapeApt(C& c, const F& f)
+	{
+		return VecReshape<C, F, typename C::value_type>(c, f);
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// std::vector<T> 
+
+	template<class NODE, typename T, typename F, typename ELEM>
+	class ISerialize<NODE, VecReshape<T, F, ELEM> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const VecReshape<T, F, ELEM>& tValue)
+		{
+			vNewNode.set_array();
+
+			for (; tValue; ++tValue)
+			{
+				NODE vNode = vNewNode.new_node();
+				ISerialize<NODE, VecReshape<T, F, ELEM>::item_type>
+					::serialize(vNode, *tValue);
+				vNewNode.push_node(vNode);
+			}
+		}
+	};
+
+	template<class NODE, typename T, typename F, typename ELEM>
+	class OSerialize<NODE, VecReshape<T, F, ELEM> >
+	{
+	public:
+		static void serialize(const NODE& vNewNode, VecReshape<T, F, ELEM>& tValue)
+		{
+			typename NODE::ArrIter itor = vNewNode.sub_nodes();
+			for (; itor; ++itor)
+			{
+				OSerialize<NODE, VecReshape<T, F, ELEM>::item_type>
+					::serialize(*itor, tValue.push());
+			}
 		}
 	};
 }
