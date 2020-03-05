@@ -11,6 +11,7 @@
 #include <QMetaType>
 #include <QLine>
 #include <QFont>
+#include <QSet>
 
 namespace MSRPC
 {
@@ -67,17 +68,25 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, QVector<T>& tValue)
 		{
-			QVector<T> val;
-
+			int ix = 0;
 			typename NODE::ArrIter itor = vNewNode.sub_nodes();
-			for (; itor; ++itor)
+			for (; itor; ++itor, ++ix)
 			{
-				T t;
-				OSerialize<NODE, T>::serialize(*itor, t);
-				val.append(t);
-			}
+				if (NODE node = *itor)
+				{
+					if (ix >= tValue.size())
+					{
+						tValue.resize(ix + 1);
+					}
 
-			tValue.swap(val);
+					T& t = tValue[ix];
+					OSerialize<NODE, T>::serialize(node, t);
+				}
+			}
+			if (ix != tValue.size())
+			{
+				tValue.resize(ix);
+			}
 		}
 	};
 
@@ -103,17 +112,26 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, QList<T>& tValue)
 		{
-			QList<T> val;
-
+			int ix = 0;
 			typename NODE::ArrIter itor = vNewNode.sub_nodes();
-			for (; itor; ++itor)
+			for (; itor; ++itor, ++ix)
 			{
-				T t;
-				OSerialize<NODE, T>::serialize(*itor, t);
-				val.append(t);
+				if (NODE node = *itor)
+				{
+					while (ix >= tValue.size())
+					{
+						T t;
+						tValue.append(t);
+					}
+					T& t = tValue[ix];
+					OSerialize<NODE, T>::serialize(node, t);
+				}
 			}
 
-			val.swap(tValue);
+			if (ix != tValue.size())
+			{
+				tValue.erase(tValue.begin() + ix, tValue.end());
+			}
 		}
 	};
 
@@ -141,17 +159,34 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, QHash<QString, T>& tValue)
 		{
-			QHash<QString, T> val;
+			QSet<QString> setKey;
 
 			typename NODE::ObjIter itor = vNewNode.sub_members();
 			for (; itor; ++itor)
 			{
-				T t;
-				OSerialize<NODE, T>::serialize(*itor, t);
-				val[itor.key()] = t;
+				if (NODE node = *itor)
+				{
+					T& t = tValue[itor.key()];
+					OSerialize<NODE, T>::serialize(*itor, t);
+					setKey.insert(itor.key());
+				}
 			}
 
-			val.swap(tValue);
+			if (setKey.size() != tValue.size())
+			{
+				for (QHash<QString, T>::iterator itor = tValue.begin();
+					itor != tValue.end();)
+				{
+					if (!setKey.contains(itor.key()))
+					{
+						itor = tValue.erase(itor);
+					}
+					else
+					{
+						++itor;
+					}
+				}
+			}
 		}
 	};
 
@@ -195,25 +230,44 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, QHash<K, T>& tValue)
 		{
+			QSet<K> setKey;
+
 			NODE vKeyNode = vNewNode.sub_member("key");
 			NODE vValueNode = vNewNode.sub_member("value");
 
 			if (vKeyNode && vValueNode)
 			{
-				QHash<K, T> val;
-
 				typename NODE::ArrIter itorKey = vKeyNode.sub_nodes();
 				typename NODE::ArrIter itorValue = vValueNode.sub_nodes();
 				for (; itorKey && itorValue; ++itorKey, ++itorValue)
 				{
-					K k;
-					OSerialize<NODE, K>::serialize(*itorKey, k);
-					T t;
-					OSerialize<NODE, T>::serialize(*itorValue, t);
-					val[k] = t;
+					NODE nodeKey = *itorKey;
+					NODE nodeVal = *itorValue;
+					if (nodeKey && nodeVal)
+					{
+						K k;
+						OSerialize<NODE, K>::serialize(nodeKey, k);
+						T& t = tValue[k];
+						OSerialize<NODE, T>::serialize(nodeVal, t);
+						setKey.insert(k);
+					}
 				}
 
-				val.swap(tValue);
+				if (setKey.size() != tValue.size())
+				{
+					for (QHash<K, T>::iterator itor = tValue.begin();
+						itor != tValue.end();)
+					{
+						if (!setKey.contains(itor.key()))
+						{
+							itor = tValue.erase(itor);
+						}
+						else
+						{
+							++itor;
+						}
+					}
+				}
 			}
 		}
 	};
@@ -242,17 +296,34 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, QMap<QString, T>& tValue)
 		{
-			QMap<QString, T> val;
+			QSet<QString> setKey;
 
 			typename NODE::ObjIter itor = vNewNode.sub_members();
 			for (; itor; ++itor)
 			{
-				T t;
-				OSerialize<NODE, T>::serialize(*itor, t);
-				val[itor.key()] = t;
+				if (NODE node = *itor)
+				{
+					T& t = val[itor.key()];
+					OSerialize<NODE, T>::serialize(node, t);
+					setKey.insert(itor.key());
+				}
 			}
 
-			val.swap(tValue);
+			if (setKey.size() != tValue.size())
+			{
+				for (QMap<QString, T>::iterator itor = tValue.begin();
+					itor != tValue.end();)
+				{
+					if (!setKey.contains(itor.key()))
+					{
+						itor = tValue.erase(itor);
+					}
+					else
+					{
+						++itor;
+					}
+				}
+			}
 		}
 	};
 
@@ -301,20 +372,39 @@ namespace MSRPC
 
 			if (vKeyNode && vValueNode)
 			{
-				QMap<K, T> val;
+				QHash<K> setKey;
 
 				typename NODE::ArrIter itorKey = vKeyNode.sub_nodes();
 				typename NODE::ArrIter itorValue = vValueNode.sub_nodes();
 				for (; itorKey && itorValue; ++itorKey, ++itorValue)
 				{
-					K k;
-					OSerialize<NODE, K>::serialize(*itorKey, k);
-					T t;
-					OSerialize<NODE, T>::serialize(*itorValue, t);
-					val[k] = t;
+					NODE nodeKey = *itorKey;
+					NODE nodeVal = *itorValue;
+					if (nodeKey && nodeVal)
+					{
+						K k;
+						OSerialize<NODE, K>::serialize(nodeKey, k);
+						T& t = tValue[k];
+						OSerialize<NODE, T>::serialize(nodeVal, t);
+						setKey.insert(k);
+					}
 				}
 
-				val.swap(tValue);
+				if (setKey.size() != tValue.size())
+				{
+					for (QMap<K, T>::iterator itor = tValue.begin();
+						itor != tValue.end();)
+					{
+						if (!setKey.contains(itor.key()))
+						{
+							itor = tValue.erase(itor);
+						}
+						else
+						{
+							++itor;
+						}
+					}
+				}
 			}
 		}
 	};
