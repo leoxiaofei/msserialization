@@ -103,7 +103,7 @@ namespace MSRPC
 		static void serialize(NODE& vNewNode, const std::list<T>& tValue)
 		{
 			vNewNode.set_array();
-			for (std::list<T>::const_iterator itor = tValue.begin(); 
+			for (std::list<T>::const_iterator itor = tValue.begin();
 				itor != tValue.end(); ++itor)
 			{
 				NODE vNode = vNewNode.new_node();
@@ -192,7 +192,7 @@ namespace MSRPC
 		{
 			vNewNode.set_object();
 
-			if (!tValue.isEmpty())
+			if (!tValue.empty())
 			{
 				NODE vKeyNode = vNewNode.new_node();
 				vKeyNode.set_array();
@@ -201,7 +201,7 @@ namespace MSRPC
 				vValueNode.set_array();
 
 				for (typename std::map<K, T>::const_iterator citor = tValue.begin();
-					 citor != tValue.end(); ++citor)
+					citor != tValue.end(); ++citor)
 				{
 					NODE vKNode = vKeyNode.new_node();
 					ISerialize<NODE, K>::serialize(vKNode, citor->first);
