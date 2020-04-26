@@ -47,7 +47,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtPosApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtPosApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtPosApt<T>& tValue)
 		{
 			QPointF ptValue = tValue;
 			OSerialize<NODE, QPointF>::serialize(vNewNode, ptValue);
@@ -90,7 +90,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtRectApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtRectApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtRectApt<T>& tValue)
 		{
 			QRectF rfValue = tValue;
 			OSerialize<NODE, QRectF>::serialize(vNewNode, rfValue);
@@ -133,7 +133,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtPolygonApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtPolygonApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtPolygonApt<T>& tValue)
 		{
 			QPolygonF rfValue = tValue;
 			OSerialize<NODE, QPolygonF>::serialize(vNewNode, rfValue);
@@ -176,7 +176,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtLineApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtLineApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtLineApt<T>& tValue)
 		{
 			QLineF lfValue = tValue;
 			OSerialize<NODE, QLineF>::serialize(vNewNode, lfValue);
@@ -224,7 +224,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtDataApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtDataApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtDataApt<T>& tValue)
 		{
 			QString strValue = tValue;
 			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
@@ -269,7 +269,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtZValueApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtZValueApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtZValueApt<T>& tValue)
 		{
 			qreal qValue = tValue;
 			OSerialize<NODE, qreal>::serialize(vNewNode, qValue);
@@ -318,7 +318,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtPixmapApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtPixmapApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtPixmapApt<T>& tValue)
 		{
 			QString strValue = tValue;
 			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
@@ -367,7 +367,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtSvgApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtSvgApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtSvgApt<T>& tValue)
 		{
 			QString strValue = tValue;
 			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
@@ -461,7 +461,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtTransformApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtTransformApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtTransformApt<T>& tValue)
 		{
 			QString strValue = tValue;
 			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
@@ -507,7 +507,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtHtmlApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtHtmlApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtHtmlApt<T>& tValue)
 		{
 			QString strValue = tValue;
 			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
@@ -551,7 +551,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtFontApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtFontApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtFontApt<T>& tValue)
 		{
 			QFont font = tValue;
 			OSerialize<NODE, QFont>::serialize(vNewNode, font);
@@ -595,7 +595,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtPenApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtPenApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtPenApt<T>& tValue)
 		{
 			QPen pen = tValue;
 			OSerialize<NODE, QPen>::serialize(vNewNode, pen);
@@ -639,7 +639,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtBrushApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtBrushApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtBrushApt<T>& tValue)
 		{
 			QBrush brush = tValue;
 			OSerialize<NODE, QBrush>::serialize(vNewNode, brush);
@@ -683,7 +683,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtSceneRectApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtSceneRectApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtSceneRectApt<T>& tValue)
 		{
 			QRectF rfValue = tValue;
 			OSerialize<NODE, QRectF>::serialize(vNewNode, rfValue);
@@ -727,7 +727,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtForegroundBrushApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtForegroundBrushApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtForegroundBrushApt<T>& tValue)
 		{
 			QBrush rfValue = tValue;
 			OSerialize<NODE, QBrush>::serialize(vNewNode, rfValue);
@@ -771,7 +771,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtBackgroundBrushApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtBackgroundBrushApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtBackgroundBrushApt<T>& tValue)
 		{
 			QBrush rfValue = tValue;
 			OSerialize<NODE, QBrush>::serialize(vNewNode, rfValue);
@@ -815,7 +815,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtFillRuleApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtFillRuleApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtFillRuleApt<T>& tValue)
 		{
 			int rfValue = tValue;
 			OSerialize<NODE, int>::serialize(vNewNode, rfValue);
@@ -862,7 +862,7 @@ namespace MSRPC
 	class OSerialize<NODE, QtHashDataApt<T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, QtHashDataApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtHashDataApt<T>& tValue)
 		{
 			QHash<QString, QString> hsValue = tValue;
 			OSerialize<NODE, QHash<QString, QString> >::serialize(vNewNode, hsValue);

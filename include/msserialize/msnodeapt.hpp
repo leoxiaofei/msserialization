@@ -26,7 +26,6 @@ namespace MSRPC
 
 		}
 
-
 		operator const char* () const
 		{
 			return m_szText[m_en];
