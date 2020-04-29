@@ -3,79 +3,11 @@
 
 namespace MSRPC
 {
-	class INodeTest
-	{
-	public:
-		template <class T>
-		void in_serialize(T& tValue)
-		{
-		}
-
-		INodeTest new_node()
-		{
-			return INodeTest();
-		}
-
-		void add_member(const char* strName, INodeTest& vNode)
-		{
-
-		}
-
-		void push_node(INodeTest& vNode)
-		{
-
-		}
-	};
-
-	class ONodeTest
-	{
-	public:
-		template <class T>
-		void in_serialize(T& tValue)
-		{
-		}
-
-		ONodeTest sub_member(const char* strName)
-		{
-
-		}
-
-		class ONodeTestIter
-		{
-		public:
-			ONodeTest operator *()
-			{
-				return ONodeTest();
-			}
-
-			operator bool()
-			{
-				return true;
-			}
-
-			ONodeTestIter& operator ++ ()
-			{
-				return *this;
-			}
-		};
-
-		typedef ONodeTestIter ArrIter;
-		ArrIter sub_nodes()
-		{
-			return ArrIter();
-		}
-
-		operator bool()
-		{
-			return true;
-		}
-	};
-
 	template<typename T>
 	class StrApt
 	{
 	public:
-		/// 两个Get选其一：带const的在rapidjson下可以少拷贝一次�?
+		/// 两个Get选其一：带const的在rapidjson下可以少拷贝一次。
 		const char* Get() const
 		{
 			return 0;
@@ -286,6 +218,15 @@ namespace MSRPC
 		}
 	};
 
+	template<class NODE, class T>
+	class ISerialize<NODE, StrApt<T>>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const StrApt<T>& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
 
 	template <class NODE>
 	class IArchiveHelper
@@ -513,6 +454,15 @@ namespace MSRPC
 		}
 	};
 
+	template<class NODE, class T>
+	class OSerialize<NODE, StrApt<T>>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, StrApt<T>& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
 
 	template <class NODE>
 	class OArchiveHelper

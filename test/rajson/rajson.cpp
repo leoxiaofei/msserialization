@@ -71,7 +71,7 @@ int main()
 
 	//–Ú¡–ªØ
 	rapidjson::Document doc;
-	MSRPC::IJsonArc::Node nObjI(doc);
+	MSRPC::IJsonArc::Node nObjI(&doc);
 	MSRPC::IJsonArc ia(nObjI);
 	ia & b;
 
@@ -87,7 +87,7 @@ int main()
 	rapidjson::Document doc2;
 	doc2.Parse(buffer.GetString(), buffer.GetLength());
 
-	MSRPC::OJsonArc::Node objO(doc2);
+	MSRPC::OJsonArc::Node objO(&doc2);
 	MSRPC::OJsonArc oa(objO);
 
 	B b2;

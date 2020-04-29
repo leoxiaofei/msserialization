@@ -3,9 +3,11 @@
 
 #include "msarchive.hpp"
 
+#include <memory>
 #include <vector>
 #include <string>
 #include <list>
+#include <map>
 
 
 namespace MSRPC
