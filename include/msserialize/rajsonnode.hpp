@@ -129,10 +129,9 @@ namespace MSRPC
 		}
 
 		template <typename T>
-		void in_serialize(const StrApt<T>& tValue) const
+		void in_serialize(StrApt<T>& tValue) const
 		{
-			const_cast<StrApt<T>&>(tValue).
-				Set(m_node->GetString(), m_node->GetStringLength());
+			tValue.Set(m_node->GetString(), m_node->GetStringLength());
 		}
 
 		void in_serialize(char* tValue, size_t nSize) const

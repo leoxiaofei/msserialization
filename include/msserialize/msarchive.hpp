@@ -7,7 +7,10 @@ namespace MSRPC
 	class StrApt
 	{
 	public:
-		/// ä¸¤ä¸ªGeté€‰å…¶ä¸€ï¼šå¸¦constçš„åœ¨rapidjsonä¸‹å¯ä»¥å°‘æ‹·è´ä¸€æ¬¡ã€‚
+		/// Á½¸öGetÑ¡ÆäÒ»: Èç¹û¿ÉÒÔÈ¡µÃchar×Ö·û´®³£Á¿£¬
+		/// ÄÇÃ´Ê¹ÓÃ´øconstµÄÔÚrapidjsonÏÂ¿ÉÒÔÉÙ¿½±´Ò»´Î£¬
+		/// Èç¹ûÎŞ·¨È¡µÃ³£Á¿×Ö·û´®£¬ÄÇÃ´Ê¹ÓÃ²»´øconstµÄget¡£
+
 		const char* Get() const
 		{
 			return 0;

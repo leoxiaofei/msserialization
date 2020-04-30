@@ -56,7 +56,8 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, std::string& tValue)
 		{
-			vNewNode.in_serialize(StrApt<std::string>(tValue));
+			StrApt<std::string> apt(tValue);
+			vNewNode.in_serialize(apt);
 		}
 	};
 
