@@ -1,8 +1,7 @@
 #ifndef MSNODEAPT_STL_H__
 #define MSNODEAPT_STL_H__
 
-#include <vector>
-
+#include <sstream>
 
 namespace MSRPC
 {

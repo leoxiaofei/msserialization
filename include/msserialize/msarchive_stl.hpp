@@ -8,6 +8,7 @@
 #include <string>
 #include <list>
 #include <map>
+#include <set>
 
 
 namespace MSRPC
@@ -105,7 +106,7 @@ namespace MSRPC
 		static void serialize(NODE& vNewNode, const std::list<T>& tValue)
 		{
 			vNewNode.set_array();
-			for (std::list<T>::const_iterator itor = tValue.begin();
+			for (typename std::list<T>::const_iterator itor = tValue.begin();
 				itor != tValue.end(); ++itor)
 			{
 				NODE vNode = vNewNode.new_node();
@@ -162,7 +163,7 @@ namespace MSRPC
 			{
 				if (NODE node = *itor)
 				{
-					T& t = val[itor.key()];
+					T& t = tValue[itor.key()];
 					OSerialize<NODE, T>::serialize(node, t);
 					setKey.insert(itor.key());
 				}
@@ -170,7 +171,7 @@ namespace MSRPC
 
 			if (setKey.size() != tValue.size())
 			{
-				for (std::map<std::string, T>::iterator itor = tValue.begin();
+				for (typename std::map<std::string, T>::iterator itor = tValue.begin();
 					itor != tValue.end();)
 				{
 					if (setKey.find(itor->first) == setKey.end())
@@ -251,7 +252,7 @@ namespace MSRPC
 
 				if (setKey.size() != tValue.size())
 				{
-					for (std::map<K, T>::iterator itor = tValue.begin();
+					for (typename std::map<K, T>::iterator itor = tValue.begin();
 						itor != tValue.end();)
 					{
 						if (setKey.find(itor->first) == setKey.end())

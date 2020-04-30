@@ -117,6 +117,12 @@ namespace MSRPC
 			tValue = m_node->Get<T>();
 		}
 
+		void in_serialize(unsigned short& tValue) const
+		{
+			tValue = static_cast<unsigned short>(
+				m_node->Get<unsigned int>());
+		}
+
 		void in_serialize(const char*& tValue) const
 		{
 			tValue = m_node->GetString();
