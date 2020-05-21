@@ -92,19 +92,19 @@ namespace MSRPC
 
 
 	template<typename C, typename F, typename ELEM>
-	class VecReshape
+	class ArrayReshape
 	{
 	public:
-		VecReshape(C& val, const F& f)
+		ArrayReshape(C& val, const F& f)
 			: conta(val)
 			, func(f)
-			, idx(0)
+			, itor(conta.begin())
 		{}
 
-		VecReshape(const VecReshape& other)
+		ArrayReshape(const ArrayReshape& other)
 			: conta(other.conta)
 			, func(other.func)
-			, idx(other.idx)
+			, itor(other.itor)
 		{
 
 		}
@@ -113,56 +113,57 @@ namespace MSRPC
 
 		item_type operator*() const
 		{
-			return func(conta[idx]);
+			return func(*itor);
 		}
 
 		item_type push()
 		{
-			if (idx >= conta.size())
+			if (itor == conta.end())
 			{
 				ELEM t;
 				conta.push_back(t);
+				itor = conta.end();
+				--itor;
 			}
-			return func(conta[idx++]);
+			return func(*itor++);
 		}
 
 		void operator ++() const
 		{
-			++(const_cast<VecReshape*>(this)->idx);
+			++(const_cast<ArrayReshape*>(this)->itor);
 		}
 
 		operator bool() const
 		{
-			return idx < conta.size();
+			return itor != const_cast<ArrayReshape*>(this)->conta.end();
 		}
 
 	public:
 		C& conta;
 		F func;
-		size_t idx;
+		typename C::iterator itor;
 	};
 
 	template<typename C, typename F>
-	VecReshape <C, F, typename C::value_type> ReshapeApt(C& c, const F& f)
+	ArrayReshape <C, F, typename C::value_type> ReshapeApt(C& c, const F& f)
 	{
-		return VecReshape<C, F, typename C::value_type>(c, f);
+		return ArrayReshape<C, F, typename C::value_type>(c, f);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// std::vector<T> 
-
 	template<class NODE, typename T, typename F, typename ELEM>
-	class ISerialize<NODE, VecReshape<T, F, ELEM> >
+	class ISerialize<NODE, ArrayReshape<T, F, ELEM> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, const VecReshape<T, F, ELEM>& tValue)
+		static void serialize(NODE& vNewNode, const ArrayReshape<T, F, ELEM>& tValue)
 		{
 			vNewNode.set_array();
 
 			for (; tValue; ++tValue)
 			{
 				NODE vNode = vNewNode.new_node();
-				ISerialize<NODE, VecReshape<T, F, ELEM>::item_type>
+				ISerialize<NODE, ArrayReshape<T, F, ELEM>::item_type>
 					::serialize(vNode, *tValue);
 				vNewNode.push_node(vNode);
 			}
@@ -170,15 +171,15 @@ namespace MSRPC
 	};
 
 	template<class NODE, typename T, typename F, typename ELEM>
-	class OSerialize<NODE, VecReshape<T, F, ELEM> >
+	class OSerialize<NODE, ArrayReshape<T, F, ELEM> >
 	{
 	public:
-		static void serialize(const NODE& vNewNode, VecReshape<T, F, ELEM>& tValue)
+		static void serialize(const NODE& vNewNode, ArrayReshape<T, F, ELEM>& tValue)
 		{
 			typename NODE::ArrIter itor = vNewNode.sub_nodes();
 			for (; itor; ++itor)
 			{
-				OSerialize<NODE, VecReshape<T, F, ELEM>::item_type>
+				OSerialize<NODE, ArrayReshape<T, F, ELEM>::item_type>
 					::serialize(*itor, tValue.push());
 			}
 		}

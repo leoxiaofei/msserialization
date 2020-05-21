@@ -13,6 +13,7 @@ namespace MSRPC
 	{
 	public:
 		StrApt(IntType& data) : m_data(data) {}
+		StrApt(const StrApt<IPApt<IntType> >& other) : m_data(other.m_data) {}
 
 		char* Get() const
 		{

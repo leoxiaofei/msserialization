@@ -7,9 +7,9 @@ namespace MSRPC
 	class StrApt
 	{
 	public:
-		/// Á½¸öGetÑ¡ÆäÒ»: Èç¹û¿ÉÒÔÈ¡µÃchar×Ö·û´®³£Á¿£¬
-		/// ÄÇÃ´Ê¹ÓÃ´øconstµÄÔÚrapidjsonÏÂ¿ÉÒÔÉÙ¿½±´Ò»´Î£¬
-		/// Èç¹ûÎŞ·¨È¡µÃ³£Á¿×Ö·û´®£¬ÄÇÃ´Ê¹ÓÃ²»´øconstµÄget¡£
+		/// ä¸¤ä¸ªGeté€‰å…¶ä¸€: å¦‚æœå¯ä»¥å–å¾—charå­—ç¬¦ä¸²å¸¸é‡ï¼Œ
+		/// é‚£ä¹ˆä½¿ç”¨å¸¦constçš„åœ¨rapidjsonä¸‹å¯ä»¥å°‘æ‹·è´ä¸€æ¬¡ï¼Œ
+		/// å¦‚æœæ— æ³•å–å¾—å¸¸é‡å­—ç¬¦ä¸²ï¼Œé‚£ä¹ˆä½¿ç”¨ä¸å¸¦constçš„getã€‚
 
 		const char* Get() const
 		{
@@ -332,9 +332,9 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, char& tValue)
 		{
-			short uValue(0);
+			int uValue(0);
 			vNewNode.in_serialize(uValue);
-			tValue = uValue;
+			tValue = static_cast<char>(uValue);
 		}
 	};
 
@@ -344,9 +344,9 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, unsigned char& tValue)
 		{
-			unsigned short uValue(0);
+			unsigned int uValue(0);
 			vNewNode.in_serialize(uValue);
-			tValue = uValue;
+			tValue = static_cast<unsigned char>(uValue);
 		}
 	};
 
@@ -356,7 +356,9 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, short& tValue)
 		{
-			vNewNode.in_serialize(tValue);
+			int uValue(0);
+			vNewNode.in_serialize(uValue);
+			tValue = static_cast<short>(uValue);
 		}
 	};
 
@@ -366,7 +368,9 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, unsigned short& tValue)
 		{
-			vNewNode.in_serialize(tValue);
+			unsigned int uValue(0);
+			vNewNode.in_serialize(uValue);
+			tValue = static_cast<unsigned short>(uValue);
 		}
 	};
 
