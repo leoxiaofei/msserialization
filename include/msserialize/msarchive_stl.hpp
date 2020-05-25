@@ -1,6 +1,7 @@
 #ifndef MSARCHIVE_STL_H__
 #define MSARCHIVE_STL_H__
 
+#include "cplusplusmacros.h"
 #include "msarchive.hpp"
 
 #include <memory>
@@ -270,6 +271,8 @@ namespace MSRPC
 		}
 	};
 
+#if ANY_CPP11_OR_GREATER
+
 	template<class NODE, typename T>
 	class ISerialize<NODE, std::shared_ptr<T>>
 	{
@@ -293,6 +296,8 @@ namespace MSRPC
 			OSerialize<NODE, T>::serialize(vNewNode, *tValue);
 		}
 	};
+
+#endif
 }
 
 #endif // MSARCHIVE_STL_H__

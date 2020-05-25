@@ -10,7 +10,7 @@ namespace MSRPC
 		/// 两个Get选其一: 如果可以取得char字符串常量，
 		/// 那么使用带const的在rapidjson下可以少拷贝一次，
 		/// 如果无法取得常量字符串，那么使用不带const的get。
-
+		/*
 		const char* Get() const
 		{
 			return 0;
@@ -24,6 +24,7 @@ namespace MSRPC
 		void Set (const char* tValue, const size_t& sSize)
 		{
 		}
+		*/
 	};
 
 	template <class NODE>

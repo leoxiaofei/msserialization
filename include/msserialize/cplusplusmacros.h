@@ -1,0 +1,21 @@
+#ifndef CPLUSPLUSMACROS_H__
+#define CPLUSPLUSMACROS_H__
+
+
+#ifndef   ANY_CPLUSPLUS
+# if defined(_MSVC_LANG ) && !defined(__clang__)
+#  define ANY_CPLUSPLUS  (_MSC_VER == 1900 ? 201103L : _MSVC_LANG )
+# else
+#  define ANY_CPLUSPLUS  __cplusplus
+# endif
+#endif
+
+#define ANY_CPP98_OR_GREATER  ( ANY_CPLUSPLUS >= 199711L )
+#define ANY_CPP11_OR_GREATER  ( ANY_CPLUSPLUS >= 201103L )
+#define ANY_CPP14_OR_GREATER  ( ANY_CPLUSPLUS >= 201402L )
+#define ANY_CPP17_OR_GREATER  ( ANY_CPLUSPLUS >= 201703L )
+#define ANY_CPP20_OR_GREATER  ( ANY_CPLUSPLUS >= 202000L )
+
+
+
+#endif // CPLUSPLUSMACROS_H__
