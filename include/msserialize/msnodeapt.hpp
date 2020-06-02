@@ -3,6 +3,7 @@
 
 #include "functionhelper.hpp"
 
+
 namespace MSRPC
 {
 	template <typename Enum>
@@ -91,10 +92,12 @@ namespace MSRPC
 	};
 
 
-	template<typename C, typename F, typename ELEM>
+	template<typename C, typename F, typename I>
 	class ArrayReshape
 	{
 	public:
+		typedef I item_type;
+
 		ArrayReshape(C& val, const F& f)
 			: conta(val)
 			, func(f)
@@ -105,11 +108,7 @@ namespace MSRPC
 			: conta(other.conta)
 			, func(other.func)
 			, itor(other.itor)
-		{
-
-		}
-
-		typedef typename function_traits<F>::return_type item_type;
+		{}
 
 		item_type operator*() const
 		{
@@ -120,7 +119,7 @@ namespace MSRPC
 		{
 			if (itor == conta.end())
 			{
-				ELEM t;
+				typename C::value_type t;
 				conta.push_back(t);
 				itor = conta.end();
 				--itor;
@@ -144,11 +143,19 @@ namespace MSRPC
 		typename C::iterator itor;
 	};
 
+#if ANY_CPP11_OR_GREATER
 	template<typename C, typename F>
-	ArrayReshape <C, F, typename C::value_type> ReshapeApt(C& c, const F& f)
+	ArrayReshape <C, F, typename function_traits<F>::return_type> ReshapeApt(C& c, const F& f)
 	{
-		return ArrayReshape<C, F, typename C::value_type>(c, f);
+		return ArrayReshape<C, F, typename function_traits<F>::return_type>(c, f);
 	}
+#else
+	template<typename C, typename I, typename P1>
+	ArrayReshape <C, I(*)(P1), I> ReshapeApt(C& c, I(*f)(P1))
+	{
+		return ArrayReshape<C, I(*)(P1), I>(c, f);
+	}
+#endif
 
 	//////////////////////////////////////////////////////////////////////////
 	// std::vector<T> 

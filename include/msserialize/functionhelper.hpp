@@ -1,6 +1,10 @@
 #ifndef FUNCTIONHELPER_H__
 #define FUNCTIONHELPER_H__
 
+#include "cplusplusmacros.h"
+
+#if ANY_CPP11_OR_GREATER
+
 template <typename T> 
 struct function_traits  
 	: function_traits<decltype(&T::operator())>
@@ -25,5 +29,7 @@ struct function_traits<R (*)(PList...)>
 {
 	typedef R return_type; 
 };
+
+#endif
 
 #endif // FUNCTIONHELPER_H__
