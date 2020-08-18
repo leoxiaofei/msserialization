@@ -223,7 +223,7 @@ namespace MSRPC
 	};
 
 	template<class NODE, class T>
-	class ISerialize<NODE, StrApt<T>>
+	class ISerialize<NODE, StrApt<T> >
 	{
 	public:
 		static void serialize(NODE& vNewNode, const StrApt<T>& tValue)
@@ -463,7 +463,7 @@ namespace MSRPC
 	};
 
 	template<class NODE, class T>
-	class OSerialize<NODE, StrApt<T>>
+	class OSerialize<NODE, StrApt<T> >
 	{
 	public:
 		static void serialize(const NODE& vNewNode, StrApt<T>& tValue)
