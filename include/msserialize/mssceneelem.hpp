@@ -2,10 +2,14 @@
 #include "msscenedef.h"
 
 
-#include <QSvgRenderer>
 #include <QGraphicsRectItem>
-#include <QGraphicsSvgItem>
 #include <QGraphicsTextItem>
+
+
+#ifdef QT_SVG_LIB
+#include <QSvgRenderer>
+#include <QGraphicsSvgItem>
+#endif
 
 namespace MSRPC
 {
@@ -39,10 +43,12 @@ namespace MSRPC
 					ISerialize<NODE, QGraphicsPixmapItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsPixmapItem*>(tValue));
 					break;
+#ifdef QT_SVG_LIB
 				case QGraphicsSvgItem::Type:
 					ISerialize<NODE, QGraphicsSvgItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsSvgItem*>(tValue));
 					break;
+#endif
 				case QGraphicsTextItem::Type:
 					ISerialize<NODE, QGraphicsTextItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsTextItem*>(tValue));
@@ -97,6 +103,7 @@ namespace MSRPC
 				tValue = pVal;
 				break;
 			}
+#ifdef QT_SVG_LIB
 			case QGraphicsSvgItem::Type:
 			{
 				QGraphicsSvgItem* pVal = 0;
@@ -104,6 +111,7 @@ namespace MSRPC
 				tValue = pVal;
 				break;
 			}
+#endif
 			case QGraphicsTextItem::Type:
 			{
 				QGraphicsTextItem* pVal = 0;
@@ -178,14 +186,14 @@ namespace MSRPC
 		ex_serialize(ar, static_cast<QGraphicsItem&>(tValue));
 		ar.io("image", QtPixmapApt<QGraphicsPixmapItem>(tValue, IDK_PIXMAP));
 	}
-
+#ifdef QT_SVG_LIB
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsSvgItem& tValue)
 	{
 		ex_serialize(ar, static_cast<QGraphicsItem&>(tValue));
 		ar.io("image", QtSvgApt<QGraphicsSvgItem>(tValue, IDK_SVG));
 	}
-
+#endif
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsTextItem& tValue)
 	{

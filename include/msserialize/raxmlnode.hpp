@@ -56,7 +56,7 @@ namespace MSRPC
 			return INodeXml(m_doc, m_doc->allocate_node(rapidxml::node_element));
 		}
 
-		void set_object(bool bIO = false)
+		void set_object()
 		{
 		}
 
@@ -92,10 +92,14 @@ namespace MSRPC
 			m_node->append_node(vNode.m_node);
 		}
 
-	public:
-		rapidxml::xml_node<>* data()
+		void finish()
 		{
-			return m_node;
+		}
+
+	public:
+		rapidxml::xml_node<>& data()
+		{
+			return *m_node;
 		}
 
 		INodeXml(rapidxml::xml_document<>* doc)

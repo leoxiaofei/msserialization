@@ -44,7 +44,7 @@ namespace MSRPC
 			return INodeJson(m_allocator);
 		}
 
-		void set_object(bool bIO = false)
+		void set_object()
 		{
 			if (!m_node->IsObject())
 			{
@@ -59,9 +59,8 @@ namespace MSRPC
 
 		void add_member(char* strName, INodeJson& vNode)
 		{
-			m_node->AddMember(const_cast<rapidjson::Value&>(
-					static_cast<const rapidjson::Value&>(rapidjson::Value(strName, *m_allocator))),
-					*vNode.m_node, *m_allocator);
+			rapidjson::Value vName(strName, *m_allocator);
+			m_node->AddMember(vName, *vNode.m_node, *m_allocator);
 		}
 
 		void set_array()
@@ -75,6 +74,10 @@ namespace MSRPC
 		void push_node(INodeJson& vNode)
 		{
 			m_node->PushBack(*vNode.m_node, *m_allocator);
+		}
+
+		void finish()
+		{
 		}
 
 	public:

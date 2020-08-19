@@ -10,65 +10,159 @@
 
 namespace MSRPC
 {
+	class NJVBase
+	{
+	public:
+		virtual ~NJVBase() {}
+		virtual QJsonValue data() const = 0;
+		virtual void setDoc(QJsonDocument* doc) = 0;
+	};
+
+	class NJValue : public NJVBase
+	{
+	protected:
+		QJsonValue m_data;
+
+	public:
+		virtual QJsonValue data() const
+		{
+			return m_data;
+		}
+
+		virtual void setDoc(QJsonDocument* doc)
+		{
+			// qt is not supported. 
+			assert(false);
+		}
+
+		QJsonValue& value()
+		{
+			return m_data;
+		}
+
+	};
+
+	class NJObject : public NJVBase
+	{
+	private:
+		QJsonObject m_value;
+
+	public:
+		virtual QJsonValue data() const
+		{
+			return m_value;
+		}
+
+		virtual void setDoc(QJsonDocument* doc)
+		{
+			doc->setObject(m_value);
+		}
+
+		QJsonObject& value()
+		{
+			return m_value;
+		}
+	};
+
+	class NJArray : public NJVBase
+	{
+	private:
+		QJsonArray m_value;
+
+	public:
+		virtual QJsonValue data() const
+		{
+			return m_value;
+		}
+
+		virtual void setDoc(QJsonDocument* doc)
+		{
+			doc->setArray(m_value);
+		}
+
+		QJsonArray& value()
+		{
+			return m_value;
+		}
+	};
+
 	class INodeJson
 	{
 	private:
-		QJsonValue m_node;
+		QScopedPointer<NJVBase> m_node;
+		QJsonDocument* m_doc;
 
 	public:
+
 		template <class T>
 		void in_serialize(const T& tValue)
 		{
-			m_node = tValue;
+			NJValue* nj = new NJValue;
+			nj->value() = tValue;
+			m_node.reset(nj);
 		}
 
 		void in_serialize(const char* tValue)
 		{
-			m_node = tValue;
+			NJValue* nj = new NJValue;
+			nj->value() = tValue;
+			m_node.reset(nj);
 		}
 
 		INodeJson new_node()
 		{
-			return INodeJson();
+			return INodeJson(m_doc);
 		}
 
-		void set_object(bool bIO = false)
+		void set_object()
 		{
+			m_node.reset(new NJObject);
 		}
 
 		void add_member(const char* strName, INodeJson& vNode)
 		{
-			QJsonObject obj = m_node.toObject();
-			obj[strName] = vNode.m_node;
-			m_node = obj;
+			QJsonObject& obj = static_cast<NJObject*>(m_node.get())->value();
+
+			obj[strName] = vNode.data();
 		}
 
 		void set_array()
 		{
+			m_node.reset(new NJArray);
 		}
 
 		void push_node(INodeJson& vNode)
 		{
-			QJsonArray arr = m_node.toArray();
-			arr.append(vNode.m_node);
-			m_node = arr;
+			QJsonArray& arr = static_cast<NJArray*>(m_node.get())->value();
+			arr.append(vNode.data());
+		}
+
+		void finish()
+		{
+			m_node->setDoc(m_doc);
 		}
 
 	public:
-		QJsonValue& data()
+		QJsonValue data()
 		{
-			return m_node;
+			return m_node->data();
 		}
+
+		INodeJson(QJsonDocument* doc)
+			: m_doc(doc)
+		{}
+
+		INodeJson(INodeJson& other)
+			: m_node(other.m_node.take())
+			, m_doc(other.m_doc)
+		{}
 
 	};
 
 	class ONodeJson
 	{
-	public:
+	private:
 		QJsonValue m_node;
-
-		ONodeJson(const QJsonValue& node) 
-			: m_node(node) {}
 
 	public:
 		template <class T>
@@ -172,6 +266,18 @@ namespace MSRPC
 		{
 			return !m_node.isNull();
 		}
+
+	public:
+		ONodeJson(const QJsonValue& node)
+			: m_node(node) {}
+
+		ONodeJson(const QJsonDocument* node)
+			: m_node(node->isObject() ? node->object() 
+			: node->isArray() ? node->array() : QJsonValue())
+		{
+			
+		}
+
 	};
 
 	typedef MSRPC::OArchiveHelper<MSRPC::ONodeJson> OJsonArc;

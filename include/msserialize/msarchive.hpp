@@ -7,9 +7,9 @@ namespace MSRPC
 	class StrApt
 	{
 	public:
-		/// Á½¸öGetÑ¡ÆäÒ»: Èç¹û¿ÉÒÔÈ¡µÃchar×Ö·û´®³£Á¿£¬
-		/// ÄÇÃ´Ê¹ÓÃ´øconstµÄÔÚrapidjsonÏÂ¿ÉÒÔÉÙ¿½±´Ò»´Î£¬
-		/// Èç¹ûÎÞ·¨È¡µÃ³£Á¿×Ö·û´®£¬ÄÇÃ´Ê¹ÓÃ²»´øconstµÄget¡£
+		/// ï¿½ï¿½ï¿½ï¿½GetÑ¡ï¿½ï¿½Ò»: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½charï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		/// ï¿½ï¿½Ã´Ê¹ï¿½Ã´ï¿½constï¿½ï¿½ï¿½ï¿½rapidjsonï¿½Â¿ï¿½ï¿½ï¿½ï¿½Ù¿ï¿½ï¿½ï¿½Ò»ï¿½Î£ï¿½
+		/// ï¿½ï¿½ï¿½ï¿½Þ·ï¿½È¡ï¿½Ã³ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã´Ê¹ï¿½Ã²ï¿½ï¿½ï¿½constï¿½ï¿½getï¿½ï¿½
 		/*
 		const char* Get() const
 		{
@@ -39,6 +39,7 @@ namespace MSRPC
 	public:
 		static void serialize (NODE& vNewNode, const T& tValue)
 		{
+			vNewNode.set_object();
 			IArchiveHelper<NODE> oh(vNewNode);
 			ex_serialize(oh, const_cast<T&>(tValue));
 		}
@@ -245,13 +246,13 @@ namespace MSRPC
 		IArchiveHelper(NODE &vNode)
 			: m_vCurNode(vNode)
 		{
-			m_vCurNode.set_object(true);
 		}
 
 		template <class T>
 		IArchiveHelper &operator&(const T &tValue)
 		{
 			ISerialize<NODE, T>::serialize(m_vCurNode, tValue);
+			m_vCurNode.finish();
 			return *this;
 		}
 

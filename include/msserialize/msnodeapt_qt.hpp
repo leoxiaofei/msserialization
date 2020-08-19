@@ -8,7 +8,7 @@
 #include <QFont>
 #include <QPen>
 #include <QBrush>
-
+#include <QSharedPointer>
 
 namespace MSRPC
 {
@@ -871,16 +871,16 @@ namespace MSRPC
 	};
 
 	template<typename C, typename F, typename ELEM>
-	class VecReshape<C, F, QSharedPointer<ELEM> >
+	class ArrayReshape<C, F, QSharedPointer<ELEM> >
 	{
 	public:
-		VecReshape(C& val, const F& f)
+		ArrayReshape(C& val, const F& f)
 			: conta(val)
 			, func(f)
 			, idx(0)
 		{}
 
-		VecReshape(const VecReshape& other)
+		ArrayReshape(const ArrayReshape& other)
 			: conta(other.conta)
 			, func(other.func)
 			, idx(other.idx)
@@ -907,7 +907,7 @@ namespace MSRPC
 
 		void operator ++() const
 		{
-			++(const_cast<VecReshape*>(this)->idx);
+			++(const_cast<ArrayReshape*>(this)->idx);
 		}
 
 		operator bool() const
