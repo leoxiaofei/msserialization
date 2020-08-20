@@ -1,4 +1,4 @@
-#ifndef MSARCHIVE_H__
+﻿#ifndef MSARCHIVE_H__
 #define MSARCHIVE_H__
 
 namespace MSRPC
@@ -519,6 +519,7 @@ namespace MSRPC
 	public: \
 		static void serialize(NODE& vNewNode, const EX& tValue) \
 		{ \
+			vNewNode.set_object(); \
 			IArchiveHelper<NODE> oh(vNewNode); \
 			ex_serialize(oh, const_cast<EX&>(tValue)); \
 		} \
