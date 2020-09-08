@@ -170,7 +170,7 @@ namespace MSRPC
 			for (; tValue; ++tValue)
 			{
 				NODE vNode = vNewNode.new_node();
-				ISerialize<NODE, ArrayReshape<T, F, ELEM>::item_type>
+				ISerialize<NODE, typename ArrayReshape<T, F, ELEM>::item_type>
 					::serialize(vNode, *tValue);
 				vNewNode.push_node(vNode);
 			}
@@ -186,7 +186,7 @@ namespace MSRPC
 			typename NODE::ArrIter itor = vNewNode.sub_nodes();
 			for (; itor; ++itor)
 			{
-				OSerialize<NODE, ArrayReshape<T, F, ELEM>::item_type>
+				OSerialize<NODE, typename ArrayReshape<T, F, ELEM>::item_type>
 					::serialize(*itor, tValue.push());
 			}
 		}

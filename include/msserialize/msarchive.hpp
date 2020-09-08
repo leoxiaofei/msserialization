@@ -156,6 +156,25 @@ namespace MSRPC
 		}
 	};
 
+	template<class NODE>
+	class ISerialize<NODE, long>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const long& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
+
+	template<class NODE>
+	class ISerialize<NODE, unsigned long>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const unsigned long& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
 
 	template<class NODE>
 	class ISerialize<NODE, long long>
@@ -396,6 +415,25 @@ namespace MSRPC
 		}
 	};
 
+	template<class NODE>
+	class OSerialize<NODE, long>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, long& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, unsigned long>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, unsigned long& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
 
 	template<class NODE>
 	class OSerialize<NODE, long long>
