@@ -102,6 +102,13 @@ namespace MSRPC
 			m_node.reset(nj);
 		}
 
+		void in_serialize(const uint32_t& tValue)
+		{
+			NJValue* nj = new NJValue;
+			nj->value() = (qint64)tValue;
+			m_node.reset(nj);
+		}
+
 		void in_serialize(const char* tValue)
 		{
 			NJValue* nj = new NJValue;
