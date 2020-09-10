@@ -3,6 +3,9 @@
 
 #include "msarchive.hpp"
 
+#include <QScopedPointer>
+#include <QVariant>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 
@@ -12,9 +15,13 @@ namespace MSRPC
 {
 	class NJVBase
 	{
+	protected:
+		enum { NJVType = 100 };
+
 	public:
 		virtual ~NJVBase() {}
 		virtual QJsonValue data() const = 0;
+		virtual int type() const = 0;
 		virtual void setDoc(QJsonDocument* doc) = 0;
 	};
 
@@ -32,13 +39,16 @@ namespace MSRPC
 		virtual void setDoc(QJsonDocument* doc)
 		{
 			// qt is not supported. 
-			assert(false);
+			Q_ASSERT(false);
 		}
 
 		QJsonValue& value()
 		{
 			return m_data;
 		}
+
+		enum {Type = NJVType + 1};
+		virtual int type() const { return Type; }
 
 	};
 
@@ -62,6 +72,10 @@ namespace MSRPC
 		{
 			return m_value;
 		}
+
+		enum { Type = NJVType + 2 };
+		virtual int type() const { return Type; }
+
 	};
 
 	class NJArray : public NJVBase
@@ -84,6 +98,9 @@ namespace MSRPC
 		{
 			return m_value;
 		}
+
+		enum { Type = NJVType + 3 };
+		virtual int type() const { return Type; }
 	};
 
 	class INodeJson
@@ -93,27 +110,56 @@ namespace MSRPC
 		QJsonDocument* m_doc;
 
 	public:
+		NJValue* set_value()
+		{
+			if (!m_node || m_node->type() != NJValue::Type)
+			{
+				m_node.reset(new NJValue);
+			}
+			return (NJValue*)m_node.data();
+		}
 
 		template <class T>
 		void in_serialize(const T& tValue)
 		{
-			NJValue* nj = new NJValue;
+			NJValue* nj = set_value();
 			nj->value() = tValue;
-			m_node.reset(nj);
 		}
 
-		void in_serialize(const uint32_t& tValue)
+		void in_serialize(const unsigned int& tValue)
 		{
-			NJValue* nj = new NJValue;
+			NJValue* nj = set_value();
+			nj->value() = (int)tValue;
+		}
+
+		void in_serialize(const unsigned long long& tValue)
+		{
+			NJValue* nj = set_value();
 			nj->value() = (qint64)tValue;
-			m_node.reset(nj);
+		}
+
+		void in_serialize(const long& tValue)
+		{
+			NJValue* nj = set_value();
+			nj->value() = (qint64)tValue;
+		}
+
+		void in_serialize(const unsigned long& tValue)
+		{
+			NJValue* nj = set_value();
+			nj->value() = (qint64)tValue;
 		}
 
 		void in_serialize(const char* tValue)
 		{
-			NJValue* nj = new NJValue;
+			NJValue* nj = set_value();
 			nj->value() = tValue;
-			m_node.reset(nj);
+		}
+
+		template <typename T>
+		void in_serialize(const StrApt<T>& tValue)
+		{
+			in_serialize(tValue.Get());
 		}
 
 		INodeJson new_node()
@@ -123,24 +169,30 @@ namespace MSRPC
 
 		void set_object()
 		{
-			m_node.reset(new NJObject);
+			if (!m_node || m_node->type() != NJObject::Type)
+			{
+				m_node.reset(new NJObject);
+			}
 		}
 
 		void add_member(const char* strName, INodeJson& vNode)
 		{
-			QJsonObject& obj = static_cast<NJObject*>(m_node.get())->value();
+			QJsonObject& obj = static_cast<NJObject*>(m_node.data())->value();
 
 			obj[strName] = vNode.data();
 		}
 
 		void set_array()
 		{
-			m_node.reset(new NJArray);
+			if (!m_node || m_node->type() != NJArray::Type)
+			{
+				m_node.reset(new NJArray);
+			}
 		}
 
 		void push_node(INodeJson& vNode)
 		{
-			QJsonArray& arr = static_cast<NJArray*>(m_node.get())->value();
+			QJsonArray& arr = static_cast<NJArray*>(m_node.data())->value();
 			arr.append(vNode.data());
 		}
 
@@ -159,8 +211,8 @@ namespace MSRPC
 			: m_doc(doc)
 		{}
 
-		INodeJson(INodeJson& other)
-			: m_node(other.m_node.take())
+		INodeJson(const INodeJson& other)
+			: m_node(const_cast<INodeJson&>(other).m_node.take())
 			, m_doc(other.m_doc)
 		{}
 
@@ -184,6 +236,13 @@ namespace MSRPC
 
 			tValue = new char[baBuffer.size()];
 			memcpy(tValue, baBuffer.data(), baBuffer.size());
+		}
+
+		template <typename T>
+		void in_serialize(StrApt<T>& tValue) const
+		{
+			QByteArray strValue = m_node.toString().toUtf8();
+			tValue.Set(strValue.data(), strValue.size());
 		}
 
 		ONodeJson sub_member(const char* strName) const

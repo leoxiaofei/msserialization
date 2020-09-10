@@ -5,6 +5,7 @@
 ///通用Json序列化接口
 
 #include <QJsonDocument>
+#include <QFile>
 #include <msserialize/qjsonnode.hpp>
 #include <msserialize/msarchive_qt.hpp>
 #include <msserialize/msnodeapt_qt.hpp>

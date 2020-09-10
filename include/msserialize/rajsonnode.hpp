@@ -39,6 +39,16 @@ namespace MSRPC
 			in_serialize(tValue.Get());
 		}
 
+		void in_serialize(const long long& tValue)
+		{
+			*m_node = static_cast<int64_t>(tValue);
+		}
+
+		void in_serialize(const unsigned long long& tValue) 
+		{
+			*m_node = static_cast<uint64_t>(tValue);
+		}
+
 		INodeJson new_node()
 		{
 			return INodeJson(m_allocator);
@@ -133,6 +143,18 @@ namespace MSRPC
 		{
 			tValue = static_cast<unsigned short>(
 				m_node->Get<unsigned int>());
+		}
+
+		void in_serialize(long long& tValue) const
+		{
+			tValue = static_cast<long long>(
+				m_node->Get<int64_t>());
+		}
+
+		void in_serialize(unsigned long long& tValue) const
+		{
+			tValue = static_cast<unsigned long long>(
+				m_node->Get<uint64_t>());
 		}
 
 		void in_serialize(const char*& tValue) const

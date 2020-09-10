@@ -1,10 +1,5 @@
-#include "msserialize/msarchive.hpp"
-#include "msserialize/msnodeapt.hpp"
-#include "msserialize/rajsonnode.hpp"
-#include "msserialize/msarchive_stl.hpp"
-
-#include "rapidjson/writer.h"
-
+#include <msadapter/rajsonserializer.hpp>
+#include <msserialize/msnodeapt.hpp>
 #include <iostream>
 
 namespace
@@ -21,6 +16,7 @@ namespace
 		std::string str;
 		char szS[10];
 		long long l;
+		std::shared_ptr<double> spD;
 	};
 
 	class B
@@ -42,6 +38,7 @@ namespace
 		ar.io("str", tValue.str);
 		ar.io("szS", tValue.szS);
 		ar.io("test", MSRPC::EnumApt<EnumTest>(tValue.eTest, szEnumTest));
+		ar.io("spD", tValue.spD);
 	}
 
 	template<class Ar>
@@ -63,6 +60,7 @@ int main()
 	a.l = 1234567890;
 	strcpy(a.szS, "bbb");
 	a.eTest = E_T1;
+	a.spD = std::make_shared<double>(10.1);
 
 	B b;
 	b.szA.push_back(a);
@@ -70,28 +68,15 @@ int main()
 	b.szN[0] = 1;
 
 	//序列化
-	rapidjson::Document doc;
-	MSRPC::IJsonArc::Node nObjI(&doc);
-	MSRPC::IJsonArc ia(nObjI);
-	ia & b;
-
-	//输出json字符串
-	rapidjson::StringBuffer buffer;
-	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-	doc.Accept(writer);
-
-	std::cout << buffer.GetString() << std::endl;
+	std::string strBuf = MSRPC::ToJsonS(b);
+	std::cout << strBuf.c_str() << std::endl;
 
 	//////////////////////////////////////////////////////////////////////////
 	//反序列化
-	rapidjson::Document doc2;
-	doc2.Parse(buffer.GetString(), buffer.GetLength());
-
-	MSRPC::OJsonArc::Node objO(&doc2);
-	MSRPC::OJsonArc oa(objO);
-
 	B b2;
-	oa & b2;
+	MSRPC::FromJsonS(b2, strBuf);
+
+	std::cout << b2.szA.size() << " " << b2.szA[0].str << std::endl;
 
 	return 0;
 }

@@ -282,10 +282,7 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, const std::shared_ptr<T>& tValue)
 		{
-			if (tValue)
-			{
-				ISerialize<NODE, T>::serialize(vNewNode, *tValue);
-			}
+			ISerialize<NODE, T*>::serialize(vNewNode, tValue.get());
 		}
 	};
 
@@ -295,8 +292,9 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, std::shared_ptr<T>& tValue)
 		{
-			tValue = std::shared_ptr<T>(new T);
-			OSerialize<NODE, T>::serialize(vNewNode, *tValue);
+			T* pRet = 0;
+			OSerialize<NODE, T*>::serialize(vNewNode, pRet);
+			tValue.reset(pRet);
 		}
 	};
 

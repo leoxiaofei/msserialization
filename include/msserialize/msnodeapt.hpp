@@ -87,7 +87,8 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, EnumApt<T>& tValue)
 		{
-			vNewNode.in_serialize(StrApt<EnumApt<T> >(tValue));
+			StrApt<EnumApt<T> > aptValue(tValue);
+			vNewNode.in_serialize(aptValue);
 		}
 	};
 

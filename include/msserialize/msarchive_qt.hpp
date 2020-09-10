@@ -6,12 +6,16 @@
 #include <QTextStream>
 #include <QDataStream>
 #include <QSharedPointer>
-#include <QPolygon>
 #include <QDateTime>
 #include <QMetaType>
-#include <QLine>
-#include <QFont>
 #include <QSet>
+#include <QLine>
+
+#ifdef QT_GUI_LIB
+#include <QPolygon>
+#include <QFont>
+#include <QPen>
+#endif
 
 namespace MSRPC
 {
@@ -174,7 +178,7 @@ namespace MSRPC
 
 			if (setKey.size() != tValue.size())
 			{
-				for (QHash<QString, T>::iterator itor = tValue.begin();
+				for (typename QHash<QString, T>::iterator itor = tValue.begin();
 					itor != tValue.end();)
 				{
 					if (!setKey.contains(itor.key()))
@@ -255,7 +259,7 @@ namespace MSRPC
 
 				if (setKey.size() != tValue.size())
 				{
-					for (QHash<K, T>::iterator itor = tValue.begin();
+					for (typename QHash<K, T>::iterator itor = tValue.begin();
 						itor != tValue.end();)
 					{
 						if (!setKey.contains(itor.key()))
@@ -303,7 +307,7 @@ namespace MSRPC
 			{
 				if (NODE node = *itor)
 				{
-					T& t = val[itor.key()];
+					T& t = tValue[itor.key()];
 					OSerialize<NODE, T>::serialize(node, t);
 					setKey.insert(itor.key());
 				}
@@ -311,7 +315,7 @@ namespace MSRPC
 
 			if (setKey.size() != tValue.size())
 			{
-				for (QMap<QString, T>::iterator itor = tValue.begin();
+				for (typename QMap<QString, T>::iterator itor = tValue.begin();
 					itor != tValue.end();)
 				{
 					if (!setKey.contains(itor.key()))
@@ -372,7 +376,7 @@ namespace MSRPC
 
 			if (vKeyNode && vValueNode)
 			{
-				QHash<K> setKey;
+				QSet<K> setKey;
 
 				typename NODE::ArrIter itorKey = vKeyNode.sub_nodes();
 				typename NODE::ArrIter itorValue = vValueNode.sub_nodes();
@@ -392,7 +396,7 @@ namespace MSRPC
 
 				if (setKey.size() != tValue.size())
 				{
-					for (QMap<K, T>::iterator itor = tValue.begin();
+					for (typename QMap<K, T>::iterator itor = tValue.begin();
 						itor != tValue.end();)
 					{
 						if (!setKey.contains(itor.key()))
@@ -415,7 +419,7 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, const QSharedPointer<T>& tValue)
 		{
-			ISerialize<NODE, T>::serialize(vNewNode, *tValue);
+			ISerialize<NODE, T*>::serialize(vNewNode, tValue.data());
 		}
 	};
 
@@ -425,8 +429,9 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, QSharedPointer<T>& tValue)
 		{
-			tValue = QSharedPointer<T>(new T);
-			OSerialize<NODE, T>::serialize(vNewNode, *tValue);
+			T* pRet = 0;
+			OSerialize<NODE, T*>::serialize(vNewNode, pRet);
+			tValue = QSharedPointer<T>(pRet);
 		}
 	};
 
@@ -755,6 +760,7 @@ namespace MSRPC
 		}
 	};
 
+#ifdef QT_GUI_LIB
 	template<class NODE>
 	class ISerialize<NODE, QPolygonF>
 	{
@@ -794,6 +800,7 @@ namespace MSRPC
 			OSerialize<NODE, QVector<QPoint> >::serialize(vNewNode, tValue);
 		}
 	};
+#endif
 
 	template<class NODE>
 	class ISerialize<NODE, QDate>
@@ -1017,6 +1024,7 @@ namespace MSRPC
 				ISerialize<NODE, QVariantHash>::serialize(
 					vNodeValue, *static_cast<const QVariantHash*>(tValue.data()));
 				break;
+#ifdef QT_GUI_LIB
 			case QMetaType::QFont:
 				ISerialize<NODE, QFont>::serialize(
 					vNodeValue, *static_cast<const QFont*>(tValue.data()));
@@ -1025,6 +1033,11 @@ namespace MSRPC
 				ISerialize<NODE, QPolygon>::serialize(
 					vNodeValue, *static_cast<const QPolygon*>(tValue.data()));
 				break;
+			case QMetaType::QPolygonF:
+				ISerialize<NODE, QPolygonF>::serialize(
+					vNodeValue, *static_cast<const QPolygonF*>(tValue.data()));
+				break;
+#endif
 			default:
 			{
 				QByteArray ba;
@@ -1221,6 +1234,7 @@ namespace MSRPC
 					tValue = val;
 					break;
 				}
+#ifdef QT_GUI_LIB
 				case QMetaType::QFont:
 				{
 					QFont val;
@@ -1235,6 +1249,14 @@ namespace MSRPC
 					tValue = val;
 					break;
 				}
+				case QMetaType::QPolygonF:
+				{
+					QPolygonF val;
+					OSerialize<NODE, QPolygonF>::serialize(vNodeValue, val);
+					tValue = val;
+					break;
+				}
+#endif
 				default:
 				{
 					QByteArray baTemp;

@@ -4,11 +4,18 @@
 
 #include "msarchive.hpp"
 #include "msnodeapt.hpp"
+#include "msscenedef.h"
+#include <QSharedPointer>
+#include <QRect>
+#include <QRegExp>
+#include <QHash>
+#include <QString>
 
+#ifdef QT_GUI_LIB
 #include <QFont>
 #include <QPen>
 #include <QBrush>
-#include <QSharedPointer>
+#endif
 
 namespace MSRPC
 {
@@ -94,49 +101,6 @@ namespace MSRPC
 		{
 			QRectF rfValue = tValue;
 			OSerialize<NODE, QRectF>::serialize(vNewNode, rfValue);
-			tValue = rfValue;
-		}
-	};
-
-	template<class T>
-	class QtPolygonApt
-	{
-	public:
-		QtPolygonApt(T& t)
-			: m_t(t) {}
-
-		operator QPolygonF () const
-		{
-			return m_t.polygon();
-		}
-
-		void operator = (const QPolygonF& pgValue)
-		{
-			m_t.setPolygon(pgValue);
-		}
-
-	private:
-		T& m_t;
-	};
-
-	template<class NODE, class T>
-	class ISerialize<NODE, QtPolygonApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtPolygonApt<T>& tValue)
-		{
-			ISerialize<NODE, QPolygonF>::serialize(vNewNode, tValue);
-		}
-	};
-
-	template<class NODE, class T>
-	class OSerialize<NODE, QtPolygonApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtPolygonApt<T>& tValue)
-		{
-			QPolygonF rfValue = tValue;
-			OSerialize<NODE, QPolygonF>::serialize(vNewNode, rfValue);
 			tValue = rfValue;
 		}
 	};
@@ -515,6 +479,50 @@ namespace MSRPC
 		}
 	};
 
+#ifdef QT_GUI_LIB
+	template<class T>
+	class QtPolygonApt
+	{
+	public:
+		QtPolygonApt(T& t)
+			: m_t(t) {}
+
+		operator QPolygonF () const
+		{
+			return m_t.polygon();
+		}
+
+		void operator = (const QPolygonF& pgValue)
+		{
+			m_t.setPolygon(pgValue);
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, QtPolygonApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QtPolygonApt<T>& tValue)
+		{
+			ISerialize<NODE, QPolygonF>::serialize(vNewNode, tValue);
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, QtPolygonApt<T> >
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QtPolygonApt<T>& tValue)
+		{
+			QPolygonF rfValue = tValue;
+			OSerialize<NODE, QPolygonF>::serialize(vNewNode, rfValue);
+			tValue = rfValue;
+		}
+	};
+
 	template<class T>
 	class QtFontApt
 	{
@@ -648,50 +656,6 @@ namespace MSRPC
 	};
 
 	template<class T>
-	class QtSceneRectApt
-	{
-	public:
-		QtSceneRectApt(T& t)
-			: m_t(t)
-		{}
-
-		operator QRectF () const
-		{
-			return m_t.sceneRect();
-		}
-
-		void operator = (const QRectF& rfValue)
-		{
-			m_t.setSceneRect(rfValue);
-		}
-
-	private:
-		T& m_t;
-	};
-
-	template<class NODE, class T>
-	class ISerialize<NODE, QtSceneRectApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtSceneRectApt<T>& tValue)
-		{
-			ISerialize<NODE, QRectF>::serialize(vNewNode, tValue);
-		}
-	};
-
-	template<class NODE, class T>
-	class OSerialize<NODE, QtSceneRectApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtSceneRectApt<T>& tValue)
-		{
-			QRectF rfValue = tValue;
-			OSerialize<NODE, QRectF>::serialize(vNewNode, rfValue);
-			tValue = rfValue;
-		}
-	};
-
-	template<class T>
 	class QtForegroundBrushApt
 	{
 	public:
@@ -778,6 +742,51 @@ namespace MSRPC
 			tValue = rfValue;
 		}
 	};
+#endif
+
+	template<class T>
+	class QtSceneRectApt
+	{
+	public:
+		QtSceneRectApt(T& t)
+			: m_t(t)
+		{}
+
+		operator QRectF () const
+		{
+			return m_t.sceneRect();
+		}
+
+		void operator = (const QRectF& rfValue)
+		{
+			m_t.setSceneRect(rfValue);
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, QtSceneRectApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QtSceneRectApt<T>& tValue)
+		{
+			ISerialize<NODE, QRectF>::serialize(vNewNode, tValue);
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, QtSceneRectApt<T> >
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QtSceneRectApt<T>& tValue)
+		{
+			QRectF rfValue = tValue;
+			OSerialize<NODE, QRectF>::serialize(vNewNode, rfValue);
+			tValue = rfValue;
+		}
+	};
 
 	template<class T>
 	class QtFillRuleApt
@@ -834,7 +843,8 @@ namespace MSRPC
 
 		operator QHash<QString, QString> () const
 		{
-			return m_t.data(m_nKey).value<QHash<QString, QString> >();
+			QVariant vVal = m_t.data(m_nKey);
+			return vVal.value<QHash<QString, QString> >();
 		}
 
 		void operator = (const QHash<QString, QString>& hsValue)

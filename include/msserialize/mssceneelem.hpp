@@ -21,6 +21,7 @@ namespace MSRPC
 		{
 			if (tValue)
 			{
+				vNewNode.set_object();
 				IArchiveHelper<NODE> ar(vNewNode);
 				int nType = tValue->type();
 				ar.io("type", nType);
@@ -68,7 +69,7 @@ namespace MSRPC
 	class OSerialize<NODE, QGraphicsItem*>
 	{
 	public:
-		static void serialize(NODE& vNewNode, QGraphicsItem*& tValue)
+		static void serialize(const NODE& vNewNode, QGraphicsItem*& tValue)
 		{
 			int nType;
 			OArchiveHelper<NODE> ar(vNewNode);
