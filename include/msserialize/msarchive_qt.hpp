@@ -891,10 +891,9 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, QByteArray& tValue)
 		{
-			const char* p = 0;
-			vNewNode.in_serialize(p);
-			tValue = QByteArray::fromBase64(
-				QByteArray::fromRawData(p, strlen(p)));
+			QString strBase64;
+			vNewNode.in_serialize(strBase64);
+			tValue = QByteArray::fromBase64(strBase64.toUtf8());
 		}
 	};
 
@@ -1063,9 +1062,9 @@ namespace MSRPC
 			NODE vNodeValue = vNewNode.sub_member("value");
 			if (vNodeType && vNodeValue)
 			{
-				const char* strType = 0;
-				vNodeType.in_serialize(strType);
-				int nType = QVariant::nameToType(strType);
+				QString baData;
+				vNodeType.in_serialize(baData);
+				int nType = QVariant::nameToType(baData.toUtf8().data());
 				///这里其实我想用Map，但是这是个纯头文件的库，Map的数据保存在哪里还没想清楚，
 				///只好靠C++编译器优化switch了。
 				switch (nType)
