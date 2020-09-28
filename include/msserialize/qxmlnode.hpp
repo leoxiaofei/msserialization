@@ -121,6 +121,9 @@ namespace MSRPC
 		ONodeXml(const QDomElement& node)
 			: m_node(node) {}
 
+		ONodeXml(const QDomDocument* doc)
+			: m_node(doc->firstChildElement()) {}
+
 
 	public:
 		template <class T>
@@ -206,7 +209,7 @@ namespace MSRPC
 
 		operator bool() const
 		{
-			return m_node.isNull();
+			return !m_node.isNull();
 		}
 
 	};
