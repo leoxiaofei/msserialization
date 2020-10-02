@@ -29,7 +29,7 @@ namespace MSRPC
 
 		operator const char* () const
 		{
-			return m_szText[m_en];
+			return m_szText[static_cast<int>(m_en)];
 		}
 
 		void operator = (const char* szText)
