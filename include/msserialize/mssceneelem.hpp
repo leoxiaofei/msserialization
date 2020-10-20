@@ -58,6 +58,10 @@ namespace MSRPC
 					ISerialize<NODE, QGraphicsPolygonItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsPolygonItem*>(tValue));
 					break;
+				case QGraphicsItemGroup::Type:
+					ISerialize<NODE, QGraphicsItemGroup*>::serialize(vNewNode,
+						qgraphicsitem_cast<const QGraphicsItemGroup*>(tValue));
+					break;
 				default:
 					break;
 				}
@@ -127,6 +131,12 @@ namespace MSRPC
 				tValue = pVal;
 				break;
 			}
+			case QGraphicsItemGroup::Type:
+			{
+				QGraphicsItemGroup* pVal = 0;
+				OSerialize<NODE, QGraphicsItemGroup*>::serialize(vNewNode, pVal);
+				tValue = pVal;
+			}
 			default:
 				break;
 			}
@@ -141,6 +151,7 @@ namespace MSRPC
 		ar.io("zValue", QtZValueApt<QGraphicsItem>(tValue));
 		ar.io("transform", QtTransformApt<QGraphicsItem>(tValue, IDK_TRANSFORM));
 		ar.io("custom", QtHashDataApt<QGraphicsItem>(tValue, IDK_CUSTOM));
+		ar.io("childItems", QtChildItemsApt<QGraphicsItem>(tValue));
 	}
 
 	template<class Ar>
@@ -201,6 +212,12 @@ namespace MSRPC
 		ex_serialize(ar, static_cast<QGraphicsItem&>(tValue));
 		ar.io("font", QtFontApt<QGraphicsTextItem>(tValue));
 		ar.io("text", QtHtmlApt<QGraphicsTextItem>(tValue));
+	}
+
+	template<class Ar>
+	void ex_serialize(Ar& ar, QGraphicsItemGroup& tValue)
+	{
+		ex_serialize(ar, static_cast<QGraphicsItem&>(tValue));
 	}
 
 	template<class Ar>

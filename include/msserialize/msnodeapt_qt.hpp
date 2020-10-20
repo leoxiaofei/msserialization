@@ -742,6 +742,64 @@ namespace MSRPC
 			tValue = rfValue;
 		}
 	};
+	
+	template<class T>
+	class QtChildItemsApt
+	{
+	public:
+		QtChildItemsApt(T& t)
+			: m_t(t)
+		{}
+
+		operator QList<T*>() const
+		{
+			return m_t.childItems();
+		}
+
+		void operator = (const QList<T*>& rfValue)
+		{
+			if (QGraphicsItemGroup* pGroup =
+				qgraphicsitem_cast<QGraphicsItemGroup*>(&m_t))
+			{
+				foreach(T* t, rfValue)
+				{
+					pGroup->addToGroup(t);
+				}
+			}
+			else
+			{
+				foreach(T* t, rfValue)
+				{
+					t->setParentItem(&m_t);
+				}
+			}
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, QtChildItemsApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QtChildItemsApt<T>& tValue)
+		{
+			ISerialize<NODE, QList<T*> >::serialize(vNewNode, tValue);
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, QtChildItemsApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, QtChildItemsApt<T>& tValue)
+		{
+			QList<T*> rfValue;
+			OSerialize<NODE, QList<T*> >::serialize(vNewNode, rfValue);
+			tValue = rfValue;
+		}
+	};
 #endif
 
 	template<class T>
