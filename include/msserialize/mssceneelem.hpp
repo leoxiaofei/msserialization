@@ -147,11 +147,11 @@ namespace MSRPC
 	void ex_serialize(Ar& ar, QGraphicsItem& tValue)
 	{
 		ar.io("name", QtDataApt<QGraphicsItem>(tValue, IDK_NAME));
+		ar.io("childItems", QtChildItemsApt<QGraphicsItem>(tValue));
 		ar.io("pos", QtPosApt<QGraphicsItem>(tValue));
 		ar.io("zValue", QtZValueApt<QGraphicsItem>(tValue));
 		ar.io("transform", QtTransformApt<QGraphicsItem>(tValue, IDK_TRANSFORM));
 		ar.io("custom", QtHashDataApt<QGraphicsItem>(tValue, IDK_CUSTOM));
-		ar.io("childItems", QtChildItemsApt<QGraphicsItem>(tValue));
 	}
 
 	template<class Ar>
