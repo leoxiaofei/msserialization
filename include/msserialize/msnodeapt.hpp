@@ -187,8 +187,8 @@ namespace MSRPC
 			typename NODE::ArrIter itor = vNewNode.sub_nodes();
 			for (; itor; ++itor)
 			{
-				OSerialize<NODE, typename ArrayReshape<T, F, ELEM>::item_type>
-					::serialize(*itor, tValue.push());
+				ELEM itemValue = tValue.push();
+				OSerialize<NODE, ELEM>::serialize(*itor, itemValue);
 			}
 		}
 	};
