@@ -1,5 +1,6 @@
-#ifndef QJSONNODE_H__
-#define QJSONNODE_H__
+#ifndef RAJSONNODE_H__
+#define RAJSONNODE_H__
+
 
 #include "msarchive.hpp"
 
@@ -276,4 +277,4 @@ namespace MSRPC
 	typedef MSRPC::IArchiveHelper<MSRPC::INodeJson> IJsonArc;
 }
 
-#endif // QJSONNODE_H__
+#endif // RAJSONNODE_H__

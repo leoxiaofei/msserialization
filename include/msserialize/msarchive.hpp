@@ -30,8 +30,8 @@ namespace MSRPC
 	template <class NODE>
 	class IArchiveHelper;
 
-	template <class AR, typename T>
-	void ex_serialize(AR& ar, T& tValue);
+	//template <class AR, typename T>
+	//void ex_serialize(AR& ar, T& tValue);
 
 	template <class NODE, typename T>
 	class ISerialize
