@@ -220,16 +220,21 @@ namespace MSRPC
 	class ISerialize<NODE, char*>
 	{
 	public:
-		static void serialize(NODE& vNewNode, const char* tValue)
-		{
-			vNewNode.in_serialize(tValue);
-		}
-
 		static void serialize(NODE& vNewNode, char* tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
 
+	};
+
+	template<class NODE>
+	class ISerialize<NODE, const char*>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const char* tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
 	};
 
 	template<class NODE, int N>
