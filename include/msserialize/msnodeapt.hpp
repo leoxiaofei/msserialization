@@ -192,6 +192,43 @@ namespace MSRPC
 			}
 		}
 	};
+
+	template<>
+	class StrApt<class StrType>
+	{
+	public:
+		const char* m_data;
+		size_t m_size;
+
+	public:
+		StrApt(const char* data = nullptr)
+			: m_data(data)
+			, m_size(0)
+		{}
+
+		~StrApt()
+		{
+			if (m_size)
+			{
+				delete[] m_data;
+			}
+		}
+
+		const char* Get() const
+		{
+			return m_data;
+		}
+
+		void Set(const char* tValue, const size_t& sSize)
+		{
+			m_data = new char[sSize+1];
+			memcpy((void*)m_data, tValue, sSize+1);
+			m_size = sSize;
+		}
+	};
+
+	typedef StrApt<StrType> StrTypeApt;
+
 }
 
 

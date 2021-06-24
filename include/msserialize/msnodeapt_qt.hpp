@@ -17,6 +17,10 @@
 #include <QBrush>
 #endif
 
+#ifdef QT_WIDGETS_LIB
+#include <QGraphicsItemGroup>
+#endif
+
 namespace MSRPC
 {
 	template<class T>

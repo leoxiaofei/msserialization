@@ -1,4 +1,4 @@
-ï»¿#ifndef MSARCHIVE_H__
+#ifndef MSARCHIVE_H__
 #define MSARCHIVE_H__
 
 namespace MSRPC
@@ -7,9 +7,9 @@ namespace MSRPC
 	class StrApt
 	{
 	public:
-		/// ä¸¤ä¸ªGeté€‰å…¶ä¸€: å¦‚æœå¯ä»¥å–å¾—charå­—ç¬¦ä¸²å¸¸é‡ï¼Œ
-		/// é‚£ä¹ˆä½¿ç”¨å¸¦constçš„åœ¨rapidjsonä¸‹å¯ä»¥å°‘æ‹·è´ä¸€æ¬¡ï¼Œ
-		/// å¦‚æœæ— æ³•å–å¾—å¸¸é‡å­—ç¬¦ä¸²ï¼Œé‚£ä¹ˆä½¿ç”¨ä¸å¸¦constçš„getã€‚
+		/// Á½¸öGetÑ¡ÆäÒ»: Èç¹û¿ÉÒÔÈ¡µÃchar×Ö·û´®³£Á¿£¬
+		/// ÄÇÃ´Ê¹ÓÃ´øconstµÄÔÚrapidjsonÏÂ¿ÉÒÔÉÙ¿½±´Ò»´Î£¬
+		/// Èç¹ûÎŞ·¨È¡µÃ³£Á¿×Ö·û´®£¬ÄÇÃ´Ê¹ÓÃ²»´øconstµÄget¡£
 		/*
 		const char* Get() const
 		{
@@ -560,7 +560,7 @@ namespace MSRPC
 	class ISerialize<NODE, EX> \
 	{ \
 	public: \
-		static void serialize(NODE& vNewNode, const EX& tValue) \
+		static void serialize(NODE& vNewNode, EX const& tValue) \
 		{ \
 			vNewNode.set_object(); \
 			IArchiveHelper<NODE> oh(vNewNode); \
