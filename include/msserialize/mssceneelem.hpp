@@ -58,6 +58,10 @@ namespace MSRPC
 					ISerialize<NODE, QGraphicsPolygonItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsPolygonItem*>(tValue));
 					break;
+				case QGraphicsPathItem::Type:
+					ISerialize<NODE, QGraphicsPathItem*>::serialize(vNewNode,
+						qgraphicsitem_cast<const QGraphicsPathItem*>(tValue));
+					break;
 				case QGraphicsItemGroup::Type:
 					ISerialize<NODE, QGraphicsItemGroup*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsItemGroup*>(tValue));
@@ -131,6 +135,13 @@ namespace MSRPC
 				tValue = pVal;
 				break;
 			}
+			case QGraphicsPathItem::Type:
+			{
+				QGraphicsPathItem* pVal = 0;
+				OSerialize<NODE, QGraphicsPathItem*>::serialize(vNewNode, pVal);
+				tValue = pVal;
+				break;
+			}
 			case QGraphicsItemGroup::Type:
 			{
 				QGraphicsItemGroup* pVal = 0;
@@ -190,6 +201,13 @@ namespace MSRPC
 		ex_serialize(ar, static_cast<QAbstractGraphicsShapeItem&>(tValue));
 		ar.io("polygon", QtPolygonApt<QGraphicsPolygonItem>(tValue));
 		ar.io("fillRule", QtFillRuleApt<QGraphicsPolygonItem>(tValue));
+	}
+
+	template<class Ar>
+	void ex_serialize(Ar& ar, QGraphicsPathItem& tValue)
+	{
+		ex_serialize(ar, static_cast<QAbstractGraphicsShapeItem&>(tValue));
+		ar.io("path", QtPathApt<QGraphicsPathItem>(tValue, IDK_PPATH));
 	}
 
 	template<class Ar>

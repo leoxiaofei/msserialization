@@ -364,17 +364,11 @@ namespace MSRPC
 			QStringList listFunc = strValue.split(";");
 			if (!listFunc.isEmpty())
 			{
-				static const char* szTfRegExp[_TK_TOTAL_] = {
-					"translate\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)",
-					"scale\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)",
-					"rotate\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(\\d)\\s*\\)",
+				QRegExp re[_TK_TOTAL_] = {
+					QRegExp("translate\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
+					QRegExp("scale\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
+					QRegExp("rotate\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(\\d)\\s*\\)"),
 				};
-
-				QRegExp re[_TK_TOTAL_];
-				for (int ix = 0; ix != _TK_TOTAL_; ++ix)
-				{
-					re[ix].setPattern(szTfRegExp[ix]);
-				}
 				
 				QTransform tf;
 
@@ -437,6 +431,111 @@ namespace MSRPC
 		}
 	};
 
+
+	template<class T>
+	class QtPathApt
+	{
+	public:
+		QtPathApt(T& t, int nKey)
+			: m_t(t)
+			, m_nKey(nKey)
+		{}
+
+		operator QString () const
+		{
+			return m_t.data(m_nKey).toString();
+		}
+
+		void operator = (const QString& strValue)
+		{
+			m_t.setData(m_nKey, strValue);
+
+			QStringList listFunc = strValue.split(";");
+			if (!listFunc.isEmpty())
+			{
+				QRegExp re[_PK_TOTAL_] = {
+					QRegExp("moveTo\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
+					QRegExp("lineTo\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
+					QRegExp("quadTo\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
+					QRegExp("cubicTo\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
+					QRegExp("arcMoveTo\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
+					QRegExp("arcTo\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
+				};
+
+				QPainterPath ppath;
+
+				foreach(const QString & strFunc, listFunc)
+				{
+					for (int ix = 0; ix != _PK_TOTAL_; ++ix)
+					{
+						QRegExp& exp = re[ix];
+						if (exp.indexIn(strFunc) != -1)
+						{
+							switch (ix)
+							{
+							case PK_MOVETO:
+								ppath.moveTo(exp.cap(1).toDouble(), exp.cap(2).toDouble());
+								break;
+							case PK_LINETO:
+								ppath.lineTo(exp.cap(1).toDouble(), exp.cap(2).toDouble());
+								break;
+							case PK_QUADTO:
+								ppath.quadTo(exp.cap(1).toDouble(), exp.cap(2).toDouble(), 
+									exp.cap(3).toDouble(), exp.cap(4).toDouble());
+								break;
+							case PK_CUBICTO:
+								ppath.cubicTo(exp.cap(1).toDouble(), exp.cap(2).toDouble(),
+									exp.cap(3).toDouble(), exp.cap(4).toDouble(),
+									exp.cap(5).toDouble(), exp.cap(6).toDouble());
+								break;
+							case PK_ARCMOVETO:
+								ppath.arcMoveTo(exp.cap(1).toDouble(), exp.cap(2).toDouble(),
+									exp.cap(3).toDouble(), exp.cap(4).toDouble(), exp.cap(5).toDouble());
+								break;
+							case PK_ARCTO:
+								ppath.arcTo(exp.cap(1).toDouble(), exp.cap(2).toDouble(),
+									exp.cap(3).toDouble(), exp.cap(4).toDouble(),
+									exp.cap(5).toDouble(), exp.cap(6).toDouble());
+								break;
+							default:
+								break;
+							}
+							break;
+						}
+					}
+				}
+
+				m_t.setPath(ppath);
+			}
+		}
+
+	private:
+		T& m_t;
+		int m_nKey;
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, QtPathApt<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QtPathApt<T>& tValue)
+		{
+			QString strValue = tValue;
+			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, QtPathApt<T> >
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QtPathApt<T>& tValue)
+		{
+			QString strValue = tValue;
+			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
+			tValue = strValue;
+		}
+	};
 
 	template<class T>
 	class QtHtmlApt
