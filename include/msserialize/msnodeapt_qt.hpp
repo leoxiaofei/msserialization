@@ -152,12 +152,37 @@ namespace MSRPC
 		}
 	};
 
+	template<class T, class S>
+	class QtStringApt;
 
-	template<class T>
-	class QtDataApt
+	template<class NODE, class T, class S>
+	class ISerialize<NODE, QtStringApt<T, S> >
 	{
 	public:
-		QtDataApt(T& t, int nKey)
+		static void serialize(NODE& vNewNode, const QtStringApt<T, S>& tValue)
+		{
+			QString strValue = tValue;
+			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+		}
+	};
+
+	template<class NODE, class T, class S>
+	class OSerialize<NODE, QtStringApt<T, S> >
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QtStringApt<T, S>& tValue)
+		{
+			QString strValue = tValue;
+			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
+			tValue = strValue;
+		}
+	};
+
+	template<class T>
+	class QtStringApt<T, class _Data_>
+	{
+	public:
+		QtStringApt(T& t, int nKey)
 			: m_t(t)
 			, m_nKey(nKey)
 		{}
@@ -177,34 +202,40 @@ namespace MSRPC
 		int m_nKey;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtDataApt<T> >
+	template<class T>
+	using QtDataApt = QtStringApt<T, class _Data_>;
+
+	template<class T, class S>
+	class QtRealApt;
+
+	template<class NODE, class T, class S>
+	class ISerialize<NODE, QtRealApt<T, S> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, const QtDataApt<T>& tValue)
+		static void serialize(NODE& vNewNode, const QtRealApt<T, S>& tValue)
 		{
-			QString strValue = tValue;
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+			qreal qValue = tValue;
+			ISerialize<NODE, qreal>::serialize(vNewNode, qValue);
 		}
 	};
 
-	template<class NODE, class T>
-	class OSerialize<NODE, QtDataApt<T> >
+	template<class NODE, class T, class S>
+	class OSerialize<NODE, QtRealApt<T, S> >
 	{
 	public:
-		static void serialize(const NODE& vNewNode, QtDataApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtRealApt<T, S>& tValue)
 		{
-			QString strValue = tValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			tValue = strValue;
+			qreal qValue = tValue;
+			OSerialize<NODE, qreal>::serialize(vNewNode, qValue);
+			tValue = qValue;
 		}
 	};
 
 	template<class T>
-	class QtZValueApt
+	class QtRealApt<T, class _ZValue_>
 	{
 	public:
-		QtZValueApt(T& t)
+		QtRealApt(T& t)
 			: m_t(t)
 		{}
 
@@ -222,34 +253,39 @@ namespace MSRPC
 		T& m_t;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtZValueApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtZValueApt<T>& tValue)
-		{
-			qreal qValue = tValue;
-			ISerialize<NODE, qreal>::serialize(vNewNode, qValue);
-		}
-	};
+	template<class T>
+	using QtZValueApt = QtRealApt<T, class _ZValue_>;
 
-	template<class NODE, class T>
-	class OSerialize<NODE, QtZValueApt<T> >
+	template<class T>
+	class QtRealApt<T, class _TextWidth_>
 	{
 	public:
-		static void serialize(const NODE& vNewNode, QtZValueApt<T>& tValue)
+		QtRealApt(T& t)
+			: m_t(t)
+		{}
+
+		operator qreal () const
 		{
-			qreal qValue = tValue;
-			OSerialize<NODE, qreal>::serialize(vNewNode, qValue);
-			tValue = qValue;
+			return m_t.textWidth();
 		}
+
+		void operator = (const qreal& qValue)
+		{
+			m_t.setTextWidth(qValue);
+		}
+
+	private:
+		T& m_t;
 	};
 
 	template<class T>
-	class QtPixmapApt
+	using QtTextWidthApt = QtRealApt<T, class _TextWidth_>;
+
+	template<class T>
+	class QtStringApt<T, class _Pixmap_>
 	{
 	public:
-		QtPixmapApt(T& t, int nKey)
+		QtStringApt(T& t, int nKey)
 			: m_t(t)
 			, m_nKey(nKey)
 		{}
@@ -271,34 +307,15 @@ namespace MSRPC
 		int m_nKey;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtPixmapApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtPixmapApt<T>& tValue)
-		{
-			QString strValue = tValue;
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
+	template<class T>
+	using QtPixmapApt = QtStringApt<T, class _Pixmap_>;
 
-	template<class NODE, class T>
-	class OSerialize<NODE, QtPixmapApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtPixmapApt<T>& tValue)
-		{
-			QString strValue = tValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			tValue = strValue;
-		}
-	};
 
 	template<class T>
-	class QtSvgApt
+	class QtStringApt<T, class _Svg>
 	{
 	public:
-		QtSvgApt(T& t, int nKey)
+		QtStringApt(T& t, int nKey)
 			: m_t(t)
 			, m_nKey(nKey)
 		{}
@@ -320,34 +337,14 @@ namespace MSRPC
 		int m_nKey;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtSvgApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtSvgApt<T>& tValue)
-		{
-			QString strValue = tValue;
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
-
-	template<class NODE, class T>
-	class OSerialize<NODE, QtSvgApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtSvgApt<T>& tValue)
-		{
-			QString strValue = tValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			tValue = strValue;
-		}
-	};
+	template<class T>
+	using QtSvgApt = QtStringApt<T, class _Svg>;
 
 	template<class T>
-	class QtTransformApt
+	class QtStringApt<T, class _Transform_>
 	{
 	public:
-		QtTransformApt(T& t, int nKey)
+		QtStringApt(T& t, int nKey)
 			: m_t(t)
 			, m_nKey(nKey)
 		{}
@@ -408,35 +405,15 @@ namespace MSRPC
 		int m_nKey;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtTransformApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtTransformApt<T>& tValue)
-		{
-			QString strValue = tValue;
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
-
-	template<class NODE, class T>
-	class OSerialize<NODE, QtTransformApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtTransformApt<T>& tValue)
-		{
-			QString strValue = tValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			tValue = strValue;
-		}
-	};
+	template<class T>
+	using QtTransformApt = QtStringApt<T, class _Transform_>;
 
 
 	template<class T>
-	class QtPathApt
+	class QtStringApt<T, class _Path_>
 	{
 	public:
-		QtPathApt(T& t, int nKey)
+		QtStringApt(T& t, int nKey)
 			: m_t(t)
 			, m_nKey(nKey)
 		{}
@@ -514,34 +491,15 @@ namespace MSRPC
 		int m_nKey;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtPathApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtPathApt<T>& tValue)
-		{
-			QString strValue = tValue;
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
+	template<class T>
+	using QtPathApt = QtStringApt<T, class _Path_>;
 
-	template<class NODE, class T>
-	class OSerialize<NODE, QtPathApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtPathApt<T>& tValue)
-		{
-			QString strValue = tValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			tValue = strValue;
-		}
-	};
 
 	template<class T>
-	class QtHtmlApt
+	class QtStringApt<T, class _Html_>
 	{
 	public:
-		QtHtmlApt(T& t)
+		QtStringApt(T& t)
 			: m_t(t)
 		{}
 
@@ -559,28 +517,9 @@ namespace MSRPC
 		T& m_t;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtHtmlApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtHtmlApt<T>& tValue)
-		{
-			QString strValue = tValue;
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
+	template<class T>
+	using QtHtmlApt = QtStringApt<T, class _Html_>;
 
-	template<class NODE, class T>
-	class OSerialize<NODE, QtHtmlApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtHtmlApt<T>& tValue)
-		{
-			QString strValue = tValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			tValue = strValue;
-		}
-	};
 
 #ifdef QT_GUI_LIB
 	template<class T>
@@ -714,7 +653,7 @@ namespace MSRPC
 		}
 	};
 
-	template<class T>
+	template<class T, class S = QBrush>
 	class QtBrushApt
 	{
 	public:
@@ -736,21 +675,21 @@ namespace MSRPC
 		T& m_t;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtBrushApt<T> >
+	template<class NODE, class T, class S>
+	class ISerialize<NODE, QtBrushApt<T, S> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, const QtBrushApt<T>& tValue)
+		static void serialize(NODE& vNewNode, const QtBrushApt<T, S>& tValue)
 		{
 			ISerialize<NODE, QBrush>::serialize(vNewNode, tValue);
 		}
 	};
 
-	template<class NODE, class T>
-	class OSerialize<NODE, QtBrushApt<T> >
+	template<class NODE, class T, class S>
+	class OSerialize<NODE, QtBrushApt<T, S> >
 	{
 	public:
-		static void serialize(const NODE& vNewNode, QtBrushApt<T>& tValue)
+		static void serialize(const NODE& vNewNode, QtBrushApt<T, S>& tValue)
 		{
 			QBrush brush = tValue;
 			OSerialize<NODE, QBrush>::serialize(vNewNode, brush);
@@ -759,10 +698,10 @@ namespace MSRPC
 	};
 
 	template<class T>
-	class QtForegroundBrushApt
+	class QtBrushApt<T, class _Foreground_>
 	{
 	public:
-		QtForegroundBrushApt(T& t)
+		QtBrushApt(T& t)
 			: m_t(t)
 		{}
 
@@ -780,33 +719,14 @@ namespace MSRPC
 		T& m_t;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtForegroundBrushApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtForegroundBrushApt<T>& tValue)
-		{
-			ISerialize<NODE, QBrush>::serialize(vNewNode, tValue);
-		}
-	};
-
-	template<class NODE, class T>
-	class OSerialize<NODE, QtForegroundBrushApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtForegroundBrushApt<T>& tValue)
-		{
-			QBrush rfValue = tValue;
-			OSerialize<NODE, QBrush>::serialize(vNewNode, rfValue);
-			tValue = rfValue;
-		}
-	};
+	template<class T>
+	using QtForegroundBrushApt = QtBrushApt<T, class _Foreground_>;
 
 	template<class T>
-	class QtBackgroundBrushApt
+	class QtBrushApt<T, class _Background_>
 	{
 	public:
-		QtBackgroundBrushApt(T& t)
+		QtBrushApt(T& t)
 			: m_t(t)
 		{}
 
@@ -824,27 +744,8 @@ namespace MSRPC
 		T& m_t;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtBackgroundBrushApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtBackgroundBrushApt<T>& tValue)
-		{
-			ISerialize<NODE, QBrush>::serialize(vNewNode, tValue);
-		}
-	};
-
-	template<class NODE, class T>
-	class OSerialize<NODE, QtBackgroundBrushApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtBackgroundBrushApt<T>& tValue)
-		{
-			QBrush rfValue = tValue;
-			OSerialize<NODE, QBrush>::serialize(vNewNode, rfValue);
-			tValue = rfValue;
-		}
-	};
+	template<class T>
+	using QtBackgroundBrushApt = QtBrushApt<T, class _Background_>;
 	
 	template<class T>
 	class QtChildItemsApt
