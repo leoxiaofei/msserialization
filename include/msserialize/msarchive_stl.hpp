@@ -433,6 +433,44 @@ namespace MSRPC
 			}
 		}
 	};
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// std::unordered_set<T> 
+
+	template<class NODE, class T>
+	class ISerialize<NODE, std::unordered_set<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const std::unordered_set<T>& tValue)
+		{
+			vNewNode.set_array();
+			for (typename std::unordered_set<T>::const_iterator itor = tValue.begin();
+				itor != tValue.end(); ++itor)
+			{
+				NODE vNode = vNewNode.new_node();
+				ISerialize<NODE, T>::serialize(vNode, *itor);
+				vNewNode.push_node(vNode);
+			}
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, std::unordered_set<T> >
+	{
+	public:
+		static void serialize(const NODE& vNewNode, std::unordered_set<T>& tValue)
+		{
+			typename NODE::ArrIter itor = vNewNode.sub_nodes();
+			for (; itor; ++itor)
+			{
+				T t;
+				OSerialize<NODE, T>::serialize(*itor, t);
+				tValue.emplace(std::move(t));
+			}
+
+		}
+	};
 #endif
 }
 
