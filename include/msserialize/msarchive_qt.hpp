@@ -10,6 +10,7 @@
 #include <QMetaType>
 #include <QSet>
 #include <QLine>
+#include <QMargins>
 
 #ifdef QT_GUI_LIB
 #include <QPolygon>
@@ -695,6 +696,69 @@ namespace MSRPC
 		}
 	};
 
+	template<class NODE>
+	class ISerialize<NODE, QMarginsF>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QMarginsF& tValue)
+		{
+			QString strValue = QString("%1,%2,%3,%4").arg(tValue.left())
+				.arg(tValue.top()).arg(tValue.right()).arg(tValue.bottom());
+
+			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, QMarginsF>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QMarginsF& tValue)
+		{
+			QString strValue;
+			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
+			qreal dX(0);
+			qreal dY(0);
+			qreal dW(0);
+			qreal dH(0);
+			char ch(0);
+			QTextStream ts(const_cast<QString*>(&strValue));
+			ts >> dX >> ch >> dY >> ch >> dW >> ch >> dH;
+			tValue = { dX, dY, dW, dH };
+		}
+	};
+
+	template<class NODE>
+	class ISerialize<NODE, QMargins>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const QMargins& tValue)
+		{
+			QString strValue = QString("%1,%2,%3,%4").arg(tValue.left())
+				.arg(tValue.top()).arg(tValue.right()).arg(tValue.bottom());
+
+			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+		}
+	};
+
+	template<class NODE>
+	class OSerialize<NODE, QMargins>
+	{
+	public:
+		static void serialize(const NODE& vNewNode, QMargins& tValue)
+		{
+			QString strValue;
+			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
+			int nX(0);
+			int nY(0);
+			int nW(0);
+			int nH(0);
+			char ch(0);
+			QTextStream ts(const_cast<QString*>(&strValue));
+			ts >> nX >> ch >> nY >> ch >> nW >> ch >> nH;
+			tValue = { dX, dY, dW, dH };
+		}
+	};
 
 	template<class NODE>
 	class ISerialize<NODE, QLineF>
@@ -927,7 +991,7 @@ namespace MSRPC
 
 			///保存QVariant内部数据类型
 			NODE vNodeType = vNewNode.new_node();
-			ISerialize<NODE, const char*>::serialize(vNodeType, tValue.typeName());
+			ISerialize<NODE, char*>::serialize(vNodeType, tValue.typeName());
 			vNewNode.add_member("type", vNodeType);
 
 			NODE vNodeValue = vNewNode.new_node();
