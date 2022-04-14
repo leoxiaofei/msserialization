@@ -13,6 +13,7 @@
 
 #if ANY_CPP11_OR_GREATER
 #include <unordered_map>
+#include <unordered_set>
 #endif
 
 namespace MSRPC

@@ -580,4 +580,51 @@ namespace MSRPC
 	}
 }
 
+#define MS_CONCAT(A, B) _MS_CONCAT(A, B)
+#define _MS_CONCAT(A, B) __MS_CONCAT(A, B)
+#define __MS_CONCAT(A, B) A##B
+
+#define MS_MACROARGCHECK(...) MS_PROT(_MS_MACROARGCHECK)(__VA_ARGS__,\
+	N, N, N, N, N, N, N, N, N, N, \
+	N, N, N, N, N, N, N, N, N, N, \
+	N, N, N, N, N, N, N, N, N, N, \
+	N, N, N, N, N, N, N, N, N, N, \
+	N, N, N, N, N, N, N, N, N, N, \
+	N, N, N, N, N, N, N, N, N, N, \
+	N, N, N, 1)
+
+#define _MS_MACROARGCHECK(_0, \
+	_01, _02, _03, _04, _05, _06, _07, _08, _09, _10, \
+	_11, _12, _13, _14, _15, _16, _17, _18, _19, _20, \
+	_21, _22, _23, _24, _25, _26, _27, _28, _29, _30, \
+	_31, _32, _33, _34, _35, _36, _37, _38, _39, _40, \
+	_41, _42, _43, _44, _45, _46, _47, _48, _49, _50, \
+	_51, _52, _53, _54, _55, _56, _57, _58, _59, _60, \
+	_61, _62, _63, TARGET, ...) TARGET
+
+#define MS_ENUMARGS(MSFUNC,...) MS_EXPAND(MS_FOREACH(MSFUNC, __VA_ARGS__))
+
+#define MS_FOREACH(MSFUNC, ...) MS_PROT(MS_CONCAT(_MS_FOREACH, MS_MACROARGCHECK(__VA_ARGS__))) (MSFUNC, __VA_ARGS__)
+#define _MS_FOREACH() MS_FOREACH
+#define _MS_FOREACH1(MSFUNC, A) MSFUNC(A)
+#define _MS_FOREACHN(MSFUNC, A, ...) MSFUNC(A) MS_PROT(_MS_FOREACH)() (MSFUNC, __VA_ARGS__)
+
+#define MS_EMPTY()
+#define MS_PROT(FUNC) FUNC MS_EMPTY()
+
+#define MS_EXPAND(...)  MS_EXPAND1(MS_EXPAND1(MS_EXPAND1(MS_EXPAND1(__VA_ARGS__))))
+#define MS_EXPAND1(...) MS_EXPAND2(MS_EXPAND2(MS_EXPAND2(MS_EXPAND2(__VA_ARGS__))))
+#define MS_EXPAND2(...) MS_EXPAND3(MS_EXPAND3(MS_EXPAND3(MS_EXPAND3(__VA_ARGS__))))
+#define MS_EXPAND3(...) __VA_ARGS__
+
+
+#define SiArIo(MEM) ar.io(#MEM, tValue.MEM); \
+
+#define SiExSe(TYPE, ...) template<class Ar> \
+void ex_serialize(Ar& ar, TYPE& tValue) \
+{ \
+	MS_ENUMARGS(SiArIo, __VA_ARGS__) \
+}
+
+
 #endif // MSARCHIVE_H__
