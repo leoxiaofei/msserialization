@@ -183,11 +183,25 @@ namespace MSRPC
 
 		ONodeJson sub_member(const char* strName) const
 		{
-			rapidjson::Value::ConstMemberIterator itrFind
-				= m_node->FindMember(strName);
-			
-			return ONodeJson(itrFind != m_node->MemberEnd() ?
-				&itrFind->value : 0);
+			const rapidjson::Value* node = 0;
+			do 
+			{
+				if (!m_node->IsObject())
+				{
+					break;
+				}
+
+				rapidjson::Value::ConstMemberIterator itrFind = m_node->FindMember(strName);
+				if (itrFind == m_node->MemberEnd())
+				{
+					break;
+				}
+
+				node = &itrFind->value;
+
+			} while (false);
+
+			return ONodeJson(node);
 		}
 
 		class ONodeObjIter
