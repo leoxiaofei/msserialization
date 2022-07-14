@@ -12,6 +12,7 @@
 #include <set>
 
 #if ANY_CPP11_OR_GREATER
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
 #endif
@@ -399,6 +400,85 @@ namespace MSRPC
 			OSerialize<NODE, T*>::serialize(vNewNode, pRet);
 			tValue.reset(pRet);
 		}
+	};
+
+	template<class NODE, typename... T>
+	class ISerialize<NODE, std::tuple<T...> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const std::tuple<T...>& tValue)
+		{
+			vNewNode.set_array();
+
+			PushNode<std::tuple_size<std::tuple<T...> >::value-1>(vNewNode, tValue);
+		}
+
+	protected:
+		template<size_t N>
+		static void PushNode(NODE& vUpNode, const std::tuple<T...>& tValue)
+		{
+			PushNode<N - 1>(vUpNode, tValue);
+
+			NODE vKeyNode = vUpNode.new_node();
+			typedef std::tuple_element<N, std::tuple<T...> >::type V;
+			ISerialize<NODE, V>::serialize(vKeyNode, std::get<N>(tValue));
+			vUpNode.push_node(vKeyNode);
+		};
+
+		template<>
+		static void PushNode<0>(NODE& vUpNode, const std::tuple<T...>& tValue)
+		{
+			NODE vKeyNode = vUpNode.new_node();
+			typedef std::tuple_element<0, std::tuple<T...> >::type V;
+			ISerialize<NODE, V>::serialize(vKeyNode, std::get<0>(tValue));
+			vUpNode.push_node(vKeyNode);
+		};
+
+	};
+
+	template<class NODE, typename... T>
+	class OSerialize<NODE, std::tuple<T...> >
+	{
+	public:
+		static void serialize(const NODE& vNewNode, std::tuple<T...>& tValue)
+		{
+			typename NODE::ArrIter itor = vNewNode.sub_nodes();
+			PullNode<std::tuple_size<std::tuple<T...>>::value-1>(itor, tValue);
+		}
+
+	protected:
+		template<size_t N>
+		static void PullNode(typename NODE::ArrIter& itor, std::tuple<T...>& tValue)
+		{
+			PullNode<N - 1>(itor, tValue);
+
+			if (itor)
+			{
+				if (NODE node = *itor)
+				{
+					typedef std::tuple_element<N, std::tuple<T...> >::type V;
+					OSerialize<NODE, V>::serialize(node, std::get<N>(tValue));
+				}
+
+				++itor;
+			}
+		}
+
+		template<>
+		static void PullNode<0>(typename NODE::ArrIter& itor, std::tuple<T...>& tValue)
+		{
+			if (itor)
+			{
+				if (NODE node = *itor)
+				{
+					typedef std::tuple_element<0, std::tuple<T...> >::type V;
+					OSerialize<NODE, V>::serialize(node, std::get<0>(tValue));
+				}
+
+				++itor;
+			}
+		}
+
 	};
 
 	template<class NODE, class T>
