@@ -97,6 +97,11 @@ namespace MSRPC
 				T t;
 				OSerialize<NODE, T>::serialize(*itor, t);
 				tValue.push_back(t);
+#if ANY_CPP11_OR_GREATER
+				tValue.emplace_back(std::move(t));
+#else
+				tValue.push_back(t);
+#endif
 			}
 
 		}
@@ -133,12 +138,58 @@ namespace MSRPC
 			{
 				T t;
 				OSerialize<NODE, T>::serialize(*itor, t);
+#if ANY_CPP11_OR_GREATER
+				tValue.emplace_back(std::move(t));
+#else
 				tValue.push_back(t);
+#endif
 			}
 
 		}
 	};
 	
+	//////////////////////////////////////////////////////////////////////////
+	// std::set<T> 
+	template<class NODE, class T>
+	class ISerialize<NODE, std::set<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const std::set<T>& tValue)
+		{
+			vNewNode.set_array();
+			for (typename std::set<T>::const_iterator itor = tValue.begin();
+				itor != tValue.end(); ++itor)
+			{
+				NODE vNode = vNewNode.new_node();
+				ISerialize<NODE, T>::serialize(vNode, *itor);
+				vNewNode.push_node(vNode);
+			}
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, std::set<T> >
+	{
+	public:
+		static void serialize(const NODE& vNewNode, std::set<T>& tValue)
+		{
+			typename NODE::ArrIter itor = vNewNode.sub_nodes();
+			for (; itor; ++itor)
+			{
+				T t;
+				OSerialize<NODE, T>::serialize(*itor, t);
+#if ANY_CPP11_OR_GREATER
+				tValue.emplace(std::move(t));
+#else
+				tValue.insert(t);
+#endif
+			}
+
+		}
+	};
+
+	//////////////////////////////////////////////////////////////////////////
+	// std::map<std::string, T> 
 	template<class NODE, class T>
 	class ISerialize<NODE, std::map<std::string, T> >
 	{
@@ -162,8 +213,6 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, std::map<std::string, T>& tValue)
 		{
-			std::set<std::string> setKey;
-
 			typename NODE::ObjIter itor = vNewNode.sub_members();
 			for (; itor; ++itor)
 			{
@@ -171,58 +220,75 @@ namespace MSRPC
 				{
 					T& t = tValue[itor.key()];
 					OSerialize<NODE, T>::serialize(node, t);
-					setKey.insert(itor.key());
 				}
 			}
 
-			if (setKey.size() != tValue.size())
+		}
+	};
+
+	//////////////////////////////////////////////////////////////////////////
+	// std::pair<K, T> 
+	template<class NODE, class K, class T>
+	class ISerialize<NODE, std::pair<K, T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const std::pair<K, T>& tValue)
+		{
+			vNewNode.set_array();
+
+			NODE vKeyNode = vNewNode.new_node();
+			ISerialize<NODE, K>::serialize(vKeyNode, tValue.first);
+			vNewNode.push_node(vKeyNode);
+
+			NODE vValueNode = vNewNode.new_node();
+			ISerialize<NODE, T>::serialize(vValueNode, tValue.second);
+			vNewNode.push_node(vValueNode);
+		}
+	};
+
+	template<class NODE, class K, class T>
+	class OSerialize<NODE, std::pair<K, T> >
+	{
+	public:
+		static void serialize(const NODE& vNewNode, std::pair<K, T>& tValue)
+		{
+			if (typename NODE::ArrIter itor = vNewNode.sub_nodes())
 			{
-				for (typename std::map<std::string, T>::iterator itor = tValue.begin();
-					itor != tValue.end();)
+				OSerialize<NODE, K>::serialize(*itor, tValue.first);
+
+				if (++itor)
 				{
-					if (setKey.find(itor->first) == setKey.end())
-					{
-						itor = tValue.erase(itor);
-					}
-					else
-					{
-						++itor;
-					}
+					OSerialize<NODE, T>::serialize(*itor, tValue.second);
 				}
 			}
 		}
 	};
 
+	//////////////////////////////////////////////////////////////////////////
+	// std::map<K, T> 
 	template<class NODE, class K, class T>
 	class ISerialize<NODE, std::map<K, T> >
 	{
 	public:
 		static void serialize(NODE& vNewNode, const std::map<K, T>& tValue)
 		{
-			vNewNode.set_object();
+			vNewNode.set_array();
 
-			if (!tValue.empty())
+			for (typename std::map<K, T>::const_iterator citor = tValue.begin();
+				citor != tValue.end(); ++citor)
 			{
-				NODE vKeyNode = vNewNode.new_node();
-				vKeyNode.set_array();
+				NODE vSubNode = vNewNode.new_node();
+				vSubNode.set_array();
 
-				NODE vValueNode = vNewNode.new_node();
-				vValueNode.set_array();
+				NODE vKeyNode = vSubNode.new_node();
+				ISerialize<NODE, K>::serialize(vKeyNode, citor->first);
+				vSubNode.push_node(vKeyNode);
 
-				for (typename std::map<K, T>::const_iterator citor = tValue.begin();
-					citor != tValue.end(); ++citor)
-				{
-					NODE vKNode = vKeyNode.new_node();
-					ISerialize<NODE, K>::serialize(vKNode, citor->first);
-					vKeyNode.push_node(vKNode);
+				NODE vValueNode = vSubNode.new_node();
+				ISerialize<NODE, T>::serialize(vValueNode, citor->second);
+				vSubNode.push_node(vValueNode);
 
-					NODE vVNode = vValueNode.new_node();
-					ISerialize<NODE, T>::serialize(vVNode, citor->second);
-					vValueNode.push_node(vVNode);
-				}
-
-				vNewNode.add_member("key", vKeyNode);
-				vNewNode.add_member("value", vValueNode);
+				vNewNode.push_node(vSubNode);
 			}
 		}
 	};
@@ -233,47 +299,83 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, std::map<K, T>& tValue)
 		{
-			NODE vKeyNode = vNewNode.sub_member("key");
-			NODE vValueNode = vNewNode.sub_member("value");
-
-			if (vKeyNode && vValueNode)
+			for (typename NODE::ArrIter itor = vNewNode.sub_nodes();
+				itor; ++itor)
 			{
-				std::set<K> setKey;
-
-				typename NODE::ArrIter itorKey = vKeyNode.sub_nodes();
-				typename NODE::ArrIter itorValue = vValueNode.sub_nodes();
-				for (; itorKey && itorValue; ++itorKey, ++itorValue)
+				if (typename NODE::ArrIter itorSub = (*itor).sub_nodes())
 				{
-					NODE nodeKey = *itorKey;
-					NODE nodeVal = *itorValue;
-					if (nodeKey && nodeVal)
-					{
-						K k;
-						OSerialize<NODE, K>::serialize(nodeKey, k);
-						T& t = tValue[k];
-						OSerialize<NODE, T>::serialize(nodeVal, t);
-						setKey.insert(k);
-					}
-				}
+					K k;
+					OSerialize<NODE, K>::serialize(*itorSub, k);
 
-				if (setKey.size() != tValue.size())
-				{
-					for (typename std::map<K, T>::iterator itor = tValue.begin();
-						itor != tValue.end();)
+					T& v = tValue[k];
+					if (++itorSub)
 					{
-						if (setKey.find(itor->first) == setKey.end())
-						{
-							itor = tValue.erase(itor);
-						}
-						else
-						{
-							++itor;
-						}
+						OSerialize<NODE, T>::serialize(*itorSub, v);
 					}
 				}
 			}
 		}
 	};
+
+	//////////////////////////////////////////////////////////////////////////
+	// std::multimap<K, T> 
+	template<class NODE, class K, class T>
+	class ISerialize<NODE, std::multimap<K, T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const std::multimap<K, T>& tValue)
+		{
+			vNewNode.set_array();
+
+			for (typename std::multimap<K, T>::const_iterator citor = tValue.begin();
+				citor != tValue.end(); ++citor)
+			{
+				NODE vSubNode = vNewNode.new_node();
+				vSubNode.set_array();
+
+				NODE vKeyNode = vSubNode.new_node();
+				ISerialize<NODE, K>::serialize(vKeyNode, citor->first);
+				vSubNode.push_node(vKeyNode);
+
+				NODE vValueNode = vSubNode.new_node();
+				ISerialize<NODE, T>::serialize(vValueNode, citor->second);
+				vSubNode.push_node(vValueNode);
+
+				vNewNode.push_node(vSubNode);
+			}
+		}
+	};
+
+	template<class NODE, class K, class T>
+	class OSerialize<NODE, std::multimap<K, T> >
+	{
+	public:
+		static void serialize(const NODE& vNewNode, std::multimap<K, T>& tValue)
+		{
+			for (typename NODE::ArrIter itor = vNewNode.sub_nodes();
+				itor; ++itor)
+			{
+				if (typename NODE::ArrIter itorSub = (*itor).sub_nodes())
+				{
+					K k;
+					T t;
+					OSerialize<NODE, K>::serialize(*itorSub, k);
+
+					if (++itorSub)
+					{
+						OSerialize<NODE, T>::serialize(*itorSub, t);
+					}
+
+#if ANY_CPP11_OR_GREATER
+					tValue.emplace(std::move(k), std::move(t));
+#else
+					tValue.insert(std::multimap<K, T>::value_type(k, t));
+#endif
+				}
+			}
+		}
+	};
+
 
 #if ANY_CPP11_OR_GREATER
 
@@ -322,8 +424,6 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, std::unordered_map<std::string, T>& tValue)
 		{
-			std::set<std::string> setKey;
-
 			typename NODE::ObjIter itor = vNewNode.sub_members();
 			for (; itor; ++itor)
 			{
@@ -331,25 +431,9 @@ namespace MSRPC
 				{
 					T& t = tValue[itor.key()];
 					OSerialize<NODE, T>::serialize(node, t);
-					setKey.insert(itor.key());
 				}
 			}
 
-			if (setKey.size() != tValue.size())
-			{
-				for (typename std::unordered_map<std::string, T>::iterator itor = tValue.begin();
-					itor != tValue.end();)
-				{
-					if (setKey.find(itor->first) == setKey.end())
-					{
-						itor = tValue.erase(itor);
-					}
-					else
-					{
-						++itor;
-					}
-				}
-			}
 		}
 	};
 
@@ -359,30 +443,23 @@ namespace MSRPC
 	public:
 		static void serialize(NODE& vNewNode, const std::unordered_map<K, T>& tValue)
 		{
-			vNewNode.set_object();
+			vNewNode.set_array();
 
-			if (!tValue.empty())
+			for (typename std::unordered_map<K, T>::const_iterator citor = tValue.begin();
+				citor != tValue.end(); ++citor)
 			{
-				NODE vKeyNode = vNewNode.new_node();
-				vKeyNode.set_array();
+				NODE vSubNode = vNewNode.new_node();
+				vSubNode.set_array();
 
-				NODE vValueNode = vNewNode.new_node();
-				vValueNode.set_array();
+				NODE vKeyNode = vSubNode.new_node();
+				ISerialize<NODE, K>::serialize(vKeyNode, citor->first);
+				vSubNode.push_node(vKeyNode);
 
-				for (typename std::unordered_map<K, T>::const_iterator citor = tValue.begin();
-					citor != tValue.end(); ++citor)
-				{
-					NODE vKNode = vKeyNode.new_node();
-					ISerialize<NODE, K>::serialize(vKNode, citor->first);
-					vKeyNode.push_node(vKNode);
+				NODE vValueNode = vSubNode.new_node();
+				ISerialize<NODE, T>::serialize(vValueNode, citor->second);
+				vSubNode.push_node(vValueNode);
 
-					NODE vVNode = vValueNode.new_node();
-					ISerialize<NODE, T>::serialize(vVNode, citor->second);
-					vValueNode.push_node(vVNode);
-				}
-
-				vNewNode.add_member("key", vKeyNode);
-				vNewNode.add_member("value", vValueNode);
+				vNewNode.push_node(vSubNode);
 			}
 		}
 	};
@@ -393,48 +470,77 @@ namespace MSRPC
 	public:
 		static void serialize(const NODE& vNewNode, std::unordered_map<K, T>& tValue)
 		{
-			NODE vKeyNode = vNewNode.sub_member("key");
-			NODE vValueNode = vNewNode.sub_member("value");
-
-			if (vKeyNode && vValueNode)
+			for (typename NODE::ArrIter itor = vNewNode.sub_nodes();
+				itor; ++itor)
 			{
-				std::set<K> setKey;
-
-				typename NODE::ArrIter itorKey = vKeyNode.sub_nodes();
-				typename NODE::ArrIter itorValue = vValueNode.sub_nodes();
-				for (; itorKey && itorValue; ++itorKey, ++itorValue)
+				if (typename NODE::ArrIter itorSub = (*itor).sub_nodes())
 				{
-					NODE nodeKey = *itorKey;
-					NODE nodeVal = *itorValue;
-					if (nodeKey && nodeVal)
+					K k;
+					OSerialize<NODE, K>::serialize(*itorSub, k);
+
+					T& v = tValue[k];
+					if (++itorSub)
 					{
-						K k;
-						OSerialize<NODE, K>::serialize(nodeKey, k);
-						T& t = tValue[k];
-						OSerialize<NODE, T>::serialize(nodeVal, t);
-						setKey.insert(k);
+						OSerialize<NODE, T>::serialize(*itorSub, v);
 					}
 				}
+			}
 
-				if (setKey.size() != tValue.size())
-				{
-					for (typename std::unordered_map<K, T>::iterator itor = tValue.begin();
-						itor != tValue.end();)
-					{
-						if (setKey.find(itor->first) == setKey.end())
-						{
-							itor = tValue.erase(itor);
-						}
-						else
-						{
-							++itor;
-						}
-					}
-				}
+		}
+	};
+
+	template<class NODE, class K, class T>
+	class ISerialize<NODE, std::unordered_multimap<K, T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const std::unordered_multimap<K, T>& tValue)
+		{
+			vNewNode.set_array();
+
+			for (typename std::unordered_multimap<K, T>::const_iterator citor = tValue.begin();
+				citor != tValue.end(); ++citor)
+			{
+				NODE vSubNode = vNewNode.new_node();
+				vSubNode.set_array();
+
+				NODE vKeyNode = vSubNode.new_node();
+				ISerialize<NODE, K>::serialize(vKeyNode, citor->first);
+				vSubNode.push_node(vKeyNode);
+
+				NODE vValueNode = vSubNode.new_node();
+				ISerialize<NODE, T>::serialize(vValueNode, citor->second);
+				vSubNode.push_node(vValueNode);
+
+				vNewNode.push_node(vSubNode);
 			}
 		}
 	};
 
+	template<class NODE, class K, class T>
+	class OSerialize<NODE, std::unordered_multimap<K, T> >
+	{
+	public:
+		static void serialize(const NODE& vNewNode, std::unordered_multimap<K, T>& tValue)
+		{
+			for (typename NODE::ArrIter itor = vNewNode.sub_nodes();
+				itor; ++itor)
+			{
+				if (typename NODE::ArrIter itorSub = (*itor).sub_nodes())
+				{
+					K k;
+					T t;
+					OSerialize<NODE, K>::serialize(*itorSub, k);
+
+					if (++itorSub)
+					{
+						OSerialize<NODE, T>::serialize(*itorSub, t);
+					}
+
+					tValue.emplace(std::move(k), std::move(t));
+				}
+			}
+		}
+	};
 
 	//////////////////////////////////////////////////////////////////////////
 	// std::unordered_set<T> 
@@ -461,6 +567,40 @@ namespace MSRPC
 	{
 	public:
 		static void serialize(const NODE& vNewNode, std::unordered_set<T>& tValue)
+		{
+			typename NODE::ArrIter itor = vNewNode.sub_nodes();
+			for (; itor; ++itor)
+			{
+				T t;
+				OSerialize<NODE, T>::serialize(*itor, t);
+				tValue.emplace(std::move(t));
+			}
+
+		}
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, std::unordered_multiset<T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const std::unordered_multiset<T>& tValue)
+		{
+			vNewNode.set_array();
+			for (typename std::unordered_multiset<T>::const_iterator itor = tValue.begin();
+				itor != tValue.end(); ++itor)
+			{
+				NODE vNode = vNewNode.new_node();
+				ISerialize<NODE, T>::serialize(vNode, *itor);
+				vNewNode.push_node(vNode);
+			}
+		}
+	};
+
+	template<class NODE, class T>
+	class OSerialize<NODE, std::unordered_multiset<T> >
+	{
+	public:
+		static void serialize(const NODE& vNewNode, std::unordered_multiset<T>& tValue)
 		{
 			typename NODE::ArrIter itor = vNewNode.sub_nodes();
 			for (; itor; ++itor)
