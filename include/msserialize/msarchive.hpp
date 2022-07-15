@@ -25,13 +25,35 @@ namespace MSRPC
 		{
 		}
 		*/
+
+		StrApt(T& str)
+			: m_str(str) {}
+
+		StrApt(const T& str)
+			: m_str(const_cast<T&>(str)) {}
+
+		const char* Get() const
+		{
+			return m_str.c_str();
+		}
+
+		void Set(const char* tValue, const unsigned int& sSize)
+		{
+			m_str.assign(tValue, sSize);
+		}
+
+	private:
+		T& m_str;
 	};
 
 	template <class NODE>
 	class IArchiveHelper;
 
 	//template <class AR, typename T>
-	//void ex_serialize(AR& ar, T& tValue);
+	//void ex_serialize(AR& ar, T& tValue)
+	//{
+	//	#pragma message(__FUNCSIG__)
+	//}
 
 	template <class NODE, typename T>
 	class ISerialize
@@ -633,6 +655,17 @@ namespace MSRPC
 #define SiArIo(MEM) ar.io(#MEM, tValue.MEM); \
 
 #define SiExSe(TYPE, ...) template<class Ar> \
+void ex_serialize(Ar& ar, TYPE& tValue) \
+{ \
+	MS_ENUMARGS(SiArIo, __VA_ARGS__) \
+}
+
+#define SiExSeVoid(TYPE) template<class Ar> \
+void ex_serialize(Ar& ar, TYPE& tValue) \
+{ \
+}
+
+#define SiExSeTemp(TMP, TYPE, ...) template<class Ar, typename TMP> \
 void ex_serialize(Ar& ar, TYPE& tValue) \
 { \
 	MS_ENUMARGS(SiArIo, __VA_ARGS__) \

@@ -19,30 +19,6 @@
 
 namespace MSRPC
 {
-	template<>
-	class StrApt<std::string>
-	{
-	private:
-		std::string& m_str;
-
-	public:
-		StrApt(std::string& str)
-			: m_str(str) {}
-
-		StrApt(const std::string& str) 
-			: m_str(const_cast<std::string&>(str)) {}
-
-		const char* Get() const
-		{
-			return m_str.c_str();
-		}
-
-		void Set(const char* tValue, const size_t& sSize)
-		{
-			m_str.assign(tValue, sSize);
-		}
-	};
-
 	//////////////////////////////////////////////////////////////////////////
 	// std::string
 
