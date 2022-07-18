@@ -3,6 +3,7 @@
 
 #include "msarchive.hpp"
 #include <rapidxml/rapidxml.hpp>
+#include <rapidxml/rapidxml_print.hpp>
 #include <sstream>
 
 
@@ -149,10 +150,9 @@ namespace MSRPC
 		}
 
 		template <typename T>
-		void in_serialize(const StrApt<T>& tValue) const
+		void in_serialize(StrApt<T>& tValue) const
 		{
-			const_cast<StrApt<T>&>(tValue).
-				Set(m_node->value(), m_node->value_size());
+			tValue.Set(m_node->value(), m_node->value_size());
 		}
 
 		void in_serialize(char* tValue, size_t nSize) const
@@ -191,13 +191,18 @@ namespace MSRPC
 
 			operator bool() const
 			{
-				return m_curNode;
+				return !!m_curNode;
 			}
 
 			ONodeArrIter& operator ++ ()
 			{
 				m_curNode = m_curNode->next_sibling(m_name);
 				return *this;
+			}
+
+			const char* key() const
+			{
+				return m_curNode->name();
 			}
 		};
 
@@ -208,9 +213,16 @@ namespace MSRPC
 			return ArrIter(m_node, m_node->name());
 		}
 
+		typedef ONodeArrIter ObjIter;
+
+		ObjIter sub_members() const
+		{
+			return ArrIter(m_node->first_node(NULL), NULL);
+		}
+
 		operator bool() const
 		{
-			return m_node;
+			return !!m_node;
 		}
 
 	};

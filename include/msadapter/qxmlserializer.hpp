@@ -1,8 +1,8 @@
-#ifndef QJSONSERIALIZER_HPP__
-#define QJSONSERIALIZER_HPP__
+#ifndef QXMLSERIALIZER_HPP__
+#define QXMLSERIALIZER_HPP__
 
 
-///通用Json序列化接口
+///通用Xml序列化接口
 
 #include <QDomDocument>
 #include <QFile>
@@ -23,7 +23,7 @@ QByteArray ToXmlS(const T& t, const QString& strRootName, int nIndent = -1)
 	MSRPC::IXmlArc ia(nObjI);
 	ia & t;
 
-	//输出json字符串
+	//输出Xml字符串
 	return doc.toByteArray(nIndent);
 }
 
@@ -48,7 +48,7 @@ bool FromXmlS(T& t, QByteArray& strXml)
 }
 
 template<class T>
-bool ToJsonFile(const T& t, const QString& strFilePath, const QString& strRootName, int nIndent = -1)
+bool ToXmlFile(const T& t, const QString& strFilePath, const QString& strRootName, int nIndent = -1)
 {
 	bool bRet(false);
 
@@ -58,7 +58,7 @@ bool ToJsonFile(const T& t, const QString& strFilePath, const QString& strRootNa
 	MSRPC::IXmlArc ia(nObjI);
 	ia & t;
 
-	//输出json字符串
+	//输出Xml字符串
 	QByteArray strXml = doc.toByteArray(nIndent);
 
 	QFile f(strFilePath);
@@ -71,7 +71,7 @@ bool ToJsonFile(const T& t, const QString& strFilePath, const QString& strRootNa
 }
 
 template<class T>
-bool FromJsonFile(T& t, const QString& strFilePath)
+bool FromXmlFile(T& t, const QString& strFilePath)
 {
 	bool bRet(false);
 
@@ -95,4 +95,4 @@ bool FromJsonFile(T& t, const QString& strFilePath)
 }
 
 
-#endif // QJSONSERIALIZER_HPP__
+#endif // QXMLSERIALIZER_HPP__
