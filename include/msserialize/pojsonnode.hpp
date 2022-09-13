@@ -145,6 +145,10 @@ namespace MSRPC
 		ONodeJson() 
 		{}
 
+		ONodeJson(Poco::Dynamic::Var&& node)
+			: m_node(std::move(node))
+		{}
+
 		ONodeJson(const Poco::Dynamic::Var* node)
 			: m_node(*node)
 		{}
@@ -370,7 +374,7 @@ namespace MSRPC
 			{
 				Poco::JSON::Object::Ptr str = m_node.extract<Poco::JSON::Object::Ptr>();
 
-				return ONodeJson(&str->get(strName));
+				return ONodeJson(str->get(strName));
 			}
 			catch (...)
 			{
