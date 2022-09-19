@@ -114,7 +114,7 @@ namespace MSRPC
 
 		operator bool() const
 		{
-			return m_node && !m_node->isEmpty();
+			return !m_node->isEmpty();
 		}
 
 		INodeJson()
@@ -491,7 +491,7 @@ namespace MSRPC
 
 		operator bool() const
 		{
-			return m_node && !m_node.isEmpty();
+			return !m_node.isEmpty();
 		}
 	};
 
