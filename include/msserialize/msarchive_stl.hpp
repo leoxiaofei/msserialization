@@ -73,7 +73,6 @@ namespace MSRPC
 			{
 				T t;
 				OSerialize<NODE, T>::serialize(*itor, t);
-				tValue.push_back(t);
 #if ANY_CPP11_OR_GREATER
 				tValue.emplace_back(std::move(t));
 #else
