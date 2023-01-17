@@ -37,7 +37,7 @@ namespace MSRPC
 			return m_str.c_str();
 		}
 
-		void Set(const char* tValue, const unsigned int& sSize)
+		void Set(const char* tValue, const size_t& sSize)
 		{
 			m_str.assign(tValue, sSize);
 		}
