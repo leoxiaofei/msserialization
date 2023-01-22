@@ -660,6 +660,13 @@ void ex_serialize(Ar& ar, TYPE& tValue) \
 	MS_ENUMARGS(SiArIo, __VA_ARGS__) \
 }
 
+#define SiExSePar(TYPE, PAR, ...) template<class Ar> \
+void ex_serialize(Ar& ar, TYPE& tValue) \
+{ \
+	ar & static_cast<PAR&>(tValue); \
+	MS_ENUMARGS(SiArIo, __VA_ARGS__) \
+}
+
 #define SiExSeVoid(TYPE) template<class Ar> \
 void ex_serialize(Ar& ar, TYPE& tValue) \
 { \
