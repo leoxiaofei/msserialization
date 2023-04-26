@@ -2,7 +2,7 @@
 #define QJSONSERIALIZER_HPP__
 
 
-///Í¨ÓÃJsonĞòÁĞ»¯½Ó¿Ú
+///é€šç”¨Jsonåºåˆ—åŒ–æ¥å£
 
 #include <QJsonDocument>
 #include <QFile>
@@ -17,13 +17,13 @@ namespace MSRPC
 template<class T>
 QByteArray ToJsonS(const T& t, bool bFormat = false)
 {
-	//ĞòÁĞ»¯
+	//åºåˆ—åŒ–
 	QJsonDocument doc;
 	MSRPC::IJsonArc::Node nObjI(&doc);
 	MSRPC::IJsonArc ia(nObjI);
 	ia & t;
 
-	//Êä³öjson×Ö·û´®
+	//è¾“å‡ºjsonå­—ç¬¦ä¸²
 	return doc.toJson(bFormat ? QJsonDocument::Indented 
 		: QJsonDocument::Compact);
 }
@@ -49,13 +49,13 @@ bool ToJsonFile(const T& t, const QString& strFilePath, bool bFormat = true)
 {
 	bool bRet(false);
 
-	//ĞòÁĞ»¯
+	//åºåˆ—åŒ–
 	QJsonDocument doc;
 	MSRPC::IJsonArc::Node nObjI(&doc);
 	MSRPC::IJsonArc ia(nObjI);
 	ia & t;
 
-	//Êä³öjson×Ö·û´®
+	//è¾“å‡ºjsonå­—ç¬¦ä¸²
 	QByteArray strJson = doc.toJson(bFormat 
 		? QJsonDocument::Indented : QJsonDocument::Compact);
 

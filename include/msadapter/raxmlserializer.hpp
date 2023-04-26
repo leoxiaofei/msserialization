@@ -2,7 +2,7 @@
 #define RAXMLSERIALIZER_HPP__
 
 
-///Í¨ÓÃxmlĞòÁĞ»¯½Ó¿Ú
+///é€šç”¨xmlåºåˆ—åŒ–æ¥å£
 
 #include <msserialize/raxmlnode.hpp>
 #include <msserialize/msarchive_stl.hpp>
@@ -18,7 +18,7 @@ template<class T>
 std::string ToXmlS(const T& t, const char* strRootName)
 {
 	rapidxml::xml_document<> doc;
-	//ĞòÁĞ»¯
+	//åºåˆ—åŒ–
 	MSRPC::IXmlArc::Node nObjI(&doc);
 	MSRPC::IXmlArc::Node root = nObjI.new_node();
 	MSRPC::IXmlArc ia(root);
@@ -28,7 +28,7 @@ std::string ToXmlS(const T& t, const char* strRootName)
 
 	std::string text;
 	rapidxml::print(std::back_inserter(text), doc);
-	//Êä³öxml×Ö·û´®
+	//è¾“å‡ºxmlå­—ç¬¦ä¸²
 	return text;
 }
 
@@ -59,7 +59,7 @@ bool FromXmlS(T& t, StrBuf& strXml)
 	 bool bRet = false;
 
 	 rapidxml::xml_document<> doc;
-	 //ĞòÁĞ»¯
+	 //åºåˆ—åŒ–
 	 MSRPC::IXmlArc::Node nObjI(&doc);
 	 MSRPC::IXmlArc::Node root = nObjI.new_node();
 	 MSRPC::IXmlArc ia(root);
@@ -70,7 +70,7 @@ bool FromXmlS(T& t, StrBuf& strXml)
 	 std::ofstream ofs(strFilePath, std::ios::binary);
 	 if (ofs)
 	 {
-		 //Êä³öxmlÎÄ¼ş
+		 //è¾“å‡ºxmlæ–‡ä»¶
 		 ofs << doc;
 		 //rapidxml::print(ofs, doc);
 		 bRet = true;

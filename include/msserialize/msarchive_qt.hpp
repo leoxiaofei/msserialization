@@ -989,16 +989,16 @@ namespace MSRPC
 		{
 			vNewNode.set_object();
 
-			///±£´æQVariantÄÚ²¿Êı¾İÀàĞÍ
+			///ä¿å­˜QVariantå†…éƒ¨æ•°æ®ç±»å‹
 			NODE vNodeType = vNewNode.new_node();
 			ISerialize<NODE, char*>::serialize(vNodeType, tValue.typeName());
 			vNewNode.add_member("type", vNodeType);
 
 			NODE vNodeValue = vNewNode.new_node();
 
-			///¸ù¾İÀàĞÍ±£´æÖµ
-			///ÕâÀïÆäÊµÎÒÏëÓÃMap£¬µ«ÊÇÕâÊÇ¸ö´¿Í·ÎÄ¼şµÄ¿â£¬MapµÄÊı¾İ±£´æÔÚÄÄÀï»¹Ã»ÏëÇå³ş£¬
-			///Ö»ºÃ¿¿C++±àÒëÆ÷ÓÅ»¯switchÁË¡£
+			///æ ¹æ®ç±»å‹ä¿å­˜å€¼
+			///è¿™é‡Œå…¶å®æˆ‘æƒ³ç”¨Mapï¼Œä½†æ˜¯è¿™æ˜¯ä¸ªçº¯å¤´æ–‡ä»¶çš„åº“ï¼ŒMapçš„æ•°æ®ä¿å­˜åœ¨å“ªé‡Œè¿˜æ²¡æƒ³æ¸…æ¥šï¼Œ
+			///åªå¥½é C++ç¼–è¯‘å™¨ä¼˜åŒ–switchäº†ã€‚
 			switch (tValue.type())
 			{
 			case QMetaType::Bool:
@@ -1129,8 +1129,8 @@ namespace MSRPC
 				QString baData;
 				vNodeType.in_serialize(baData);
 				int nType = QVariant::nameToType(baData.toUtf8().data());
-				///ÕâÀïÆäÊµÎÒÏëÓÃMap£¬µ«ÊÇÕâÊÇ¸ö´¿Í·ÎÄ¼şµÄ¿â£¬MapµÄÊı¾İ±£´æÔÚÄÄÀï»¹Ã»ÏëÇå³ş£¬
-				///Ö»ºÃ¿¿C++±àÒëÆ÷ÓÅ»¯switchÁË¡£
+				///è¿™é‡Œå…¶å®æˆ‘æƒ³ç”¨Mapï¼Œä½†æ˜¯è¿™æ˜¯ä¸ªçº¯å¤´æ–‡ä»¶çš„åº“ï¼ŒMapçš„æ•°æ®ä¿å­˜åœ¨å“ªé‡Œè¿˜æ²¡æƒ³æ¸…æ¥šï¼Œ
+				///åªå¥½é C++ç¼–è¯‘å™¨ä¼˜åŒ–switchäº†ã€‚
 				switch (nType)
 				{
 				case QMetaType::Bool:

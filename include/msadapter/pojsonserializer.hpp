@@ -2,7 +2,7 @@
 #define RAJSONSERIALIZER_HPP__
 
 
-///Í¨ÓÃJsonĞòÁĞ»¯½Ó¿Ú
+///é€šç”¨Jsonåºåˆ—åŒ–æ¥å£
 
 #include <msserialize/pojsonnode.hpp>
 #include <msserialize/msarchive_stl.hpp>
@@ -14,13 +14,13 @@ namespace MSRPC
 template<class T>
 std::string ToJsonS(const T& t, unsigned int indent = 0)
 {
-	//ĞòÁĞ»¯
+	//åºåˆ—åŒ–
 	Poco::Dynamic::Var doc;
 	MSRPC::IJsonArc::Node nObjI(&doc);
 	MSRPC::IJsonArc ia(nObjI);
 	ia & t;
 
-	//Êä³öjson×Ö·û´®
+	//è¾“å‡ºjsonå­—ç¬¦ä¸²
 	std::ostringstream os;
 	Poco::JSON::Stringifier::stringify(doc, os, indent, 1, Poco::JSON_WRAP_STRINGS);
 
@@ -47,14 +47,14 @@ bool FromJsonS(T& t, StrBuf& strJson)
 template<class T>
 bool ToJsonFile(const T& t, const char* strFilePath, unsigned int indent = 0)
 {
-	//ĞòÁĞ»¯
+	//åºåˆ—åŒ–
 	Poco::Dynamic::Var doc;
 	MSRPC::IJsonArc::Node nObjI(&doc);
 	MSRPC::IJsonArc ia(nObjI);
 	ia & t;
 
 	bool bRet = false;
-	//Êä³öjson
+	//è¾“å‡ºjson
 	std::ofstream outfile(strFilePath);
 	if (outfile)
 	{

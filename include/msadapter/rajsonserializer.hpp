@@ -2,7 +2,7 @@
 #define RAJSONSERIALIZER_HPP__
 
 
-///Í¨ÓÃJsonĞòÁĞ»¯½Ó¿Ú
+///é€šç”¨Jsonåºåˆ—åŒ–æ¥å£
 
 #include <msadapter/msrajsonadapter.hpp>
 #include <msserialize/rajsonnode.hpp>
@@ -38,13 +38,13 @@ bool BuffDocWrite(rapidjson::Document& doc, RsvBuffer& buffer, bool bFormat)
 template<class T>
 std::string ToJsonS(const T& t, bool bFormat = false)
 {
-	//ĞòÁĞ»¯
+	//åºåˆ—åŒ–
 	rapidjson::Document doc;
 	MSRPC::IJsonArc::Node nObjI(&doc);
 	MSRPC::IJsonArc ia(nObjI);
 	ia & t;
 
-	//Êä³öjson×Ö·û´®
+	//è¾“å‡ºjsonå­—ç¬¦ä¸²
 	std::string strRet;
 	typedef MSRPC::TBufferAdapter<std::string> RsvBuffer;
 	RsvBuffer buffer(strRet);
@@ -74,13 +74,13 @@ bool FromJsonS(T& t, StrBuf& strJson)
 template<class T>
 bool ToJsonFile(const T& t, const char* strFilePath, bool bFormat = false)
 {
-	//ĞòÁĞ»¯
+	//åºåˆ—åŒ–
 	rapidjson::Document doc;
 	MSRPC::IJsonArc::Node nObjI(&doc);
 	MSRPC::IJsonArc ia(nObjI);
 	ia & t;
 
-	//Êä³öjson
+	//è¾“å‡ºjson
 	std::ofstream outfile(strFilePath);
 
 	rapidjson::OStreamWrapper osw(outfile);

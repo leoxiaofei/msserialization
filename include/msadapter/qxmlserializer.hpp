@@ -2,7 +2,7 @@
 #define QXMLSERIALIZER_HPP__
 
 
-///Í¨ÓÃXmlĞòÁĞ»¯½Ó¿Ú
+///é€šç”¨Xmlåºåˆ—åŒ–æ¥å£
 
 #include <QDomDocument>
 #include <QFile>
@@ -17,13 +17,13 @@ namespace MSRPC
 template<class T>
 QByteArray ToXmlS(const T& t, const QString& strRootName, int nIndent = -1)
 {
-	//ĞòÁĞ»¯
+	//åºåˆ—åŒ–
 	QDomDocument doc;
 	MSRPC::IXmlArc::Node nObjI(&doc, strRootName);
 	MSRPC::IXmlArc ia(nObjI);
 	ia & t;
 
-	//Êä³öXml×Ö·û´®
+	//è¾“å‡ºXmlå­—ç¬¦ä¸²
 	return doc.toByteArray(nIndent);
 }
 
@@ -52,13 +52,13 @@ bool ToXmlFile(const T& t, const QString& strFilePath, const QString& strRootNam
 {
 	bool bRet(false);
 
-	//ĞòÁĞ»¯
+	//åºåˆ—åŒ–
 	QDomDocument doc;
 	MSRPC::IXmlArc::Node nObjI(&doc, doc.createElement(strRootName));
 	MSRPC::IXmlArc ia(nObjI);
 	ia & t;
 
-	//Êä³öXml×Ö·û´®
+	//è¾“å‡ºXmlå­—ç¬¦ä¸²
 	QByteArray strXml = doc.toByteArray(nIndent);
 
 	QFile f(strFilePath);
