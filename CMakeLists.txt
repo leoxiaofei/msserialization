@@ -10,3 +10,4 @@ add_library(msserialization INTERFACE)
 target_include_directories(msserialization INTERFACE "include")
 
 #add_subdirectory(test)
+add_subdirectory(demo/rajson)

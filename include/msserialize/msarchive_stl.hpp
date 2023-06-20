@@ -377,38 +377,86 @@ namespace MSRPC
 		}
 	};
 
-	template<class NODE, typename... T>
-	class ISerialize<NODE, std::tuple<T...> >
+	template <size_t N, class NODE, class TUPLET>
+	class ISNode
+	{
+	public:
+		static void Push(NODE &vUpNode, const TUPLET& tValue)
+		{
+			ISNode<N - 1, NODE, TUPLET>::Push(vUpNode, tValue);
+
+			NODE vKeyNode = vUpNode.new_node();
+			typedef typename std::tuple_element<N, TUPLET>::type V;
+			ISerialize<NODE, V>::serialize(vKeyNode, std::get<N>(tValue));
+			vUpNode.push_node(vKeyNode);
+		}
+	};
+
+	template <class NODE, class TUPLET>
+	class ISNode<0, NODE, TUPLET>
+	{
+	public:
+		static void Push(NODE &vUpNode, const TUPLET& tValue)
+		{
+			NODE vKeyNode = vUpNode.new_node();
+			typedef typename std::tuple_element<0, TUPLET>::type V;
+			ISerialize<NODE, V>::serialize(vKeyNode, std::get<0>(tValue));
+			vUpNode.push_node(vKeyNode);
+		}
+
+	};
+
+	template <class NODE, typename... T>
+	class ISerialize<NODE, std::tuple<T...>>
 	{
 	public:
 		static void serialize(NODE& vNewNode, const std::tuple<T...>& tValue)
 		{
 			vNewNode.set_array();
 
-			PushNode<std::tuple_size<std::tuple<T...> >::value-1>(vNewNode, tValue);
+			ISNode<std::tuple_size<std::tuple<T...> >::value - 1, NODE, std::tuple<T...> >::Push(vNewNode, tValue);
 		}
 
-	protected:
-		template<size_t N>
-		static void PushNode(NODE& vUpNode, const std::tuple<T...>& tValue)
+	};
+
+	template<size_t N, class NODE, class TUPLET>
+	class OSNode
+	{
+	public:
+		static void Pull(typename NODE::ArrIter& itor, TUPLET& tValue)
 		{
-			PushNode<N - 1>(vUpNode, tValue);
+			OSNode<N - 1, NODE, TUPLET>::Pull(itor, tValue);
 
-			NODE vKeyNode = vUpNode.new_node();
-			typedef std::tuple_element<N, std::tuple<T...> >::type V;
-			ISerialize<NODE, V>::serialize(vKeyNode, std::get<N>(tValue));
-			vUpNode.push_node(vKeyNode);
-		};
+			if (itor)
+			{
+				if (NODE node = *itor)
+				{
+					typedef typename std::tuple_element<N, TUPLET>::type V;
+					OSerialize<NODE, V>::serialize(node, std::get<N>(tValue));
+				}
 
-		template<>
-		static void PushNode<0>(NODE& vUpNode, const std::tuple<T...>& tValue)
+				++itor;
+			}
+		}
+	};
+
+	template<class NODE, class TUPLET>
+	class OSNode<0, NODE, TUPLET>
+	{
+	public:
+		static void Pull(typename NODE::ArrIter& itor, TUPLET& tValue)
 		{
-			NODE vKeyNode = vUpNode.new_node();
-			typedef std::tuple_element<0, std::tuple<T...> >::type V;
-			ISerialize<NODE, V>::serialize(vKeyNode, std::get<0>(tValue));
-			vUpNode.push_node(vKeyNode);
-		};
+			if (itor)
+			{
+				if (NODE node = *itor)
+				{
+					typedef typename std::tuple_element<0, TUPLET>::type V;
+					OSerialize<NODE, V>::serialize(node, std::get<0>(tValue));
+				}
 
+				++itor;
+			}
+		}
 	};
 
 	template<class NODE, typename... T>
@@ -418,42 +466,8 @@ namespace MSRPC
 		static void serialize(const NODE& vNewNode, std::tuple<T...>& tValue)
 		{
 			typename NODE::ArrIter itor = vNewNode.sub_nodes();
-			PullNode<std::tuple_size<std::tuple<T...>>::value-1>(itor, tValue);
+			OSNode<std::tuple_size<std::tuple<T...> >::value - 1, NODE, std::tuple<T...> >::Pull(itor, tValue);
 		}
-
-	protected:
-		template<size_t N>
-		static void PullNode(typename NODE::ArrIter& itor, std::tuple<T...>& tValue)
-		{
-			PullNode<N - 1>(itor, tValue);
-
-			if (itor)
-			{
-				if (NODE node = *itor)
-				{
-					typedef std::tuple_element<N, std::tuple<T...> >::type V;
-					OSerialize<NODE, V>::serialize(node, std::get<N>(tValue));
-				}
-
-				++itor;
-			}
-		}
-
-		template<>
-		static void PullNode<0>(typename NODE::ArrIter& itor, std::tuple<T...>& tValue)
-		{
-			if (itor)
-			{
-				if (NODE node = *itor)
-				{
-					typedef std::tuple_element<0, std::tuple<T...> >::type V;
-					OSerialize<NODE, V>::serialize(node, std::get<0>(tValue));
-				}
-
-				++itor;
-			}
-		}
-
 	};
 
 	template<class NODE, class T>

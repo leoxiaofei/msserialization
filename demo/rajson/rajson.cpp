@@ -2,6 +2,7 @@
 #include <msserialize/msnodeapt.hpp>
 #include <iostream>
 
+
 namespace
 {
 	enum EnumTest { E_T1, E_T2, E_T3 };
@@ -23,30 +24,35 @@ namespace
 	{
 	public:
 		std::vector<A> szA;
+		std::tuple<int, std::string, double> tpT;
 		int szN[10] = { 0 };
 	};
 
 	const char* szEnumTest[] = { "E_T1", "E_T2", "E_T3" };
 
-	template<class Ar>
-	void ex_serialize(Ar& ar, A& tValue)
-	{
-		ar.io("b", tValue.b);
-		ar.io("i", tValue.i);
-		ar.io("d", tValue.d);
-		ar.io("l", tValue.l);
-		ar.io("str", tValue.str);
-		ar.io("szS", tValue.szS);
-		ar.io("test", MSRPC::EnumApt<EnumTest>(tValue.eTest, szEnumTest));
-		ar.io("spD", tValue.spD);
-	}
+	SiExSe(A, b, i, d, l, str, szS)
 
-	template<class Ar>
-	void ex_serialize(Ar& ar, B& tValue)
-	{
-		ar.io("A", tValue.szA);
-		ar.io("N", tValue.szN);
-	}
+// 	template<class Ar>
+// 	void ex_serialize(Ar& ar, A& tValue)
+// 	{
+// 		ar.io("b", tValue.b);
+// 		ar.io("i", tValue.i);
+// 		ar.io("d", tValue.d);
+// 		ar.io("l", tValue.l);
+// 		ar.io("str", tValue.str);
+// 		ar.io("szS", tValue.szS);
+// 		ar.io("test", MSRPC::EnumApt<EnumTest>(tValue.eTest, szEnumTest));
+// 		ar.io("spD", tValue.spD);
+// 	}
+
+	SiExSe(B, szA, tpT, szN)
+
+// 	template<class Ar>
+// 	void ex_serialize(Ar& ar, B& tValue)
+// 	{
+// 		ar.io("A", tValue.szA);
+// 		ar.io("N", tValue.szN);
+// 	}
 
 };
 
