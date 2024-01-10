@@ -11,6 +11,7 @@
 #include <QSet>
 #include <QLine>
 #include <QMargins>
+#include <QQueue>
 
 #ifdef QT_GUI_LIB
 #include <QPolygon>
@@ -138,6 +139,18 @@ namespace MSRPC
 				tValue.erase(tValue.begin() + ix, tValue.end());
 			}
 		}
+	};
+
+	template<class NODE, class T>
+	class ISerialize<NODE, QQueue<T> > : public ISerialize<NODE, QList<T> >
+	{
+	public:
+	};
+ 
+	template<class NODE, class T>
+	class OSerialize<NODE, QQueue<T> > : public OSerialize<NODE, QList<T> >
+	{
+	public:
 	};
 
 	template<class NODE, class T>
