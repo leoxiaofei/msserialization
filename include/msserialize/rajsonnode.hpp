@@ -137,48 +137,69 @@ namespace MSRPC
 		template <class T>
 		void in_serialize(T& tValue) const
 		{
-			tValue = m_node->Get<T>();
+			if(m_node->Is<T>())
+			{
+				tValue = m_node->Get<T>();
+			}
 		}
 
 		void in_serialize(unsigned short& tValue) const
 		{
-			tValue = static_cast<unsigned short>(
-				m_node->Get<unsigned int>());
+			if(m_node->IsNumber())
+			{
+				tValue = static_cast<unsigned short>(
+					m_node->Get<unsigned int>());
+			}
 		}
 
 		void in_serialize(long long& tValue) const
 		{
-			tValue = static_cast<long long>(
-				m_node->Get<int64_t>());
+			if(m_node->IsNumber())
+			{
+				tValue = static_cast<long long>(
+					m_node->Get<int64_t>());
+			}
 		}
 
 		void in_serialize(unsigned long long& tValue) const
 		{
-			tValue = static_cast<unsigned long long>(
-				m_node->Get<uint64_t>());
+			if(m_node->IsNumber())
+			{
+				tValue = static_cast<unsigned long long>(
+					m_node->Get<uint64_t>());
+			}
 		}
 
 		void in_serialize(const char*& tValue) const
 		{
-			tValue = m_node->GetString();
+			if(m_node->IsString())
+			{
+				tValue = m_node->GetString();
+			}
 		}
 
 		template <typename T>
 		void in_serialize(StrApt<T>& tValue) const
 		{
-			tValue.Set(m_node->GetString(), m_node->GetStringLength());
+			if(m_node->IsString())
+			{
+				tValue.Set(m_node->GetString(), m_node->GetStringLength());
+			}
 		}
 
 		void in_serialize(char* tValue, size_t nSize) const
 		{
-			const char* str = m_node->GetString();
-			
-			if (nSize > strlen(str) + 1)
+			if(m_node->IsString())
 			{
-				nSize = strlen(str) + 1;
-			}
+				const char* str = m_node->GetString();
+				
+				if (nSize > strlen(str) + 1)
+				{
+					nSize = strlen(str) + 1;
+				}
 
-			memcpy(tValue, str, nSize);
+				memcpy(tValue, str, nSize);
+			}
 		}
 
 		ONodeJson sub_member(const char* strName) const
@@ -211,8 +232,8 @@ namespace MSRPC
 			rapidjson::Value::ConstMemberIterator citEnd;
 
 			ONodeObjIter(const rapidjson::Value* node)
-				: citCur(node->MemberBegin())
-				, citEnd(node->MemberEnd())
+				: citCur(node ? node->MemberBegin() : rapidjson::Value::ConstMemberIterator())
+				, citEnd(node ? node->MemberEnd() : rapidjson::Value::ConstMemberIterator())
 			{}
 
 		public:
@@ -242,7 +263,7 @@ namespace MSRPC
 
 		ObjIter sub_members() const
 		{
-			return ObjIter(m_node);
+			return ObjIter(m_node && m_node->IsObject() ? m_node : nullptr);
 		}
 
 		class ONodeArrIter
@@ -252,8 +273,8 @@ namespace MSRPC
 			rapidjson::Value::ConstValueIterator citEnd;
 
 			ONodeArrIter(const rapidjson::Value* node)
-				: citCur(node->Begin())
-				, citEnd(node->End())
+				: citCur(node ? node->Begin() : rapidjson::Value::ConstValueIterator())
+				, citEnd(node ? node->End() : rapidjson::Value::ConstValueIterator())
 			{}
 
 		public:
@@ -278,7 +299,7 @@ namespace MSRPC
 
 		ArrIter sub_nodes() const
 		{
-			return ArrIter(m_node);
+			return ArrIter(m_node && m_node->IsArray() ? m_node : nullptr);
 		}
 
 		operator bool() const
