@@ -149,6 +149,7 @@ namespace MSRPC
 				tValue = pVal;
 			}
 			default:
+				tValue = nullptr;
 				break;
 			}
 		}

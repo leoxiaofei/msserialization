@@ -1004,7 +1004,7 @@ namespace MSRPC
 
 			///保存QVariant内部数据类型
 			NODE vNodeType = vNewNode.new_node();
-			ISerialize<NODE, char*>::serialize(vNodeType, tValue.typeName());
+			ISerialize<NODE, const char*>::serialize(vNodeType, tValue.typeName());
 			vNewNode.add_member("type", vNodeType);
 
 			NODE vNodeValue = vNewNode.new_node();
