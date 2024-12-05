@@ -767,14 +767,20 @@ namespace MSRPC
 			{
 				foreach(T* t, rfValue)
 				{
-					pGroup->addToGroup(t);
+					if (t)
+					{
+						pGroup->addToGroup(t);
+					}
 				}
 			}
 			else
 			{
 				foreach(T* t, rfValue)
 				{
-					t->setParentItem(&m_t);
+					if (t)
+					{
+						t->setParentItem(&m_t);
+					}
 				}
 			}
 		}
