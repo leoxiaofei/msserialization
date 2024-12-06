@@ -521,6 +521,32 @@ namespace MSRPC
 	using QtHtmlApt = QtStringApt<T, class _Html_>;
 
 
+	template<class T>
+	class QtStringApt<T, class _PlainText_>
+	{
+	public:
+		QtStringApt(T& t)
+			: m_t(t)
+		{
+		}
+
+		operator QString () const
+		{
+			return m_t.toPlainText();
+		}
+
+		void operator = (const QString& strValue)
+		{
+			m_t.setPlainText(strValue);
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class T>
+	using QtPlainTextApt = QtStringApt<T, class _PlainText_>;
+
 #ifdef QT_GUI_LIB
 	template<class T>
 	class QtPolygonApt

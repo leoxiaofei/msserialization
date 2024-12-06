@@ -538,7 +538,6 @@ namespace MSRPC
 				tValue.setWidthF(listValue[1].toDouble());
 			case 0:
 				tValue.setColor(QColor(listValue[0]));
-				break;
 			default:
 				break;
 			}

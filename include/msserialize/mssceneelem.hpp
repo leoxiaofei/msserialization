@@ -230,7 +230,7 @@ namespace MSRPC
 	{
 		ex_serialize(ar, static_cast<QGraphicsItem&>(tValue));
 		ar.io("font", QtFontApt<QGraphicsTextItem>(tValue));
-		ar.io("text", QtHtmlApt<QGraphicsTextItem>(tValue));
+		ar.io("text", QtPlainTextApt<QGraphicsTextItem>(tValue));
 		ar.io("textWidth", QtTextWidthApt<QGraphicsTextItem>(tValue));
 	}
 
