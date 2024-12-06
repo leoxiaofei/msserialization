@@ -23,12 +23,40 @@
 
 namespace MSRPC
 {
-	template<class T>
-	class QtPosApt
+	template<class R, class T, class F>
+	class ExtractApt;
+
+	template<class NODE, class R, class T, class F>
+	class ISerialize<NODE, ExtractApt<R, T, F> >
 	{
 	public:
-		QtPosApt(T& t) 
-			: m_t(t) {}
+		static void serialize(NODE& vNewNode, const ExtractApt<R, T, F>& tValue)
+		{
+			ISerialize<NODE, R>::serialize(vNewNode, (const R&)tValue);
+		}
+	};
+
+	template<class NODE, class R, class T, class F>
+	class OSerialize<NODE, ExtractApt<R, T, F> >
+	{
+	public:
+		static void serialize(const NODE& vNewNode, ExtractApt<R, T, F>& tValue)
+		{
+			R ptValue = tValue;
+			OSerialize<NODE, R>::serialize(vNewNode, ptValue);
+			tValue = ptValue;
+		}
+	};
+
+	//////////////////////////////////////////////////////////////////////////
+
+	template<class T>
+	class ExtractApt<QPointF, T, class _Pos_>
+	{
+	public:
+		ExtractApt(T& t)
+			: m_t(t) {
+		}
 
 		operator QPointF () const
 		{
@@ -44,33 +72,16 @@ namespace MSRPC
 		T& m_t;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtPosApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtPosApt<T>& tValue)
-		{
-			ISerialize<NODE, QPointF>::serialize(vNewNode, tValue);
-		}
-	};
+	template<class T>
+	using QtPosApt = ExtractApt<QPointF, T, class _Pos_>;
 
-	template<class NODE, class T>
-	class OSerialize<NODE, QtPosApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtPosApt<T>& tValue)
-		{
-			QPointF ptValue = tValue;
-			OSerialize<NODE, QPointF>::serialize(vNewNode, ptValue);
-			tValue = ptValue;
-		}
-	};
+	//////////////////////////////////////////////////////////////////////////
 
 	template<class T>
-	class QtRectApt
+	class ExtractApt<QRectF, T, class _Rect_>
 	{
 	public:
-		QtRectApt(T& t)
+		ExtractApt(T& t)
 			: m_t(t) {}
 
 		operator QRectF () const
@@ -87,33 +98,16 @@ namespace MSRPC
 		T& m_t;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtRectApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtRectApt<T>& tValue)
-		{
-			ISerialize<NODE, QRectF>::serialize(vNewNode, tValue);
-		}
-	};
+	template<class T>
+	using QtRectApt = ExtractApt<QRectF, T, class _Rect_>;
 
-	template<class NODE, class T>
-	class OSerialize<NODE, QtRectApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtRectApt<T>& tValue)
-		{
-			QRectF rfValue = tValue;
-			OSerialize<NODE, QRectF>::serialize(vNewNode, rfValue);
-			tValue = rfValue;
-		}
-	};
+	//////////////////////////////////////////////////////////////////////////
 
 	template<class T>
-	class QtLineApt
+	class ExtractApt<QLineF, T, class _Line_>
 	{
 	public:
-		QtLineApt(T& t)
+		ExtractApt(T& t)
 			: m_t(t) {}
 
 		operator QLineF () const
@@ -130,62 +124,104 @@ namespace MSRPC
 		T& m_t;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtLineApt<T> >
+	template<class T>
+	using QtLineApt = ExtractApt<QLineF, T, class _Line_>;
+
+	//////////////////////////////////////////////////////////////////////////
+
+	template<class T>
+	class ExtractApt<qreal, T, class _ZValue_>
 	{
 	public:
-		static void serialize(NODE& vNewNode, const QtLineApt<T>& tValue)
+		ExtractApt(T& t)
+			: m_t(t)
 		{
-			ISerialize<NODE, QLineF>::serialize(vNewNode, tValue);
 		}
-	};
 
-	template<class NODE, class T>
-	class OSerialize<NODE, QtLineApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtLineApt<T>& tValue)
+		operator qreal () const
 		{
-			QLineF lfValue = tValue;
-			OSerialize<NODE, QLineF>::serialize(vNewNode, lfValue);
-			tValue = lfValue;
+			return m_t.zValue();
 		}
-	};
 
-	template<class T, class S>
-	class QtStringApt;
-
-	template<class NODE, class T, class S>
-	class ISerialize<NODE, QtStringApt<T, S> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtStringApt<T, S>& tValue)
+		void operator = (const qreal& qValue)
 		{
-			QString strValue = tValue;
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
+			m_t.setZValue(qValue);
 		}
-	};
 
-	template<class NODE, class T, class S>
-	class OSerialize<NODE, QtStringApt<T, S> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtStringApt<T, S>& tValue)
-		{
-			QString strValue = tValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			tValue = strValue;
-		}
+	private:
+		T& m_t;
 	};
 
 	template<class T>
-	class QtStringApt<T, class _Data_>
+	using QtZValueApt = ExtractApt<qreal, T, class _ZValue_>;
+
+	//////////////////////////////////////////////////////////////////////////
+
+	template<class T>
+	class ExtractApt<qreal, T, class _TextWidth_>
 	{
 	public:
-		QtStringApt(T& t, int nKey)
+		ExtractApt(T& t)
+			: m_t(t)
+		{
+		}
+
+		operator qreal () const
+		{
+			return m_t.textWidth();
+		}
+
+		void operator = (const qreal& qValue)
+		{
+			m_t.setTextWidth(qValue);
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class T>
+	using QtTextWidthApt = ExtractApt<qreal, T, class _TextWidth_>;
+
+	//////////////////////////////////////////////////////////////////////////
+
+	template<class T>
+	class ExtractApt<QColor, T, class _DefaultTextColor_>
+	{
+	public:
+		ExtractApt(T& t)
+			: m_t(t)
+		{
+		}
+
+		operator QColor () const
+		{
+			return m_t.defaultTextColor();
+		}
+
+		void operator = (const QColor& qValue)
+		{
+			m_t.setDefaultTextColor(qValue);
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class T>
+	using QtDefaultTextColorApt = ExtractApt<QColor, T, class _DefaultTextColor_>;
+
+	//////////////////////////////////////////////////////////////////////////
+
+	template<class T>
+	class ExtractApt<QString, T, class _Data_>
+	{
+	public:
+		ExtractApt(T& t, int nKey)
 			: m_t(t)
 			, m_nKey(nKey)
-		{}
+		{
+		}
 
 		operator QString () const
 		{
@@ -203,89 +239,14 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtDataApt = QtStringApt<T, class _Data_>;
+	using QtDataApt = ExtractApt<QString, T, class _Data_>;
 
-	template<class T, class S>
-	class QtRealApt;
-
-	template<class NODE, class T, class S>
-	class ISerialize<NODE, QtRealApt<T, S> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtRealApt<T, S>& tValue)
-		{
-			qreal qValue = tValue;
-			ISerialize<NODE, qreal>::serialize(vNewNode, qValue);
-		}
-	};
-
-	template<class NODE, class T, class S>
-	class OSerialize<NODE, QtRealApt<T, S> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtRealApt<T, S>& tValue)
-		{
-			qreal qValue = tValue;
-			OSerialize<NODE, qreal>::serialize(vNewNode, qValue);
-			tValue = qValue;
-		}
-	};
 
 	template<class T>
-	class QtRealApt<T, class _ZValue_>
+	class ExtractApt<QString, T, class _Pixmap_>
 	{
 	public:
-		QtRealApt(T& t)
-			: m_t(t)
-		{}
-
-		operator qreal () const
-		{
-			return m_t.zValue();
-		}
-
-		void operator = (const qreal& qValue)
-		{
-			m_t.setZValue(qValue);
-		}
-
-	private:
-		T& m_t;
-	};
-
-	template<class T>
-	using QtZValueApt = QtRealApt<T, class _ZValue_>;
-
-	template<class T>
-	class QtRealApt<T, class _TextWidth_>
-	{
-	public:
-		QtRealApt(T& t)
-			: m_t(t)
-		{}
-
-		operator qreal () const
-		{
-			return m_t.textWidth();
-		}
-
-		void operator = (const qreal& qValue)
-		{
-			m_t.setTextWidth(qValue);
-		}
-
-	private:
-		T& m_t;
-	};
-
-	template<class T>
-	using QtTextWidthApt = QtRealApt<T, class _TextWidth_>;
-
-	template<class T>
-	class QtStringApt<T, class _Pixmap_>
-	{
-	public:
-		QtStringApt(T& t, int nKey)
+		ExtractApt(T& t, int nKey)
 			: m_t(t)
 			, m_nKey(nKey)
 		{}
@@ -308,14 +269,14 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtPixmapApt = QtStringApt<T, class _Pixmap_>;
+	using QtPixmapApt = ExtractApt<QString, T, class _Pixmap_>;
 
 
 	template<class T>
-	class QtStringApt<T, class _Svg>
+	class ExtractApt<QString, T, class _Svg>
 	{
 	public:
-		QtStringApt(T& t, int nKey)
+		ExtractApt(T& t, int nKey)
 			: m_t(t)
 			, m_nKey(nKey)
 		{}
@@ -338,13 +299,13 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtSvgApt = QtStringApt<T, class _Svg>;
+	using QtSvgApt = ExtractApt<QString, T, class _Svg>;
 
 	template<class T>
-	class QtStringApt<T, class _Transform_>
+	class ExtractApt<QString, T, class _Transform_>
 	{
 	public:
-		QtStringApt(T& t, int nKey)
+		ExtractApt(T& t, int nKey)
 			: m_t(t)
 			, m_nKey(nKey)
 		{}
@@ -406,14 +367,14 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtTransformApt = QtStringApt<T, class _Transform_>;
+	using QtTransformApt = ExtractApt<QString, T, class _Transform_>;
 
 
 	template<class T>
-	class QtStringApt<T, class _Path_>
+	class ExtractApt<QString, T, class _Path_>
 	{
 	public:
-		QtStringApt(T& t, int nKey)
+		ExtractApt(T& t, int nKey)
 			: m_t(t)
 			, m_nKey(nKey)
 		{}
@@ -492,14 +453,14 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtPathApt = QtStringApt<T, class _Path_>;
+	using QtPathApt = ExtractApt<QString, T, class _Path_>;
 
 
 	template<class T>
-	class QtStringApt<T, class _Html_>
+	class ExtractApt<QString, T, class _Html_>
 	{
 	public:
-		QtStringApt(T& t)
+		ExtractApt(T& t)
 			: m_t(t)
 		{}
 
@@ -518,14 +479,14 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtHtmlApt = QtStringApt<T, class _Html_>;
+	using QtHtmlApt = ExtractApt<QString, T, class _Html_>;
 
 
 	template<class T>
-	class QtStringApt<T, class _PlainText_>
+	class ExtractApt<QString, T, class _PlainText_>
 	{
 	public:
-		QtStringApt(T& t)
+		ExtractApt(T& t)
 			: m_t(t)
 		{
 		}
@@ -545,14 +506,16 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtPlainTextApt = QtStringApt<T, class _PlainText_>;
+	using QtPlainTextApt = ExtractApt<QString, T, class _PlainText_>;
 
 #ifdef QT_GUI_LIB
+	//////////////////////////////////////////////////////////////////////////
+
 	template<class T>
-	class QtPolygonApt
+	class ExtractApt<QPolygonF, T, class _Polygon_>
 	{
 	public:
-		QtPolygonApt(T& t)
+		ExtractApt(T& t)
 			: m_t(t) {}
 
 		operator QPolygonF () const
@@ -569,33 +532,16 @@ namespace MSRPC
 		T& m_t;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtPolygonApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtPolygonApt<T>& tValue)
-		{
-			ISerialize<NODE, QPolygonF>::serialize(vNewNode, tValue);
-		}
-	};
+	template<class T>
+	using QtPolygonApt = ExtractApt<QPolygonF, T, class _Polygon_>;
 
-	template<class NODE, class T>
-	class OSerialize<NODE, QtPolygonApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtPolygonApt<T>& tValue)
-		{
-			QPolygonF rfValue = tValue;
-			OSerialize<NODE, QPolygonF>::serialize(vNewNode, rfValue);
-			tValue = rfValue;
-		}
-	};
+	//////////////////////////////////////////////////////////////////////////
 
 	template<class T>
-	class QtFontApt
+	class ExtractApt<QFont, T, class _Font_>
 	{
 	public:
-		QtFontApt(T& t)
+		ExtractApt(T& t)
 			: m_t(t)
 		{}
 
@@ -613,37 +559,21 @@ namespace MSRPC
 		T& m_t;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtFontApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtFontApt<T>& tValue)
-		{
-			ISerialize<NODE, QFont>::serialize(vNewNode, tValue);
-		}
-	};
+	template<class T>
+	using QtFontApt = ExtractApt<QFont, T, class _Font_>;
+	
 
-	template<class NODE, class T>
-	class OSerialize<NODE, QtFontApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtFontApt<T>& tValue)
-		{
-			QFont font = tValue;
-			OSerialize<NODE, QFont>::serialize(vNewNode, font);
-			tValue = font;
-		}
-	};
+	//////////////////////////////////////////////////////////////////////////
 
 	template<class T>
-	class QtPenApt
+	class ExtractApt<QPen, T, class _Pen_>
 	{
 	public:
-		QtPenApt(T& t)
+		ExtractApt(T& t)
 			: m_t(t)
 		{}
 
-		operator QPen () const
+		operator QPen() const
 		{
 			return m_t.pen();
 		}
@@ -657,33 +587,16 @@ namespace MSRPC
 		T& m_t;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtPenApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtPenApt<T>& tValue)
-		{
-			ISerialize<NODE, QPen>::serialize(vNewNode, tValue);
-		}
-	};
+	template<class T>
+	using QtPenApt = ExtractApt<QPen, T, class _Pen_>;
 
-	template<class NODE, class T>
-	class OSerialize<NODE, QtPenApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtPenApt<T>& tValue)
-		{
-			QPen pen = tValue;
-			OSerialize<NODE, QPen>::serialize(vNewNode, pen);
-			tValue = pen;
-		}
-	};
+	//////////////////////////////////////////////////////////////////////////
 
-	template<class T, class S = QBrush>
-	class QtBrushApt
+	template<class T>
+	class ExtractApt<QBrush, T, class _Brush_>
 	{
 	public:
-		QtBrushApt(T& t)
+		ExtractApt(T& t)
 			: m_t(t)
 		{}
 
@@ -701,33 +614,16 @@ namespace MSRPC
 		T& m_t;
 	};
 
-	template<class NODE, class T, class S>
-	class ISerialize<NODE, QtBrushApt<T, S> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtBrushApt<T, S>& tValue)
-		{
-			ISerialize<NODE, QBrush>::serialize(vNewNode, tValue);
-		}
-	};
+	template<class T>
+	using QtBrushApt = ExtractApt<QBrush, T, class _Brush_>;
 
-	template<class NODE, class T, class S>
-	class OSerialize<NODE, QtBrushApt<T, S> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtBrushApt<T, S>& tValue)
-		{
-			QBrush brush = tValue;
-			OSerialize<NODE, QBrush>::serialize(vNewNode, brush);
-			tValue = brush;
-		}
-	};
+	//////////////////////////////////////////////////////////////////////////
 
 	template<class T>
-	class QtBrushApt<T, class _Foreground_>
+	class ExtractApt<QBrush, T, class _Foreground_>
 	{
 	public:
-		QtBrushApt(T& t)
+		ExtractApt(T& t)
 			: m_t(t)
 		{}
 
@@ -746,13 +642,15 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtForegroundBrushApt = QtBrushApt<T, class _Foreground_>;
+	using QtForegroundBrushApt = ExtractApt<QBrush, T, class _Foreground_>;
+
+	//////////////////////////////////////////////////////////////////////////
 
 	template<class T>
-	class QtBrushApt<T, class _Background_>
+	class ExtractApt<QBrush, T, class _Background_>
 	{
 	public:
-		QtBrushApt(T& t)
+		ExtractApt(T& t)
 			: m_t(t)
 		{}
 
@@ -771,13 +669,15 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtBackgroundBrushApt = QtBrushApt<T, class _Background_>;
+	using QtBackgroundBrushApt = ExtractApt<QBrush, T, class _Background_>;
 	
+	//////////////////////////////////////////////////////////////////////////
+
 	template<class T>
-	class QtChildItemsApt
+	class ExtractApt<QList<T*>, T, class _ChildItems_>
 	{
 	public:
-		QtChildItemsApt(T& t)
+		ExtractApt(T& t)
 			: m_t(t)
 		{}
 
@@ -815,34 +715,18 @@ namespace MSRPC
 		T& m_t;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtChildItemsApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtChildItemsApt<T>& tValue)
-		{
-			ISerialize<NODE, QList<T*> >::serialize(vNewNode, tValue);
-		}
-	};
+	template<class T>
+	using QtChildItemsApt = ExtractApt<QList<T*>, T, class _ChildItems_>;
 
-	template<class NODE, class T>
-	class OSerialize<NODE, QtChildItemsApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, QtChildItemsApt<T>& tValue)
-		{
-			QList<T*> rfValue;
-			OSerialize<NODE, QList<T*> >::serialize(vNewNode, rfValue);
-			tValue = rfValue;
-		}
-	};
 #endif
 
+	//////////////////////////////////////////////////////////////////////////
+
 	template<class T>
-	class QtSceneRectApt
+	class ExtractApt<QRectF, T, class _SceneRect_>
 	{
 	public:
-		QtSceneRectApt(T& t)
+		ExtractApt(T& t)
 			: m_t(t)
 		{}
 
@@ -860,33 +744,16 @@ namespace MSRPC
 		T& m_t;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtSceneRectApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtSceneRectApt<T>& tValue)
-		{
-			ISerialize<NODE, QRectF>::serialize(vNewNode, tValue);
-		}
-	};
+	template<class T>
+	using QtSceneRectApt = ExtractApt<QRectF, T, class _SceneRect_>;
 
-	template<class NODE, class T>
-	class OSerialize<NODE, QtSceneRectApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtSceneRectApt<T>& tValue)
-		{
-			QRectF rfValue = tValue;
-			OSerialize<NODE, QRectF>::serialize(vNewNode, rfValue);
-			tValue = rfValue;
-		}
-	};
+	//////////////////////////////////////////////////////////////////////////
 
 	template<class T>
-	class QtFillRuleApt
+	class ExtractApt<int, T, class _FillRule_>
 	{
 	public:
-		QtFillRuleApt(T& t)
+		ExtractApt(T& t)
 			: m_t(t)
 		{}
 
@@ -904,33 +771,16 @@ namespace MSRPC
 		T& m_t;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtFillRuleApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtFillRuleApt<T>& tValue)
-		{
-			ISerialize<NODE, int>::serialize(vNewNode, tValue);
-		}
-	};
+	template<class T>
+	using QtFillRuleApt = ExtractApt<int, T, class _FillRule_>;
 
-	template<class NODE, class T>
-	class OSerialize<NODE, QtFillRuleApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtFillRuleApt<T>& tValue)
-		{
-			int rfValue = tValue;
-			OSerialize<NODE, int>::serialize(vNewNode, rfValue);
-			tValue = rfValue;
-		}
-	};
+	//////////////////////////////////////////////////////////////////////////
 
 	template<class T>
-	class QtHashDataApt
+	class ExtractApt<QHash<QString, QString>, T, class _HashData_>
 	{
 	public:
-		QtHashDataApt(T& t, int nKey)
+		ExtractApt(T& t, int nKey)
 			: m_t(t)
 			, m_nKey(nKey)
 		{}
@@ -951,28 +801,10 @@ namespace MSRPC
 		int m_nKey;
 	};
 
-	template<class NODE, class T>
-	class ISerialize<NODE, QtHashDataApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QtHashDataApt<T>& tValue)
-		{
-			QHash<QString, QString> hsValue = tValue;
-			ISerialize<NODE, QHash<QString, QString> >::serialize(vNewNode, hsValue);
-		}
-	};
+	template<class T>
+	using QtHashDataApt = ExtractApt<QHash<QString, QString>, T, class _HashData_>;
 
-	template<class NODE, class T>
-	class OSerialize<NODE, QtHashDataApt<T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QtHashDataApt<T>& tValue)
-		{
-			QHash<QString, QString> hsValue = tValue;
-			OSerialize<NODE, QHash<QString, QString> >::serialize(vNewNode, hsValue);
-			tValue = hsValue;
-		}
-	};
+	//////////////////////////////////////////////////////////////////////////
 
 	template<typename C, typename F, typename ELEM>
 	class ArrayReshape<C, F, QSharedPointer<ELEM> >

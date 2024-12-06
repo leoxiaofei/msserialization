@@ -232,6 +232,7 @@ namespace MSRPC
 		ar.io("font", QtFontApt<QGraphicsTextItem>(tValue));
 		ar.io("text", QtPlainTextApt<QGraphicsTextItem>(tValue));
 		ar.io("textWidth", QtTextWidthApt<QGraphicsTextItem>(tValue));
+		ar.io("textColor", QtDefaultTextColorApt<QGraphicsTextItem>(tValue));
 	}
 
 	template<class Ar>

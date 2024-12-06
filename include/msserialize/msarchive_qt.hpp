@@ -2,6 +2,7 @@
 #define MSARCHIVE_QT_H__
 
 #include "msarchive.hpp"
+#include "msbasetypeapt_qt.hpp"
 #include <QString>
 #include <QTextStream>
 #include <QDataStream>
@@ -449,392 +450,54 @@ namespace MSRPC
 		}
 	};
 
-	template<class NODE>
-	class ISerialize<NODE, QFont>
+	template<class NODE, class S, class T>
+	class ISerialize<NODE, BaseTypeApt<S, T> >
 	{
 	public:
-		static void serialize(NODE& vNewNode, const QFont& tValue)
+		static void serialize(NODE& vNewNode, const BaseTypeApt<S, T>& tValue)
 		{
-			ISerialize<NODE, QString>::serialize(vNewNode, tValue.toString());
+			ISerialize<NODE, S>::serialize(vNewNode, tValue);
 		}
 	};
 
-	template<class NODE>
-	class OSerialize<NODE, QFont>
+	template<class NODE, class S, class T>
+	class OSerialize<NODE, BaseTypeApt<S, T> >
 	{
 	public:
-		static void serialize(const NODE& vNewNode, QFont& tValue)
+		static void serialize(const NODE& vNewNode, BaseTypeApt<S, T>&& tValue)
 		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			tValue.fromString(strValue);
+			S ptValue = tValue;
+			OSerialize<NODE, S>::serialize(vNewNode, ptValue);
+			tValue = ptValue;
 		}
 	};
 
-	template<class NODE>
-	class ISerialize<NODE, QBrush>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QBrush& tValue)
-		{
-			QString strValue = QString("%1,%2").arg(tValue.color().name()).arg(tValue.style());
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
+#define DefQStringBaseType(TYPE) \
+	template<class NODE> \
+	class ISerialize<NODE, TYPE> : public ISerialize<NODE, BaseTypeApt<QString, TYPE>> { }; \
+	template<class NODE> \
+	class OSerialize<NODE, TYPE> : public OSerialize<NODE, BaseTypeApt<QString, TYPE>> { };
 
-	template<class NODE>
-	class OSerialize<NODE, QBrush>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QBrush& tValue)
-		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			QStringList listValue = strValue.split(',');
-			if (listValue.size() > 1)
-			{
-				tValue.setStyle(static_cast<Qt::BrushStyle>(
-					listValue[1].toInt()));
-			}
-			tValue.setColor(QColor(listValue[0]));
-		}
-	};
 
-	template<class NODE>
-	class ISerialize<NODE, QPen>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QPen& tValue)
-		{
-			QString strValue = QString("%1,%2,%3,%4,%5").arg(tValue.color().name())
-				.arg(tValue.widthF()).arg(tValue.style()).arg(tValue.capStyle()).arg(tValue.joinStyle());
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
+	DefQStringBaseType(QColor)
+	DefQStringBaseType(QFont)
+	DefQStringBaseType(QBrush)
+	DefQStringBaseType(QPen)
+	DefQStringBaseType(QPointF)
+	DefQStringBaseType(QPoint)
+	DefQStringBaseType(QSizeF)
+	DefQStringBaseType(QSize)
+	DefQStringBaseType(QRectF)
+	DefQStringBaseType(QRect)
 
-	template<class NODE>
-	class OSerialize<NODE, QPen>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QPen& tValue)
-		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			QStringList listValue = strValue.split(',');
+	DefQStringBaseType(QMarginsF)
+	DefQStringBaseType(QMargins)
+	DefQStringBaseType(QLineF)
+	DefQStringBaseType(QLine)
 
-			int nSize = qMax(listValue.size(), 5);
-			switch (nSize - 1)
-			{
-			case 4:
-				tValue.setJoinStyle(static_cast<Qt::PenJoinStyle>(
-					listValue[4].toInt()));
-			case 3:
-				tValue.setCapStyle(static_cast<Qt::PenCapStyle>(
-					listValue[3].toInt()));
-			case 2:
-				tValue.setStyle(static_cast<Qt::PenStyle>(
-					listValue[2].toInt()));
-			case 1:
-				tValue.setWidthF(listValue[1].toDouble());
-			case 0:
-				tValue.setColor(QColor(listValue[0]));
-			default:
-				break;
-			}
-		}
-	};
 
-	template<class NODE>
-	class ISerialize<NODE, QPointF>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QPointF& tValue)
-		{
-			QString strValue = QString("%1,%2").arg(tValue.x()).arg(tValue.y());
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
 
-	template<class NODE>
-	class OSerialize<NODE, QPointF>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QPointF& tValue)
-		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			char ch(0);
-			QTextStream ts(const_cast<QString*>(&strValue));
-			ts >> tValue.rx() >> ch >> tValue.ry();
-		}
-	};
 
-	template<class NODE>
-	class ISerialize<NODE, QPoint>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QPoint& tValue)
-		{
-			QString strValue = QString("%1,%2").arg(tValue.x()).arg(tValue.y());
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
-
-	template<class NODE>
-	class OSerialize<NODE, QPoint>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QPoint& tValue)
-		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			char ch(0);
-			QTextStream ts(const_cast<QString*>(&strValue));
-			ts >> tValue.rx() >> ch >> tValue.ry();
-		}
-	};
-
-	template<class NODE>
-	class ISerialize<NODE, QSizeF>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QSizeF& tValue)
-		{
-			QString strValue = QString("%1,%2").arg(tValue.width()).arg(tValue.height());
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
-
-	template<class NODE>
-	class OSerialize<NODE, QSizeF>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QSizeF& tValue)
-		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			char ch(0);
-			QTextStream ts(const_cast<QString*>(&strValue));
-			ts >> tValue.rwidth() >> ch >> tValue.rheight();
-		}
-	};
-
-	template<class NODE>
-	class ISerialize<NODE, QSize>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QSize& tValue)
-		{
-			QString strValue = QString("%1,%2").arg(tValue.width()).arg(tValue.height());
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
-
-	template<class NODE>
-	class OSerialize<NODE, QSize>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QSize& tValue)
-		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			char ch(0);
-			QTextStream ts(const_cast<QString*>(&strValue));
-			ts >> tValue.rwidth() >> ch >> tValue.rheight();
-		}
-	};
-
-	template<class NODE>
-	class ISerialize<NODE, QRectF>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QRectF& tValue)
-		{
-			QString strValue = QString("%1,%2,%3,%4").arg(tValue.x())
-				.arg(tValue.y()).arg(tValue.width()).arg(tValue.height());
-
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
-
-	template<class NODE>
-	class OSerialize<NODE, QRectF>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QRectF& tValue)
-		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			qreal dX(0);
-			qreal dY(0);
-			qreal dW(0);
-			qreal dH(0);
-			char ch(0);
-			QTextStream ts(const_cast<QString*>(&strValue));
-			ts >> dX >> ch >> dY >> ch >> dW >> ch >> dH;
-			tValue.setRect(dX, dY, dW, dH);
-		}
-	};
-
-	template<class NODE>
-	class ISerialize<NODE, QRect>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QRect& tValue)
-		{
-			QString strValue = QString("%1,%2,%3,%4").arg(tValue.x())
-				.arg(tValue.y()).arg(tValue.width()).arg(tValue.height());
-
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
-
-	template<class NODE>
-	class OSerialize<NODE, QRect>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QRect& tValue)
-		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			int nX(0);
-			int nY(0);
-			int nW(0);
-			int nH(0);
-			char ch(0);
-			QTextStream ts(const_cast<QString*>(&strValue));
-			ts >> nX >> ch >> nY >> ch >> nW >> ch >> nH;
-			tValue.setRect(nX, nY, nW, nH);
-		}
-	};
-
-	template<class NODE>
-	class ISerialize<NODE, QMarginsF>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QMarginsF& tValue)
-		{
-			QString strValue = QString("%1,%2,%3,%4").arg(tValue.left())
-				.arg(tValue.top()).arg(tValue.right()).arg(tValue.bottom());
-
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
-
-	template<class NODE>
-	class OSerialize<NODE, QMarginsF>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QMarginsF& tValue)
-		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			qreal dX(0);
-			qreal dY(0);
-			qreal dW(0);
-			qreal dH(0);
-			char ch(0);
-			QTextStream ts(const_cast<QString*>(&strValue));
-			ts >> dX >> ch >> dY >> ch >> dW >> ch >> dH;
-			tValue = { dX, dY, dW, dH };
-		}
-	};
-
-	template<class NODE>
-	class ISerialize<NODE, QMargins>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QMargins& tValue)
-		{
-			QString strValue = QString("%1,%2,%3,%4").arg(tValue.left())
-				.arg(tValue.top()).arg(tValue.right()).arg(tValue.bottom());
-
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
-
-	template<class NODE>
-	class OSerialize<NODE, QMargins>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QMargins& tValue)
-		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			int nX(0);
-			int nY(0);
-			int nW(0);
-			int nH(0);
-			char ch(0);
-			QTextStream ts(const_cast<QString*>(&strValue));
-			ts >> nX >> ch >> nY >> ch >> nW >> ch >> nH;
-			tValue = { dX, dY, dW, dH };
-		}
-	};
-
-	template<class NODE>
-	class ISerialize<NODE, QLineF>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QLineF& tValue)
-		{
-			QString strValue = QString("%1,%2 %3,%4").arg(tValue.x1())
-				.arg(tValue.y1()).arg(tValue.x2()).arg(tValue.y2());
-
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
-
-	template<class NODE>
-	class OSerialize<NODE, QLineF>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QLineF& tValue)
-		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			qreal dX(0);
-			qreal dY(0);
-			qreal dX2(0);
-			qreal dY2(0);
-			char ch(0);
-			QTextStream ts(const_cast<QString*>(&strValue));
-			ts >> dX >> ch >> dY >> ch >> dX2 >> ch >> dY2;
-			tValue.setLine(dX, dY, dX2, dY2);
-		}
-	};
-
-	template<class NODE>
-	class ISerialize<NODE, QLine>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QLine& tValue)
-		{
-			QString strValue = QString("%1,%2 %3,%4").arg(tValue.x1())
-				.arg(tValue.y1()).arg(tValue.x2()).arg(tValue.y2());
-
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
-
-	template<class NODE>
-	class OSerialize<NODE, QLine>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QLine& tValue)
-		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			int nX(0);
-			int nY(0);
-			int nX2(0);
-			int nY2(0);
-			char ch(0);
-			QTextStream ts(const_cast<QString*>(&strValue));
-			ts >> nX >> ch >> nY >> ch >> nX2 >> ch >> nY2;
-			tValue.setLine(nX, nY, nX2, nY2);
-		}
-	};
 
 #ifdef QT_GUI_LIB
 	template<class NODE>
