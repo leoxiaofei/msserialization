@@ -2,6 +2,7 @@
 #define MSARCHIVE_H__
 
 #include <cstddef>
+#include "msbasetypeapt.hpp"
 #include "siexse.hpp"
 
 
@@ -278,6 +279,16 @@ namespace MSRPC
 		}
 	};
 
+	template<class NODE, class S, class T>
+	class ISerialize<NODE, BaseTypeApt<S, T> >
+	{
+	public:
+		static void serialize(NODE& vNewNode, const BaseTypeApt<S, T>& tValue)
+		{
+			vNewNode.in_serialize(tValue);
+		}
+	};
+
 	template <class NODE>
 	class IArchiveHelper
 	{
@@ -534,6 +545,16 @@ namespace MSRPC
 		static void serialize(const NODE& vNewNode, StrApt<T>& tValue)
 		{
 			vNewNode.in_serialize(tValue);
+		}
+	};
+
+	template<class NODE, class S, class T>
+	class OSerialize<NODE, BaseTypeApt<S, T> >
+	{
+	public:
+		static void serialize(const NODE& vNewNode, BaseTypeApt<S, T>&& tValue)
+		{
+			vNewNode.in_serialize((BaseTypeApt<S, T>&)tValue);
 		}
 	};
 

@@ -9,7 +9,6 @@
 #include <msserialize/qjsonnode.hpp>
 #include <msserialize/msarchive_qt.hpp>
 #include <msserialize/msnodeapt_qt.hpp>
-#include <msserialize/msnodeapt.hpp>
 
 namespace MSRPC
 {

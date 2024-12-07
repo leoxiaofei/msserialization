@@ -4,14 +4,10 @@
 #include "msarchive.hpp"
 #include "msbasetypeapt_qt.hpp"
 #include <QString>
-#include <QTextStream>
 #include <QDataStream>
 #include <QSharedPointer>
-#include <QDateTime>
 #include <QMetaType>
 #include <QSet>
-#include <QLine>
-#include <QMargins>
 #include <QQueue>
 
 #ifdef QT_GUI_LIB
@@ -450,28 +446,6 @@ namespace MSRPC
 		}
 	};
 
-	template<class NODE, class S, class T>
-	class ISerialize<NODE, BaseTypeApt<S, T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const BaseTypeApt<S, T>& tValue)
-		{
-			ISerialize<NODE, S>::serialize(vNewNode, tValue);
-		}
-	};
-
-	template<class NODE, class S, class T>
-	class OSerialize<NODE, BaseTypeApt<S, T> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, BaseTypeApt<S, T>&& tValue)
-		{
-			S ptValue = tValue;
-			OSerialize<NODE, S>::serialize(vNewNode, ptValue);
-			tValue = ptValue;
-		}
-	};
-
 #define DefQStringBaseType(TYPE) \
 	template<class NODE> \
 	class ISerialize<NODE, TYPE> : public ISerialize<NODE, BaseTypeApt<QString, TYPE>> { }; \
@@ -495,166 +469,32 @@ namespace MSRPC
 	DefQStringBaseType(QLineF)
 	DefQStringBaseType(QLine)
 
-
-
-
+	DefQStringBaseType(QDate)
+	DefQStringBaseType(QTime)
+	DefQStringBaseType(QDateTime)
+	DefQStringBaseType(QByteArray)
 
 #ifdef QT_GUI_LIB
 	template<class NODE>
-	class ISerialize<NODE, QPolygonF>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QPolygonF& tValue)
-		{
-			ISerialize<NODE, QVector<QPointF> >::serialize(vNewNode, tValue);
-		}
-	};
+	class ISerialize<NODE, QPolygonF> : public ISerialize<NODE, QVector<QPointF> > { };
 
 	template<class NODE>
-	class OSerialize<NODE, QPolygonF>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QPolygonF& tValue)
-		{
-			OSerialize<NODE, QVector<QPointF> >::serialize(vNewNode, tValue);
-		}
-	};
+	class OSerialize<NODE, QPolygonF> : public OSerialize<NODE, QVector<QPointF> > { };
 
 	template<class NODE>
-	class ISerialize<NODE, QPolygon>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QPolygon& tValue)
-		{
-			ISerialize<NODE, QVector<QPoint> >::serialize(vNewNode, tValue);
-		}
-	};
+	class ISerialize<NODE, QPolygon> : public ISerialize<NODE, QVector<QPoint> > { };
 
 	template<class NODE>
-	class OSerialize<NODE, QPolygon>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QPolygon& tValue)
-		{
-			OSerialize<NODE, QVector<QPoint> >::serialize(vNewNode, tValue);
-		}
-	};
+	class OSerialize<NODE, QPolygon> : public OSerialize<NODE, QVector<QPoint> > { };
+	
 #endif
 
-	template<class NODE>
-	class ISerialize<NODE, QDate>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QDate& tValue)
-		{
-			QString strValue = tValue.toString(Qt::ISODate);
-
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
 
 	template<class NODE>
-	class OSerialize<NODE, QDate>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QDate& tValue)
-		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			tValue = QDate::fromString(strValue, Qt::ISODate);
-		}
-	};
+	class ISerialize<NODE, QStringList> : public ISerialize<NODE, QList<QString> > { };
 
 	template<class NODE>
-	class ISerialize<NODE, QTime>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QTime& tValue)
-		{
-			QString strValue = tValue.toString(Qt::ISODate);
-
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
-
-	template<class NODE>
-	class OSerialize<NODE, QTime>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QTime& tValue)
-		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			tValue = QTime::fromString(strValue, Qt::ISODate);
-		}
-	};
-
-	template<class NODE>
-	class ISerialize<NODE, QDateTime>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QDateTime& tValue)
-		{
-			QString strValue = tValue.toString(Qt::ISODate);
-
-			ISerialize<NODE, QString>::serialize(vNewNode, strValue);
-		}
-	};
-
-	template<class NODE>
-	class OSerialize<NODE, QDateTime>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QDateTime& tValue)
-		{
-			QString strValue;
-			OSerialize<NODE, QString>::serialize(vNewNode, strValue);
-			tValue = QDateTime::fromString(strValue, Qt::ISODate);
-		}
-	};
-
-	template<class NODE>
-	class ISerialize<NODE, QByteArray>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QByteArray& tValue)
-		{
-			QByteArray baBuffer = tValue.toBase64();
-			vNewNode.in_serialize(baBuffer.data());
-		}
-	};
-
-	template<class NODE>
-	class OSerialize<NODE, QByteArray>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QByteArray& tValue)
-		{
-			QString strBase64;
-			vNewNode.in_serialize(strBase64);
-			tValue = QByteArray::fromBase64(strBase64.toUtf8());
-		}
-	};
-
-	template<class NODE>
-	class ISerialize<NODE, QStringList>
-	{
-	public:
-		static void serialize(NODE& vNewNode, const QStringList& tValue)
-		{
-			ISerialize<NODE, QList<QString> >::serialize(vNewNode, tValue);
-		}
-	};
-
-	template<class NODE>
-	class OSerialize<NODE, QStringList>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QStringList& tValue)
-		{
-			OSerialize<NODE, QList<QString> >::serialize(vNewNode, tValue);
-		}
-	};
+	class OSerialize<NODE, QStringList> : public OSerialize<NODE, QList<QString> > { };
 
 	template<class NODE>
 	class ISerialize<NODE, QVariant>
@@ -674,7 +514,7 @@ namespace MSRPC
 			///根据类型保存值
 			///这里其实我想用Map，但是这是个纯头文件的库，Map的数据保存在哪里还没想清楚，
 			///只好靠C++编译器优化switch了。
-			switch (tValue.type())
+			switch (static_cast<QMetaType::Type>(tValue.type()))
 			{
 			case QMetaType::Bool:
 				ISerialize<NODE, bool>::serialize(vNodeValue, tValue.toBool());

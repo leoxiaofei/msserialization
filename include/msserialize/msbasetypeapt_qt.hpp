@@ -1,7 +1,12 @@
 #pragma once
 
+#include "msbasetypeapt.hpp"
+
 #include <QString>
 #include <QTextStream>
+#include <QDateTime>
+#include <QMargins>
+#include <QLine>
 
 #ifdef QT_GUI_LIB
 #include <QColor>
@@ -11,12 +16,95 @@
 
 namespace MSRPC
 {
-	template<typename S, typename T>
-	class BaseTypeApt;
-
 	
 	template<typename T>
 	using QStrBaseApt = BaseTypeApt<QString, T>;
+
+
+	template<>
+	class BaseTypeApt<QString, QDate>
+	{
+		QDate& m_t;
+	public:
+		BaseTypeApt(const QDate& t)
+			: m_t(const_cast<QDate&>(t))
+		{
+		}
+
+		inline operator QString () const
+		{
+			return m_t.toString(Qt::ISODate);
+		}
+
+		inline void operator = (const QString& strValue)
+		{
+			m_t = QDate::fromString(strValue, Qt::ISODate);
+		}
+	};
+
+	template<>
+	class BaseTypeApt<QString, QTime>
+	{
+		QTime& m_t;
+	public:
+		BaseTypeApt(const QTime& t)
+			: m_t(const_cast<QTime&>(t))
+		{
+		}
+
+		inline operator QString () const
+		{
+			return m_t.toString(Qt::ISODate);
+		}
+
+		inline void operator = (const QString& strValue)
+		{
+			m_t = QTime::fromString(strValue, Qt::ISODate);
+		}
+	};
+
+	template<>
+	class BaseTypeApt<QString, QDateTime>
+	{
+		QDateTime& m_t;
+	public:
+		BaseTypeApt(const QDateTime& t)
+			: m_t(const_cast<QDateTime&>(t))
+		{
+		}
+
+		inline operator QString () const
+		{
+			return m_t.toString(Qt::ISODate);
+		}
+
+		inline void operator = (const QString& strValue)
+		{
+			m_t = QDateTime::fromString(strValue, Qt::ISODate);
+		}
+	};
+
+
+	template<>
+	class BaseTypeApt<QString, QByteArray>
+	{
+		QByteArray& m_t;
+	public:
+		BaseTypeApt(const QByteArray& t)
+			: m_t(const_cast<QByteArray&>(t))
+		{
+		}
+
+		inline operator QString () const
+		{
+			return m_t.toBase64();
+		}
+
+		inline void operator = (const QString& strValue)
+		{
+			m_t = QByteArray::fromBase64(strValue.toUtf8());
+		}
+	};
 
 #ifdef QT_GUI_LIB
 	template<>

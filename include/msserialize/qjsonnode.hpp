@@ -2,6 +2,7 @@
 #define QJSONNODE_H__
 
 #include "msarchive.hpp"
+#include "msserialize/msbasetypeapt_qt.hpp"
 
 #include <QScopedPointer>
 #include <QVariant>
@@ -126,6 +127,12 @@ namespace MSRPC
 			nj->value() = tValue;
 		}
 
+		template<class S, class T>
+		void in_serialize(const BaseTypeApt<S, T>& tValue)
+		{
+			in_serialize((S)tValue);
+		}
+
 		void in_serialize(const unsigned int& tValue)
 		{
 			NJValue* nj = set_value();
@@ -228,6 +235,14 @@ namespace MSRPC
 		void in_serialize(T& tValue) const
 		{
 			tValue = m_node.toVariant().value<T>();
+		}
+
+		template<class S, class T>
+		void in_serialize(BaseTypeApt<S, T>& tValue) const
+		{
+			S strValue;
+			in_serialize(strValue);
+			tValue = strValue;
 		}
 
 		void in_serialize(char*& tValue) const

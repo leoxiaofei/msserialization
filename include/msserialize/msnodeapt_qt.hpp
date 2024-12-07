@@ -10,6 +10,7 @@
 #include <QRegExp>
 #include <QHash>
 #include <QString>
+#include <QPointF>
 
 #ifdef QT_GUI_LIB
 #include <QFont>
@@ -23,30 +24,6 @@
 
 namespace MSRPC
 {
-	template<class R, class T, class F>
-	class ExtractApt;
-
-	template<class NODE, class R, class T, class F>
-	class ISerialize<NODE, ExtractApt<R, T, F> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, const ExtractApt<R, T, F>& tValue)
-		{
-			ISerialize<NODE, R>::serialize(vNewNode, (const R&)tValue);
-		}
-	};
-
-	template<class NODE, class R, class T, class F>
-	class OSerialize<NODE, ExtractApt<R, T, F> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, ExtractApt<R, T, F>& tValue)
-		{
-			R ptValue = tValue;
-			OSerialize<NODE, R>::serialize(vNewNode, ptValue);
-			tValue = ptValue;
-		}
-	};
 
 	//////////////////////////////////////////////////////////////////////////
 
