@@ -158,81 +158,83 @@ namespace MSRPC
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsItem& tValue)
 	{
-		ar.io("name", QtDataApt<QGraphicsItem>(tValue, IDK_NAME));
-		ar.io("childItems", QtChildItemsApt<QGraphicsItem>(tValue));
-		ar.io("pos", QtPosApt<QGraphicsItem>(tValue));
-		ar.io("zValue", QtZValueApt<QGraphicsItem>(tValue));
-		ar.io("transform", QtTransformApt<QGraphicsItem>(tValue, IDK_TRANSFORM));
-		ar.io("custom", QtHashDataApt<QGraphicsItem>(tValue, IDK_CUSTOM));
+		ar.io("name", EtDataApt<QGraphicsItem>(tValue, IDK_NAME));
+		ar.io("childItems", EtChildItemsApt<QGraphicsItem>(tValue));
+		ar.io("pos", EtPosApt<QGraphicsItem>(tValue));
+		ar.io("zValue", EtZValueApt<QGraphicsItem>(tValue));
+		ar.io("transform", EtTransformApt<QGraphicsItem>(tValue, IDK_TRANSFORM));
+		ar.io("custom", EtHashDataApt<QGraphicsItem>(tValue, IDK_CUSTOM));
 	}
 
 	template<class Ar>
 	void ex_serialize(Ar& ar, QAbstractGraphicsShapeItem& tValue)
 	{
 		ex_serialize(ar, static_cast<QGraphicsItem&>(tValue));
-		ar.io("brush", QtBrushApt<QAbstractGraphicsShapeItem>(tValue));
-		ar.io("pen", QtPenApt<QAbstractGraphicsShapeItem>(tValue));
+		ar.io("brush", EtBrushApt<QAbstractGraphicsShapeItem>(tValue));
+		ar.io("pen", EtPenApt<QAbstractGraphicsShapeItem>(tValue));
 	}
 
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsRectItem& tValue)
 	{
 		ex_serialize(ar, static_cast<QAbstractGraphicsShapeItem&>(tValue));
-		ar.io("rect", QtRectApt<QGraphicsRectItem>(tValue));
+		ar.io("rect", EtRectApt<QGraphicsRectItem>(tValue));
 	}
 
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsLineItem& tValue)
 	{
 		ex_serialize(ar, static_cast<QGraphicsItem&>(tValue));
-		ar.io("pen", QtPenApt<QGraphicsLineItem>(tValue));
-		ar.io("line", QtLineApt<QGraphicsLineItem>(tValue));
+		ar.io("pen", EtPenApt<QGraphicsLineItem>(tValue));
+		ar.io("line", EtLineApt<QGraphicsLineItem>(tValue));
 	}
 
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsEllipseItem& tValue)
 	{
 		ex_serialize(ar, static_cast<QAbstractGraphicsShapeItem&>(tValue));
-		ar.io("rect", QtRectApt<QGraphicsEllipseItem>(tValue));
+		ar.io("rect", EtRectApt<QGraphicsEllipseItem>(tValue));
+		ar.io("spanAngle", EtSpanAngleApt<QGraphicsEllipseItem>(tValue));
+		ar.io("startAngle", EtStartAngleApt<QGraphicsEllipseItem>(tValue));
 	}
 
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsPolygonItem& tValue)
 	{
 		ex_serialize(ar, static_cast<QAbstractGraphicsShapeItem&>(tValue));
-		ar.io("polygon", QtPolygonApt<QGraphicsPolygonItem>(tValue));
-		ar.io("fillRule", QtFillRuleApt<QGraphicsPolygonItem>(tValue));
+		ar.io("polygon", EtPolygonApt<QGraphicsPolygonItem>(tValue));
+		ar.io("fillRule", EtFillRuleApt<QGraphicsPolygonItem>(tValue));
 	}
 
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsPathItem& tValue)
 	{
 		ex_serialize(ar, static_cast<QAbstractGraphicsShapeItem&>(tValue));
-		ar.io("path", QtPathApt<QGraphicsPathItem>(tValue, IDK_PPATH));
+		ar.io("path", EtPathApt<QGraphicsPathItem>(tValue, IDK_PPATH));
 	}
 
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsPixmapItem& tValue)
 	{
 		ex_serialize(ar, static_cast<QGraphicsItem&>(tValue));
-		ar.io("image", QtPixmapApt<QGraphicsPixmapItem>(tValue, IDK_PIXMAP));
+		ar.io("image", EtPixmapApt<QGraphicsPixmapItem>(tValue, IDK_PIXMAP));
 	}
 #ifdef QT_SVG_LIB
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsSvgItem& tValue)
 	{
 		ex_serialize(ar, static_cast<QGraphicsItem&>(tValue));
-		ar.io("image", QtSvgApt<QGraphicsSvgItem>(tValue, IDK_SVG));
+		ar.io("image", EtSvgApt<QGraphicsSvgItem>(tValue, IDK_SVG));
 	}
 #endif
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsTextItem& tValue)
 	{
 		ex_serialize(ar, static_cast<QGraphicsItem&>(tValue));
-		ar.io("font", QtFontApt<QGraphicsTextItem>(tValue));
-		ar.io("text", QtPlainTextApt<QGraphicsTextItem>(tValue));
-		ar.io("textWidth", QtTextWidthApt<QGraphicsTextItem>(tValue));
-		ar.io("textColor", QtDefaultTextColorApt<QGraphicsTextItem>(tValue));
+		ar.io("font", EtFontApt<QGraphicsTextItem>(tValue));
+		ar.io("text", EtPlainTextApt<QGraphicsTextItem>(tValue));
+		ar.io("textWidth", EtTextWidthApt<QGraphicsTextItem>(tValue));
+		ar.io("textColor", EtDefaultTextColorApt<QGraphicsTextItem>(tValue));
 	}
 
 	template<class Ar>
@@ -244,9 +246,9 @@ namespace MSRPC
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsScene& tValue)
 	{
-		ar.io("sceneRect", QtSceneRectApt<QGraphicsScene>(tValue));
-		ar.io("backgroundBrush", QtBackgroundBrushApt<QGraphicsScene>(tValue));
-		ar.io("foregroundBrush", QtForegroundBrushApt<QGraphicsScene>(tValue));
+		ar.io("sceneRect", EtSceneRectApt<QGraphicsScene>(tValue));
+		ar.io("backgroundBrush", EtBackgroundBrushApt<QGraphicsScene>(tValue));
+		ar.io("foregroundBrush", EtForegroundBrushApt<QGraphicsScene>(tValue));
 	}
 
 }

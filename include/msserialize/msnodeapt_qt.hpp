@@ -50,7 +50,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtPosApt = ExtractApt<QPointF, T, class _Pos_>;
+	using EtPosApt = ExtractApt<QPointF, T, class _Pos_>;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -76,7 +76,59 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtRectApt = ExtractApt<QRectF, T, class _Rect_>;
+	using EtRectApt = ExtractApt<QRectF, T, class _Rect_>;
+
+	//////////////////////////////////////////////////////////////////////////
+
+	template<class T>
+	class ExtractApt<int, T, class _StartAngle_>
+	{
+	public:
+		ExtractApt(T& t)
+			: m_t(t) {}
+
+		operator int () const
+		{
+			return m_t.startAngle();
+		}
+
+		void operator = (int rfValue)
+		{
+			m_t.setStartAngle(rfValue);
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class T>
+	using EtStartAngleApt = ExtractApt<int, T, class _StartAngle_>;
+
+	//////////////////////////////////////////////////////////////////////////
+
+	template<class T>
+	class ExtractApt<int, T, class _SpanAngle_>
+	{
+	public:
+		ExtractApt(T& t)
+			: m_t(t) {}
+
+		operator int () const
+		{
+			return m_t.spanAngle();
+		}
+
+		void operator = (int rfValue)
+		{
+			m_t.setSpanAngle(rfValue);
+		}
+
+	private:
+		T& m_t;
+	};
+
+	template<class T>
+	using EtSpanAngleApt = ExtractApt<int, T, class _SpanAngle_>;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -102,7 +154,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtLineApt = ExtractApt<QLineF, T, class _Line_>;
+	using EtLineApt = ExtractApt<QLineF, T, class _Line_>;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -130,7 +182,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtZValueApt = ExtractApt<qreal, T, class _ZValue_>;
+	using EtZValueApt = ExtractApt<qreal, T, class _ZValue_>;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -158,7 +210,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtTextWidthApt = ExtractApt<qreal, T, class _TextWidth_>;
+	using EtTextWidthApt = ExtractApt<qreal, T, class _TextWidth_>;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -186,7 +238,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtDefaultTextColorApt = ExtractApt<QColor, T, class _DefaultTextColor_>;
+	using EtDefaultTextColorApt = ExtractApt<QColor, T, class _DefaultTextColor_>;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -216,7 +268,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtDataApt = ExtractApt<QString, T, class _Data_>;
+	using EtDataApt = ExtractApt<QString, T, class _Data_>;
 
 
 	template<class T>
@@ -246,7 +298,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtPixmapApt = ExtractApt<QString, T, class _Pixmap_>;
+	using EtPixmapApt = ExtractApt<QString, T, class _Pixmap_>;
 
 
 	template<class T>
@@ -276,7 +328,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtSvgApt = ExtractApt<QString, T, class _Svg>;
+	using EtSvgApt = ExtractApt<QString, T, class _Svg>;
 
 	template<class T>
 	class ExtractApt<QString, T, class _Transform_>
@@ -344,7 +396,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtTransformApt = ExtractApt<QString, T, class _Transform_>;
+	using EtTransformApt = ExtractApt<QString, T, class _Transform_>;
 
 
 	template<class T>
@@ -430,7 +482,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtPathApt = ExtractApt<QString, T, class _Path_>;
+	using EtPathApt = ExtractApt<QString, T, class _Path_>;
 
 
 	template<class T>
@@ -456,7 +508,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtHtmlApt = ExtractApt<QString, T, class _Html_>;
+	using EtHtmlApt = ExtractApt<QString, T, class _Html_>;
 
 
 	template<class T>
@@ -483,7 +535,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtPlainTextApt = ExtractApt<QString, T, class _PlainText_>;
+	using EtPlainTextApt = ExtractApt<QString, T, class _PlainText_>;
 
 #ifdef QT_GUI_LIB
 	//////////////////////////////////////////////////////////////////////////
@@ -510,7 +562,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtPolygonApt = ExtractApt<QPolygonF, T, class _Polygon_>;
+	using EtPolygonApt = ExtractApt<QPolygonF, T, class _Polygon_>;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -537,7 +589,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtFontApt = ExtractApt<QFont, T, class _Font_>;
+	using EtFontApt = ExtractApt<QFont, T, class _Font_>;
 	
 
 	//////////////////////////////////////////////////////////////////////////
@@ -565,7 +617,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtPenApt = ExtractApt<QPen, T, class _Pen_>;
+	using EtPenApt = ExtractApt<QPen, T, class _Pen_>;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -592,7 +644,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtBrushApt = ExtractApt<QBrush, T, class _Brush_>;
+	using EtBrushApt = ExtractApt<QBrush, T, class _Brush_>;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -619,7 +671,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtForegroundBrushApt = ExtractApt<QBrush, T, class _Foreground_>;
+	using EtForegroundBrushApt = ExtractApt<QBrush, T, class _Foreground_>;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -646,7 +698,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtBackgroundBrushApt = ExtractApt<QBrush, T, class _Background_>;
+	using EtBackgroundBrushApt = ExtractApt<QBrush, T, class _Background_>;
 	
 	//////////////////////////////////////////////////////////////////////////
 
@@ -693,7 +745,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtChildItemsApt = ExtractApt<QList<T*>, T, class _ChildItems_>;
+	using EtChildItemsApt = ExtractApt<QList<T*>, T, class _ChildItems_>;
 
 #endif
 
@@ -722,7 +774,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtSceneRectApt = ExtractApt<QRectF, T, class _SceneRect_>;
+	using EtSceneRectApt = ExtractApt<QRectF, T, class _SceneRect_>;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -749,7 +801,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtFillRuleApt = ExtractApt<int, T, class _FillRule_>;
+	using EtFillRuleApt = ExtractApt<int, T, class _FillRule_>;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -779,7 +831,7 @@ namespace MSRPC
 	};
 
 	template<class T>
-	using QtHashDataApt = ExtractApt<QHash<QString, QString>, T, class _HashData_>;
+	using EtHashDataApt = ExtractApt<QHash<QString, QString>, T, class _HashData_>;
 
 	//////////////////////////////////////////////////////////////////////////
 
