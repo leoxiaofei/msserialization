@@ -753,9 +753,6 @@ namespace MSRPC
 					tValue = val;
 					break;
 				}
-					OSerialize<NODE, QRect>::serialize(
-						vNodeValue, *static_cast<QRect*>(tValue.data()));
-					break;
 				case QMetaType::QRectF:
 				{
 					QRectF val;

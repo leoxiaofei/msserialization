@@ -11,6 +11,9 @@
 #include <QHash>
 #include <QString>
 #include <QPointF>
+#include <QVariant>
+#include <QPainterPath>
+#include <QTextStream>
 
 #ifdef QT_GUI_LIB
 #include <QFont>
@@ -242,8 +245,8 @@ namespace MSRPC
 
 	//////////////////////////////////////////////////////////////////////////
 
-	template<class T>
-	class ExtractApt<QString, T, class _Data_>
+	template<class R, class T>
+	class ExtractApt<R, T, class _Data_>
 	{
 	public:
 		ExtractApt(T& t, int nKey)
@@ -251,15 +254,14 @@ namespace MSRPC
 			, m_nKey(nKey)
 		{
 		}
-
-		operator QString () const
+		operator R () const
 		{
-			return m_t.data(m_nKey).toString();
+			return m_t.data(m_nKey).template value<R>();
 		}
 
-		void operator = (const QString& strValue)
+		void operator = (const R& strValue)
 		{
-			m_t.setData(m_nKey, strValue);
+			m_t.setData(m_nKey, QVariant::fromValue(strValue));
 		}
 
 	private:
@@ -267,9 +269,11 @@ namespace MSRPC
 		int m_nKey;
 	};
 
-	template<class T>
-	using EtDataApt = ExtractApt<QString, T, class _Data_>;
+	template<class R, class T>
+	using EtDataApt = ExtractApt<R, T, class _Data_>;
 
+	template<class T>
+	using EtStringDataApt = EtDataApt<QString, T>;
 
 	template<class T>
 	class ExtractApt<QString, T, class _Pixmap_>
@@ -403,82 +407,99 @@ namespace MSRPC
 	class ExtractApt<QString, T, class _Path_>
 	{
 	public:
-		ExtractApt(T& t, int nKey)
+		ExtractApt(T& t)
 			: m_t(t)
-			, m_nKey(nKey)
 		{}
 
 		operator QString () const
 		{
-			return m_t.data(m_nKey).toString();
+			QString strRet;
+
+			const char* szType = "MLCD";
+
+			QPainterPath path = m_t.path();
+			int nCount = path.elementCount();
+			for(int ix = 0; ix != nCount; ++ix)
+			{
+				auto elem = path.elementAt(ix);
+				strRet += QString("%1(%2,%3)").arg(szType[elem.type]).arg(elem.x).arg(elem.y);
+			}
+			return strRet;
 		}
 
 		void operator = (const QString& strValue)
 		{
-			m_t.setData(m_nKey, strValue);
-
-			QStringList listFunc = strValue.split(";");
-			if (!listFunc.isEmpty())
+			auto ParseElement = [](QTextStream&ss, char& sign, qreal& x, qreal& y)->bool
 			{
-				QRegExp re[_PK_TOTAL_] = {
-					QRegExp("M\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
-					QRegExp("L\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
-					QRegExp("Q\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
-					QRegExp("C\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
-					QRegExp("AM\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
-					QRegExp("A\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
-				};
+				QChar chDH, chKH_L, chKH_R;
 
-				QPainterPath ppath;
+				ss >> sign;
+				ss.skipWhiteSpace();
+				ss >> chKH_L;
 
-				foreach(const QString & strFunc, listFunc)
+				if(chKH_L != '(') { return false; }
+
+				ss >> x;
+				ss.skipWhiteSpace();
+
+				ss >> chDH;
+				if(chDH != ',') { return false; }
+				
+				ss >> y;
+				ss.skipWhiteSpace();
+
+				ss >> chKH_R;
+				if(chKH_R != ')') { return false; }
+
+				ss.skipWhiteSpace();
+
+				return true;
+			};
+
+			char sign = 0;
+			qreal x = 0;
+			qreal y = 0;
+
+			QPainterPath path;
+
+			QTextStream ss(const_cast<QString*>(&strValue));
+			ss.skipWhiteSpace();
+			while (!ss.atEnd())
+			{
+				if(!ParseElement(ss, sign, x, y))
 				{
-					for (int ix = 0; ix != _PK_TOTAL_; ++ix)
-					{
-						QRegExp& exp = re[ix];
-						if (exp.indexIn(strFunc) != -1)
-						{
-							switch (ix)
-							{
-							case PK_MOVETO:
-								ppath.moveTo(exp.cap(1).toDouble(), exp.cap(2).toDouble());
-								break;
-							case PK_LINETO:
-								ppath.lineTo(exp.cap(1).toDouble(), exp.cap(2).toDouble());
-								break;
-							case PK_QUADTO:
-								ppath.quadTo(exp.cap(1).toDouble(), exp.cap(2).toDouble(), 
-									exp.cap(3).toDouble(), exp.cap(4).toDouble());
-								break;
-							case PK_CUBICTO:
-								ppath.cubicTo(exp.cap(1).toDouble(), exp.cap(2).toDouble(),
-									exp.cap(3).toDouble(), exp.cap(4).toDouble(),
-									exp.cap(5).toDouble(), exp.cap(6).toDouble());
-								break;
-							case PK_ARCMOVETO:
-								ppath.arcMoveTo(exp.cap(1).toDouble(), exp.cap(2).toDouble(),
-									exp.cap(3).toDouble(), exp.cap(4).toDouble(), exp.cap(5).toDouble());
-								break;
-							case PK_ARCTO:
-								ppath.arcTo(exp.cap(1).toDouble(), exp.cap(2).toDouble(),
-									exp.cap(3).toDouble(), exp.cap(4).toDouble(),
-									exp.cap(5).toDouble(), exp.cap(6).toDouble());
-								break;
-							default:
-								break;
-							}
-							break;
-						}
-					}
+					break;
 				}
 
-				m_t.setPath(ppath);
+				if(sign == 'M')
+				{
+					path.moveTo(x, y);
+				}
+				else if(sign == 'L')
+				{
+					path.lineTo(x, y);
+				}
+				else if(sign == 'C')
+				{
+					char sign1, sign2;
+					qreal x1, y1, x2, y2;
+					if(ParseElement(ss, sign1, x1, y1) && ParseElement(ss, sign2, x2, y2)
+						&& sign1 == sign2 && sign1 == 'D')
+					{
+						path.cubicTo(x, y, x1, y1, x2, y2);
+					}
+					else
+					{
+						break;
+					}
+				}
 			}
+
+			m_t.setPath(path);
 		}
 
 	private:
 		T& m_t;
-		int m_nKey;
 	};
 
 	template<class T>
@@ -806,32 +827,10 @@ namespace MSRPC
 	//////////////////////////////////////////////////////////////////////////
 
 	template<class T>
-	class ExtractApt<QHash<QString, QString>, T, class _HashData_>
-	{
-	public:
-		ExtractApt(T& t, int nKey)
-			: m_t(t)
-			, m_nKey(nKey)
-		{}
-
-		operator QHash<QString, QString> () const
-		{
-			QVariant vVal = m_t.data(m_nKey);
-			return vVal.value<QHash<QString, QString> >();
-		}
-
-		void operator = (const QHash<QString, QString>& hsValue)
-		{
-			m_t.setData(m_nKey, QVariant::fromValue(hsValue));
-		}
-
-	private:
-		T& m_t;
-		int m_nKey;
-	};
+	using EtHashDataApt = EtDataApt<QHash<QString, QString>, T>;
 
 	template<class T>
-	using EtHashDataApt = ExtractApt<QHash<QString, QString>, T, class _HashData_>;
+	using EtHashValueApt = EtDataApt<QHash<QString, QVariant>, T>;
 
 	//////////////////////////////////////////////////////////////////////////
 

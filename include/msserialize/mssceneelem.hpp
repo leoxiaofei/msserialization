@@ -158,12 +158,13 @@ namespace MSRPC
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsItem& tValue)
 	{
-		ar.io("name", EtDataApt<QGraphicsItem>(tValue, IDK_NAME));
+		ar.io("name", EtStringDataApt<QGraphicsItem>(tValue, IDK_NAME));
 		ar.io("childItems", EtChildItemsApt<QGraphicsItem>(tValue));
 		ar.io("pos", EtPosApt<QGraphicsItem>(tValue));
 		ar.io("zValue", EtZValueApt<QGraphicsItem>(tValue));
 		ar.io("transform", EtTransformApt<QGraphicsItem>(tValue, IDK_TRANSFORM));
-		ar.io("custom", EtHashDataApt<QGraphicsItem>(tValue, IDK_CUSTOM));
+		ar.io("extended", EtHashDataApt<QGraphicsItem>(tValue, IDK_EXTATTR));
+		ar.io("userdata", EtHashDataApt<QGraphicsItem>(tValue, IDK_USERDATA));
 	}
 
 	template<class Ar>
@@ -210,7 +211,7 @@ namespace MSRPC
 	void ex_serialize(Ar& ar, QGraphicsPathItem& tValue)
 	{
 		ex_serialize(ar, static_cast<QAbstractGraphicsShapeItem&>(tValue));
-		ar.io("path", EtPathApt<QGraphicsPathItem>(tValue, IDK_PPATH));
+		ar.io("path", EtPathApt<QGraphicsPathItem>(tValue));
 	}
 
 	template<class Ar>
