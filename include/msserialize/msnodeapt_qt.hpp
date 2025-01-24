@@ -14,6 +14,7 @@
 #include <QVariant>
 #include <QPainterPath>
 #include <QTextStream>
+#include <QBuffer>
 
 #ifdef QT_GUI_LIB
 #include <QFont>
@@ -284,16 +285,44 @@ namespace MSRPC
 			, m_nKey(nKey)
 		{}
 
+		static const QString& Sign()
+		{
+			static QString strSign = "base64://";
+			return strSign;
+		}
+			
+
 		operator QString () const
 		{
-			return m_t.data(m_nKey).toString();
+			QString strPath = m_t.data(m_nKey).toString();
+			if(strPath.isEmpty())
+			{
+				QByteArray bytes;
+				QBuffer buffer(&bytes);
+				buffer.open(QIODevice::WriteOnly);
+				m_t.pixmap().save(&buffer, "PNG"); // writes pixmap into bytes in PNG format
+				strPath = Sign() + bytes.toBase64();
+			}
+			return strPath;
 		}
 
 		void operator = (const QString& strValue)
 		{
 			m_t.setData(m_nKey, strValue);
-			QPixmap pixmap(strValue);
-			m_t.setPixmap(pixmap);
+			if(strValue.startsWith(Sign()))
+			{
+				QByteArray ba = QByteArray::fromBase64(strValue.midRef(Sign().size()).toLatin1());
+				QPixmap pixmap;
+				if(pixmap.loadFromData(ba))
+				{
+					m_t.setPixmap(pixmap);
+				}
+			}
+			else
+			{
+				QPixmap pixmap(strValue);
+				m_t.setPixmap(pixmap);
+			}
 		}
 
 	private:
