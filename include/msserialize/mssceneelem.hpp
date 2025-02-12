@@ -147,6 +147,7 @@ namespace MSRPC
 				QGraphicsItemGroup* pVal = 0;
 				OSerialize<NODE, QGraphicsItemGroup*>::serialize(vNewNode, pVal);
 				tValue = pVal;
+				break;
 			}
 			default:
 				tValue = nullptr;
