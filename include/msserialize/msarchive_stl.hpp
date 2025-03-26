@@ -1,7 +1,6 @@
 #ifndef MSARCHIVE_STL_H__
 #define MSARCHIVE_STL_H__
 
-#include "cplusplusmacros.h"
 #include "msarchive.hpp"
 
 #include <memory>

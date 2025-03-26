@@ -30,7 +30,7 @@ namespace
 
 	const char* szEnumTest[] = { "E_T1", "E_T2", "E_T3" };
 
-	SiExSe(A, b, i, d, l, str, szS)
+	SiExSe(A, b, i, d, eTest, l, str, szS, spD)
 
 // 	template<class Ar>
 // 	void ex_serialize(Ar& ar, A& tValue)
@@ -65,7 +65,7 @@ int main()
 	a.str = "aaa";
 	a.l = 1234567890;
 	strcpy(a.szS, "bbb");
-	a.eTest = E_T1;
+	a.eTest = E_T3;
 	a.spD = std::make_shared<double>(10.1);
 
 	B b;

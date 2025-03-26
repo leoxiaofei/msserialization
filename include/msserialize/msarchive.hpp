@@ -2,9 +2,13 @@
 #define MSARCHIVE_H__
 
 #include <cstddef>
+#include "cplusplusmacros.h"
 #include "msbasetypeapt.hpp"
 #include "siexse.hpp"
 
+#if ANY_CPP11_OR_GREATER
+#include <type_traits>
+#endif
 
 namespace MSRPC
 {
@@ -55,7 +59,7 @@ namespace MSRPC
 	template <class NODE>
 	class IArchiveHelper;
 
-	template <class NODE, typename T>
+	template <class NODE, typename T, typename Enable = void>
 	class ISerialize
 	{
 	public:
@@ -289,6 +293,19 @@ namespace MSRPC
 		}
 	};
 
+#if ANY_CPP11_OR_GREATER
+	template<class NODE, class ENUM>
+	class ISerialize<NODE, ENUM, typename std::enable_if<std::is_enum<ENUM>::value>::type>
+	{
+	public:
+		static void serialize(NODE& vNewNode, const ENUM& tValue)
+		{
+			using UnderlyingType = typename std::underlying_type<ENUM>::type;
+			ISerialize<NODE, UnderlyingType>::serialize(vNewNode, static_cast<UnderlyingType>(tValue));
+		}
+	};
+#endif
+
 	template <class NODE>
 	class IArchiveHelper
 	{
@@ -327,7 +344,7 @@ namespace MSRPC
 	template <class NODE>
 	class OArchiveHelper;
 
-	template<class NODE, typename T>
+	template<class NODE, typename T, typename Enable = void>
 	class OSerialize
 	{
 	public:
@@ -557,6 +574,19 @@ namespace MSRPC
 			vNewNode.in_serialize((BaseTypeApt<S, T>&)tValue);
 		}
 	};
+
+#if ANY_CPP11_OR_GREATER
+	template<class NODE, class ENUM>
+	class OSerialize<NODE, ENUM, typename std::enable_if<std::is_enum<ENUM>::value>::type>
+	{
+	public:
+		static void serialize(NODE& vNewNode, ENUM& tValue)
+		{
+			using UnderlyingType = typename std::underlying_type<ENUM>::type;
+			OSerialize<NODE, UnderlyingType>::serialize(vNewNode, *reinterpret_cast<UnderlyingType*>(&tValue));
+		}
+	};
+#endif
 
 	template <class NODE>
 	class OArchiveHelper
