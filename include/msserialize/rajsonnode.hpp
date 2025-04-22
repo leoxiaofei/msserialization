@@ -10,6 +10,8 @@
 
 namespace MSRPC
 {
+	#define is_valid_number(x) (!std::isnan(x) && !std::isinf(x))
+
 	class INodeJson
 	{
 	private:
@@ -48,6 +50,30 @@ namespace MSRPC
 		void in_serialize(const unsigned long long& tValue) 
 		{
 			*m_node = static_cast<uint64_t>(tValue);
+		}
+
+		void in_serialize(const float& tValue)
+		{
+			if(is_valid_number(tValue))
+			{
+				*m_node = tValue;
+			}
+			else
+			{
+				m_node->SetNull();
+			}
+		}
+
+		void in_serialize(const double& tValue) 
+		{
+			if(is_valid_number(tValue))
+			{
+				*m_node = tValue;
+			}
+			else
+			{
+				m_node->SetNull();
+			}
 		}
 
 		INodeJson new_node()
@@ -167,6 +193,30 @@ namespace MSRPC
 			{
 				tValue = static_cast<unsigned long long>(
 					m_node->Get<uint64_t>());
+			}
+		}
+
+		void in_serialize(float& tValue) const
+		{
+			if(m_node->Is<float>())
+			{
+				tValue = m_node->Get<float>();
+			}
+			else if(m_node->IsNull())
+			{
+				tValue = NAN;
+			}
+		}
+
+		void in_serialize(double& tValue) const
+		{
+			if(m_node->Is<double>())
+			{
+				tValue = m_node->Get<double>();
+			}
+			else if(m_node->IsNull())
+			{
+				tValue = NAN;
 			}
 		}
 
