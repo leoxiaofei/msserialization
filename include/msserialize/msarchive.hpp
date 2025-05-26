@@ -16,9 +16,9 @@ namespace MSRPC
 	class StrApt
 	{
 	public:
-		/// 两个Get选其一: 如果可以取得char字符串常量，
-		/// 那么使用带const的在rapidjson下可以少拷贝一次，
-		/// 如果无法取得常量字符串，那么使用不带const的get。
+		/// Choose between two Get methods: If you can obtain a char string constant, 
+		/// use the const version to avoid an extra copy under RapidJSON. 
+		/// If you cannot obtain a constant string, use the non-const Get method.
 		/*
 		const char* Get() const
 		{
@@ -44,6 +44,11 @@ namespace MSRPC
 		const char* Get() const
 		{
 			return m_str.c_str();
+		}
+
+		size_t Size() const
+		{
+			return m_str.size();
 		}
 
 		void Set(const char* tValue, const size_t& sSize)
@@ -325,7 +330,6 @@ namespace MSRPC
 		IArchiveHelper &operator&(const T &tValue)
 		{
 			ISerialize<NODE, T>::serialize(m_vCurNode, tValue);
-			m_vCurNode.finish();
 			return *this;
 		}
 

@@ -2,12 +2,18 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.2)
 
 PROJECT(msserialization)
 
-FILE(GLOB_RECURSE MST_HEAD_FILES "include/*")
+if(${CMAKE_VERSION} VERSION_LESS "3.19.0") 
+	add_library(${PROJECT_NAME} INTERFACE)
+else()
+	FILE(GLOB_RECURSE MST_HEAD_FILES "include/*")
+	add_library(${PROJECT_NAME} INTERFACE ${MST_HEAD_FILES})
+endif()
 
-add_library(msserialization INTERFACE ${MST_HEAD_FILES})
+target_include_directories(${PROJECT_NAME} INTERFACE "include")
 
-#target_sources(msserialization INTERFACE ${MST_HEAD_FILES})
-target_include_directories(msserialization INTERFACE "include")
+option(TEST_OPT "option for test" OFF)
 
-#add_subdirectory(test)
-add_subdirectory(demo/rajson)
+if (TEST_OPT)
+	include(CTest)
+	add_subdirectory(unittest)
+endif()

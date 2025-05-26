@@ -1,12 +1,10 @@
 #ifndef RAJSONSERIALIZER_HPP__
 #define RAJSONSERIALIZER_HPP__
 
-
-///通用Json序列化接口
+///General-purpose JSON serialization interface
 
 #include <msserialize/pojsonnode.hpp>
 #include <msserialize/msarchive_stl.hpp>
-#include <fstream>
 
 namespace MSRPC
 {
@@ -14,55 +12,45 @@ namespace MSRPC
 template<class T>
 std::string ToJsonS(const T& t, unsigned int indent = 0)
 {
-	//序列化
-	Poco::Dynamic::Var doc;
-	MSRPC::IJsonArc::Node nObjI(&doc);
-	MSRPC::IJsonArc ia(nObjI);
+	MSRPC::INodeDoc doc;
+	MSRPC::IJsonArc ia(doc);
 	ia & t;
 
-	//输出json字符串
-	std::ostringstream os;
-	Poco::JSON::Stringifier::stringify(doc, os, indent, 1, Poco::JSON_WRAP_STRINGS);
-
-	return os.str();
+	return doc.Stringify(indent);
 }
 
 template<class T, class StrBuf>
 bool FromJsonS(T& t, StrBuf& strJson)
 {
-	Poco::JSON::Parser parser;
-	Poco::Dynamic::Var doc = parser.parse(strJson);
-
-	MSRPC::OJsonArc::Node objO(&doc);
-	MSRPC::OJsonArc oa(objO);
-
-	if (objO)
+	bool bRet(false);
+	try
 	{
-		oa & t;
+
+		MSRPC::ONodeDoc doc;
+
+		if (doc.Parse(strJson))
+		{
+			MSRPC::OJsonArc oa(doc);
+			oa & t;
+			bRet = true;
+		}
+	}
+	catch(std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
 	}
 
-	return objO;
+	return bRet;
 }
 
 template<class T>
 bool ToJsonFile(const T& t, const char* strFilePath, unsigned int indent = 0)
 {
-	//序列化
-	Poco::Dynamic::Var doc;
-	MSRPC::IJsonArc::Node nObjI(&doc);
-	MSRPC::IJsonArc ia(nObjI);
+	MSRPC::INodeDoc doc;
+	MSRPC::IJsonArc ia(doc);
 	ia & t;
 
-	bool bRet = false;
-	//输出json
-	std::ofstream outfile(strFilePath);
-	if (outfile)
-	{
-		Poco::JSON::Stringifier::stringify(doc, outfile, indent, 1, Poco::JSON_WRAP_STRINGS);
-		bRet = true;
-	}
-
-	return bRet;
+	return doc.Save(strFilePath, indent);
 }
 
 template<class T>
@@ -70,20 +58,20 @@ bool FromJsonFile(T& t, const char* strFilePath)
 {
 	bool bRet(false);
 
-	std::ifstream ifs(strFilePath);
-	if(ifs)
+	try
 	{
-		Poco::JSON::Parser parser;
-		Poco::Dynamic::Var doc = parser.parse(ifs);
+		MSRPC::ONodeDoc doc;
 
-		MSRPC::OJsonArc::Node objO(&doc);
-		MSRPC::OJsonArc oa(objO);
-
-		if (objO)
+		if (doc.Load(strFilePath))
 		{
+			MSRPC::OJsonArc oa(doc);
 			oa & t;
 			bRet = true;
 		}
+	}
+	catch(std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
 	}
 
 	return bRet;

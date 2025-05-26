@@ -2,7 +2,7 @@
 #define RAJSONSERIALIZER_HPP__
 
 
-///通用Json序列化接口
+///General JSON Serialization Interface
 
 #include <msadapter/msrajsonadapter.hpp>
 #include <msserialize/rajsonnode.hpp>
@@ -38,13 +38,13 @@ bool BuffDocWrite(rapidjson::Document& doc, RsvBuffer& buffer, bool bFormat)
 template<class T>
 std::string ToJsonS(const T& t, bool bFormat = false)
 {
-	//序列化
+	//Serialization
 	rapidjson::Document doc;
 	MSRPC::IJsonArc::Node nObjI(&doc);
 	MSRPC::IJsonArc ia(nObjI);
 	ia & t;
 
-	//输出json字符串
+	//Output the JSON string
 	std::string strRet;
 	typedef MSRPC::TBufferAdapter<std::string> RsvBuffer;
 	RsvBuffer buffer(strRet);
@@ -74,13 +74,13 @@ bool FromJsonS(T& t, StrBuf& strJson)
 template<class T>
 bool ToJsonFile(const T& t, const char* strFilePath, bool bFormat = false)
 {
-	//序列化
+	//Serialization
 	rapidjson::Document doc;
 	MSRPC::IJsonArc::Node nObjI(&doc);
 	MSRPC::IJsonArc ia(nObjI);
 	ia & t;
 
-	//输出json
+	//Output the JSON string
 	std::ofstream outfile(strFilePath);
 
 	rapidjson::OStreamWrapper osw(outfile);

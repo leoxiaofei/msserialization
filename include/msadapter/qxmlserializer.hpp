@@ -2,7 +2,6 @@
 #define QXMLSERIALIZER_HPP__
 
 
-///通用Xml序列化接口
 
 #include <QDomDocument>
 #include <QFile>
@@ -17,13 +16,11 @@ namespace MSRPC
 template<class T>
 QByteArray ToXmlS(const T& t, const QString& strRootName, int nIndent = -1)
 {
-	//序列化
 	QDomDocument doc;
 	MSRPC::IXmlArc::Node nObjI(&doc, strRootName);
 	MSRPC::IXmlArc ia(nObjI);
 	ia & t;
 
-	//输出Xml字符串
 	return doc.toByteArray(nIndent);
 }
 
@@ -52,13 +49,11 @@ bool ToXmlFile(const T& t, const QString& strFilePath, const QString& strRootNam
 {
 	bool bRet(false);
 
-	//序列化
 	QDomDocument doc;
 	MSRPC::IXmlArc::Node nObjI(&doc, doc.createElement(strRootName));
 	MSRPC::IXmlArc ia(nObjI);
 	ia & t;
 
-	//输出Xml字符串
 	QByteArray strXml = doc.toByteArray(nIndent);
 
 	QFile f(strFilePath);

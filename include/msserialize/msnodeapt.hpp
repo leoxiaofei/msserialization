@@ -2,7 +2,8 @@
 #define MSNODEAPT_H__
 
 #include "functionhelper.hpp"
-
+#include <memory>
+#include <string.h>
 
 namespace MSRPC
 {

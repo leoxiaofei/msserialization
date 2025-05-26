@@ -2,7 +2,6 @@
 #include <msserialize/msnodeapt.hpp>
 #include <iostream>
 
-
 namespace
 {
 	enum EnumTest { E_T1, E_T2, E_T3 };
@@ -30,42 +29,32 @@ namespace
 
 	const char* szEnumTest[] = { "E_T1", "E_T2", "E_T3" };
 
-	SiExSe(A, b, i, d, eTest, l, str, szS, spD)
+	template<class Ar>
+	void ex_serialize(Ar& ar, A& tValue)
+	{
+		ar.io("b", tValue.b);
+		ar.io("i", tValue.i);
+		ar.io("d", tValue.d);
+		ar.io("l", tValue.l);
+		ar.io("str", tValue.str);
+		ar.io("szS", tValue.szS);
+		ar.io("test", MSRPC::EnumApt<EnumTest>(tValue.eTest, szEnumTest));
+		ar.io("spD", tValue.spD);
+	}
 
-// 	template<class Ar>
-// 	void ex_serialize(Ar& ar, A& tValue)
-// 	{
-// 		ar.io("b", tValue.b);
-// 		ar.io("i", tValue.i);
-// 		ar.io("d", tValue.d);
-// 		ar.io("l", tValue.l);
-// 		ar.io("str", tValue.str);
-// 		ar.io("szS", tValue.szS);
-// 		ar.io("test", MSRPC::EnumApt<EnumTest>(tValue.eTest, szEnumTest));
-// 		ar.io("spD", tValue.spD);
-// 	}
 
 	SiExSe(B, szA, tpT, szN)
-
-// 	template<class Ar>
-// 	void ex_serialize(Ar& ar, B& tValue)
-// 	{
-// 		ar.io("A", tValue.szA);
-// 		ar.io("N", tValue.szN);
-// 	}
-
 };
 
 int main()
 {
-	//赋值
 	A a;
 	a.i = 123;
 	a.d = 3.21;
 	a.str = "aaa";
 	a.l = 1234567890;
 	strcpy(a.szS, "bbb");
-	a.eTest = E_T3;
+	a.eTest = E_T1;
 	a.spD = std::make_shared<double>(10.1);
 
 	B b;
@@ -73,12 +62,12 @@ int main()
 	b.szA.push_back(a);
 	b.szN[0] = 1;
 
-	//序列化
+
 	std::string strBuf = MSRPC::ToJsonS(b);
 	std::cout << strBuf.c_str() << std::endl;
 
 	//////////////////////////////////////////////////////////////////////////
-	//反序列化
+
 	B b2;
 	MSRPC::FromJsonS(b2, strBuf);
 

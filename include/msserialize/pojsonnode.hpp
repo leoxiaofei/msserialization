@@ -11,9 +11,11 @@
 #include <Poco/JSON/Query.h>
 #include <Poco/JSON/PrintHandler.h>
 #include <Poco/JSON/Object.h>
+#include <Poco/JSON/Array.h>
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <cmath>
 #include <algorithm>
 
@@ -21,7 +23,7 @@ namespace MSRPC
 {
 	class INodeJson
 	{
-	private:
+	protected:
 		Poco::Dynamic::Var m_data;
 		Poco::Dynamic::Var* m_node;
 
@@ -92,7 +94,7 @@ namespace MSRPC
 
 		void set_array()
 		{
-			*m_node = Poco::JSON::Array::Ptr(new Poco::JSON::Array);
+			*m_node = Poco::makeShared<Poco::JSON::Array>();
 		}
 
 		void push_node(INodeJson& vNode)
@@ -100,10 +102,6 @@ namespace MSRPC
 			Poco::JSON::Array::Ptr ptr = m_node->extract<Poco::JSON::Array::Ptr>();
 
 			ptr->add(*vNode.m_node);
-		}
-
-		void finish()
-		{
 		}
 
 	public:
@@ -129,214 +127,62 @@ namespace MSRPC
 
 		}
 
-		INodeJson(const INodeJson& other)
-			: m_node(other.m_node == &other.m_data ? &m_data : other.m_node)
+		INodeJson(INodeJson&& other)
+			: m_node(&m_data)
 		{
-
+			if (other.m_node == &other.m_data)
+			{
+				m_data.swap(other.m_data);
+			}
+			else
+			{
+				m_node = other.m_node;
+			}
 		}
-
 	};
 
 	class ONodeJson
 	{
-	public:
-		Poco::Dynamic::Var m_node;
+	protected:
+		Poco::Dynamic::Var m_data;
+		const Poco::Dynamic::Var* m_node;
 
-		ONodeJson() 
-		{}
+	public:
+		ONodeJson()
+			: m_node(&m_data)
+		{
+		}
 
 		ONodeJson(Poco::Dynamic::Var&& node)
-			: m_node(std::move(node))
-		{}
+			: m_node(&m_data)
+		{
+			m_data.swap(node);
+		}
 
 		ONodeJson(const Poco::Dynamic::Var* node)
-			: m_node(*node)
-		{}
+			: m_node(node)
+		{
+		}
 
 	public:
 		template <class T>
 		void in_serialize(T& tValue) const
 		{
-			m_node.convert<T>(tValue);
-			//if (m_node->Is<T>())
-			//{
-			//	tValue = m_node->Get<T>();
-			//}
-			//else if (std::is_arithmetic<T>() && m_node->IsNumber())
-			//{
-			//	if (m_node->IsInt())
-			//	{
-			//		tValue = m_node->GetInt();
-			//	}
-			//	else if (m_node->IsUint())
-			//	{
-			//		tValue = m_node->GetUint();
-			//	}
-			//	else if (m_node->IsDouble())
-			//	{
-			//		tValue = static_cast<T>(m_node->GetDouble());
-			//	}
-			//}
-			//else if (std::is_arithmetic<T>() && m_node->IsString())
-			//{
-			//	std::stringstream ss;
-			//	ss << m_node->GetString();
-			//	ss >> tValue;
-			//}
-			//else
-			//{
-			//	std::cerr << "in_serialize type is not matched!" << std::endl;
-			//}
+			m_node->convert<T>(tValue);
 		}
-
-		//void in_serialize(bool& tValue) const
-		//{
-		//	if (m_node->Is<bool>())
-		//	{
-		//		tValue = m_node->Get<bool>();
-		//	}
-		//	else if (m_node->IsNumber())
-		//	{
-		//		tValue = m_node->GetInt() != 0;
-		//	}
-		//	else if (m_node->IsString())
-		//	{
-		//		std::stringstream ss;
-		//		ss << m_node->GetString();
-		//		ss >> tValue;
-		//	}
-		//	else
-		//	{
-		//		std::cerr << "in_serialize type is not matched!" << std::endl;
-		//	}
-		//}
-
-		//void in_serialize(double& tValue) const
-		//{
-		//	if (m_node->IsNumber())
-		//	{
-		//		tValue = m_node->Get<double>();
-		//	}
-		//	else if (m_node->IsString())
-		//	{
-		//		std::stringstream ss;
-		//		ss << m_node->GetString();
-		//		ss >> tValue;
-		//	}
-		//	else if (m_node->IsNull())
-		//	{
-		//		tValue = NAN;
-		//	}
-		//	else
-		//	{
-		//		std::cerr << "in_serialize type is not matched!" << std::endl;
-		//	}
-		//}
-
-		//void in_serialize(float& tValue) const
-		//{
-		//	if (m_node->IsNumber())
-		//	{
-		//		tValue = m_node->Get<float>();
-		//	}
-		//	else if (m_node->IsString())
-		//	{
-		//		std::stringstream ss;
-		//		ss << m_node->GetString();
-		//		ss >> tValue;
-		//	}
-		//	else if (m_node->IsNull())
-		//	{
-		//		tValue = NAN;
-		//	}
-		//	else
-		//	{
-		//		std::cerr << "in_serialize type is not matched!" << std::endl;
-		//	}
-		//}
-
-		//void in_serialize(unsigned short& tValue) const
-		//{
-		//	if (m_node->Is<unsigned int>())
-		//	{
-		//		tValue = static_cast<unsigned short>(
-		//			m_node->Get<unsigned int>());
-		//	}
-		//	else if (m_node->IsString())
-		//	{
-		//		std::stringstream ss;
-		//		ss << m_node->GetString();
-		//		ss >> tValue;
-		//	}
-		//	else
-		//	{
-		//		std::cerr << "in_serialize type is not matched!" << std::endl;
-		//	}
-
-		//}
-
-		//void in_serialize(long long& tValue) const
-		//{
-		//	if (m_node->Is<int64_t>())
-		//	{
-		//		tValue = static_cast<long long>(
-		//			m_node->Get<int64_t>());
-		//	}
-		//	else if (m_node->IsString())
-		//	{
-		//		std::stringstream ss;
-		//		ss << m_node->GetString();
-		//		ss >> tValue;
-		//	}
-		//	else
-		//	{
-		//		std::cerr << "in_serialize type is not matched!" << std::endl;
-		//	}
-		//}
-
-		//void in_serialize(unsigned long long& tValue) const
-		//{
-		//	if (m_node->Is<uint64_t>())
-		//	{
-		//		tValue = static_cast<unsigned long long>(
-		//			m_node->Get<uint64_t>());
-		//	}
-		//	else if (m_node->IsString())
-		//	{
-		//		std::stringstream ss;
-		//		ss << m_node->GetString();
-		//		ss >> tValue;
-		//	}
-		//	else
-		//	{
-		//		std::cerr << "in_serialize type is not matched!" << std::endl;
-		//	}
-		//}
-
-		//void in_serialize(const char*& tValue) const
-		//{
-		//	if (m_node->IsString())
-		//	{
-		//		tValue = m_node->GetString();
-		//	}
-		//	else
-		//	{
-		//		std::cerr << "in_serialize type is not matched!" << std::endl;
-		//	}
-		//}
 
 		template <typename T>
 		void in_serialize(StrApt<T>& tValue) const
 		{
-			if (m_node.isString())
+			if (m_node->isString())
 			{
-				const auto& str = m_node.extract<std::string>();
+				const auto& str = m_node->extract<std::string>();
 				tValue.Set(str.c_str(), str.size());
 			}
-			else if (m_node.isNumeric())
+			else if (m_node->isNumeric())
 			{
 				std::string str;
-				m_node.convert<std::string>(str);
+				m_node->convert<std::string>(str);
 				tValue.Set(str.data(), str.size());
 			}
 			else
@@ -347,20 +193,20 @@ namespace MSRPC
 
 		void in_serialize(char* tValue, size_t nSize) const
 		{
-			if (m_node.isString())
+			if (m_node->isString())
 			{
-				const auto& str = m_node.extract<std::string>();
+				const auto& str = m_node->extract<std::string>();
 				nSize = std::min<size_t>(nSize - 1, str.size());
 				memcpy(tValue, str.c_str(), nSize);
-				tValue[nSize + 1] = '\0';
+				tValue[nSize] = '\0';
 			}
-			else if (m_node.isNumeric())
+			else if (m_node->isNumeric())
 			{
 				std::string str;
-				m_node.convert<std::string>(str);
+				m_node->convert<std::string>(str);
 				nSize = std::min<size_t>(nSize - 1, str.size());
 				memcpy(tValue, str.c_str(), nSize);
-				tValue[nSize + 1] = '\0';
+				tValue[nSize] = '\0';
 			}
 			else
 			{
@@ -372,7 +218,7 @@ namespace MSRPC
 		{
 			try
 			{
-				Poco::JSON::Object::Ptr str = m_node.extract<Poco::JSON::Object::Ptr>();
+				Poco::JSON::Object::Ptr str = m_node->extract<Poco::JSON::Object::Ptr>();
 
 				return ONodeJson(str->get(strName));
 			}
@@ -391,12 +237,14 @@ namespace MSRPC
 			Poco::JSON::Object::ConstIterator citEnd;
 
 			ONodeObjIter()
-			{}
+			{
+			}
 
 			ONodeObjIter(const Poco::JSON::Object::Ptr& node)
 				: citCur(node->begin())
 				, citEnd(node->end())
-			{}
+			{
+			}
 
 		public:
 			ONodeJson operator *() const
@@ -427,7 +275,7 @@ namespace MSRPC
 		{
 			try
 			{
-				Poco::JSON::Object::Ptr obj = m_node.extract<Poco::JSON::Object::Ptr>();
+				Poco::JSON::Object::Ptr obj = m_node->extract<Poco::JSON::Object::Ptr>();
 
 				return ObjIter(obj);
 			}
@@ -446,12 +294,14 @@ namespace MSRPC
 			Poco::JSON::Array::ConstIterator citEnd;
 
 			ONodeArrIter()
-			{}
+			{
+			}
 
 			ONodeArrIter(const Poco::JSON::Array::Ptr& node)
 				: citCur(node->begin())
 				, citEnd(node->end())
-			{}
+			{
+			}
 
 		public:
 			ONodeJson operator *() const
@@ -477,13 +327,17 @@ namespace MSRPC
 		{
 			try
 			{
-				Poco::JSON::Array::Ptr obj = m_node.extract<Poco::JSON::Array::Ptr>();
+				Poco::JSON::Array::Ptr obj = m_node->extract<Poco::JSON::Array::Ptr>();
 
 				return ArrIter(obj);
 			}
+			catch (const std::exception& e)
+			{
+				std::cerr << "extract<Poco::JSON::Array::Ptr>: " << e.what() << std::endl;
+			}
 			catch (...)
 			{
-
+				std::cerr << "extract<Poco::JSON::Array::Ptr>" << std::endl;
 			}
 
 			return ArrIter();
@@ -491,12 +345,139 @@ namespace MSRPC
 
 		operator bool() const
 		{
-			return !m_node.isEmpty();
+			return !m_node->isEmpty();
 		}
 	};
 
-	typedef MSRPC::OArchiveHelper<MSRPC::ONodeJson> OJsonArc;
-	typedef MSRPC::IArchiveHelper<MSRPC::INodeJson> IJsonArc;
+	typedef OArchiveHelper<ONodeJson> OJsonArc;
+	typedef IArchiveHelper<INodeJson> IJsonArc;
+
+	class MemBuf : public std::streambuf
+	{
+	public:
+		MemBuf(const char* data, size_t size) {
+			char* p = const_cast<char*>(data);
+			setg(p, p, p + size);
+		}
+
+	protected:
+		int_type underflow() override {
+			if (gptr() >= egptr()) {
+				return traits_type::eof();
+			}
+			return traits_type::to_int_type(*gptr());
+		}
+	};
+
+	template<class StrBuf>
+	class BufferApt
+	{
+		MemBuf memBuf;
+		std::istream ist;
+	public:
+		BufferApt(const StrBuf& t)
+		: memBuf(t.begin(), t.size())
+		, ist(&memBuf)
+		{}
+		
+		operator std::istream& ()
+		{
+			return ist;
+		}
+	};
+
+	template<>
+	class BufferApt<std::string>
+	{
+		std::string& str;
+	public:
+		BufferApt(std::string& s)
+			: str(s)
+		{}
+		operator std::string& ()
+		{
+			return str;
+		}
+	};
+
+	class ONodeDoc : public ONodeJson
+	{
+	public:
+		template<class StrBuf>
+		bool Parse(StrBuf& strJson)
+		{
+			bool bRet = false;
+			try
+			{
+				Poco::JSON::Parser parser;
+				BufferApt<StrBuf> apt(strJson);
+				parser.parse(apt).swap(m_data);
+				bRet = !m_data.isEmpty();
+			}
+			catch (const Poco::Exception& e)
+			{
+				std::cerr << e.displayText() << std::endl;
+			}
+
+			return bRet;
+		}
+
+		bool Load(const char* strFilePath)
+		{
+			bool bRet = false;
+			try
+			{
+
+				std::ifstream ifs(strFilePath);
+				if (ifs)
+				{
+					Poco::JSON::Parser parser;
+					parser.parse(ifs).swap(m_data);
+					bRet = !m_data.isEmpty();
+				}
+			}
+			catch (const std::exception&)
+			{
+
+			}
+
+			return bRet;
+		}
+	};
+
+	class INodeDoc : public INodeJson
+	{
+	public:
+		std::string Stringify(unsigned int indent = 0)
+		{
+			std::ostringstream os;
+
+			Poco::JSON::Stringifier::stringify(m_data, os, indent, -1, Poco::JSON_WRAP_STRINGS);
+
+			return os.str();
+		}
+
+		template<class StrBuf>
+		void Stringify(StrBuf& buf, unsigned int indent = 0)
+		{
+			Poco::JSON::Stringifier::stringify(m_data, buf, indent, -1, Poco::JSON_WRAP_STRINGS);
+		}
+
+		bool Save(const char* strFilePath, unsigned int indent = 0)
+		{
+			bool bRet = false;
+
+			std::ofstream outfile(strFilePath);
+			if (outfile)
+			{
+				Poco::JSON::Stringifier::stringify(m_data, outfile, indent, 1, Poco::JSON_WRAP_STRINGS);
+				bRet = true;
+			}
+
+			return bRet;
+		}
+	};
+
 }
 
 #endif // POJSONNODE_H__

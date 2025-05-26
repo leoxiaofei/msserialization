@@ -2,7 +2,6 @@
 #define RAXMLSERIALIZER_HPP__
 
 
-///通用xml序列化接口
 
 #include <msserialize/raxmlnode.hpp>
 #include <msserialize/msarchive_stl.hpp>
@@ -18,7 +17,6 @@ template<class T>
 std::string ToXmlS(const T& t, const char* strRootName)
 {
 	rapidxml::xml_document<> doc;
-	//序列化
 	MSRPC::IXmlArc::Node nObjI(&doc);
 	MSRPC::IXmlArc::Node root = nObjI.new_node();
 	MSRPC::IXmlArc ia(root);
@@ -28,7 +26,6 @@ std::string ToXmlS(const T& t, const char* strRootName)
 
 	std::string text;
 	rapidxml::print(std::back_inserter(text), doc);
-	//输出xml字符串
 	return text;
 }
 
@@ -38,9 +35,15 @@ bool FromXmlS(T& t, StrBuf& strXml)
 	bool bRet(false);
 	rapidxml::xml_document<> doc;
 	doc.parse<rapidxml::parse_full>(&strXml[0]);
-	if (doc.first_node())
+	rapidxml::xml_node<>* node = doc.first_node();
+	while (node && node->type() != rapidxml::node_element)
 	{
-		MSRPC::OXmlArc::Node objO(doc.first_node());
+		node = node->next_sibling();
+	}
+
+	if (node)
+	{
+		MSRPC::OXmlArc::Node objO(node);
 		MSRPC::OXmlArc oa(objO);
 
 		if (objO)
@@ -59,7 +62,6 @@ bool FromXmlS(T& t, StrBuf& strXml)
 	 bool bRet = false;
 
 	 rapidxml::xml_document<> doc;
-	 //序列化
 	 MSRPC::IXmlArc::Node nObjI(&doc);
 	 MSRPC::IXmlArc::Node root = nObjI.new_node();
 	 MSRPC::IXmlArc ia(root);
@@ -70,7 +72,6 @@ bool FromXmlS(T& t, StrBuf& strXml)
 	 std::ofstream ofs(strFilePath, std::ios::binary);
 	 if (ofs)
 	 {
-		 //输出xml文件
 		 ofs << doc;
 		 //rapidxml::print(ofs, doc);
 		 bRet = true;

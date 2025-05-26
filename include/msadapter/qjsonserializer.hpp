@@ -2,13 +2,12 @@
 #define QJSONSERIALIZER_HPP__
 
 
-///通用Json序列化接口
-
 #include <QJsonDocument>
 #include <QFile>
 #include <msserialize/qjsonnode.hpp>
 #include <msserialize/msarchive_qt.hpp>
 #include <msserialize/msnodeapt_qt.hpp>
+#include <msserialize/msnodeapt.hpp>
 
 namespace MSRPC
 {
@@ -16,13 +15,13 @@ namespace MSRPC
 template<class T>
 QByteArray ToJsonS(const T& t, bool bFormat = false)
 {
-	//序列化
-	QJsonDocument doc;
-	MSRPC::IJsonArc::Node nObjI(&doc);
+	MSRPC::IJsonArc::Node nObjI;
 	MSRPC::IJsonArc ia(nObjI);
 	ia & t;
 
-	//输出json字符串
+	QJsonDocument doc;
+	nObjI.finish(&doc);
+
 	return doc.toJson(bFormat ? QJsonDocument::Indented 
 		: QJsonDocument::Compact);
 }
@@ -48,13 +47,13 @@ bool ToJsonFile(const T& t, const QString& strFilePath, bool bFormat = true)
 {
 	bool bRet(false);
 
-	//序列化
-	QJsonDocument doc;
-	MSRPC::IJsonArc::Node nObjI(&doc);
+	MSRPC::IJsonArc::Node nObjI;
 	MSRPC::IJsonArc ia(nObjI);
 	ia & t;
 
-	//输出json字符串
+	QJsonDocument doc;
+	nObjI.finish(&doc);
+
 	QByteArray strJson = doc.toJson(bFormat 
 		? QJsonDocument::Indented : QJsonDocument::Compact);
 

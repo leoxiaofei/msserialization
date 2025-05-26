@@ -5,7 +5,7 @@
 #include <rapidxml/rapidxml.hpp>
 #include <rapidxml/rapidxml_print.hpp>
 #include <sstream>
-
+#include <string.h>
 
 namespace MSRPC
 {
@@ -24,6 +24,11 @@ namespace MSRPC
 			std::ostringstream ss;
 			ss << var;
 			str = ss.str();
+		}
+
+		static void ToString(std::string& str, const bool& var)
+		{
+			str = var ? "true" : "false";
 		}
 
 	public:
@@ -126,10 +131,15 @@ namespace MSRPC
 		const rapidxml::xml_node<>* m_node;
 
 		template <class T>
-		static void ToValue(T& val, const char* str)
+		static void ToValue(T& val, const char* str, const std::size_t& size)
 		{
-			std::istringstream ss(str);
+			std::istringstream ss(std::string(str, size));
 			ss >> val;
+		}
+
+		static void ToValue(bool& val, const char* str, const std::size_t& size)
+		{
+			val = memcmp(str, "false", size) != 0 && memcmp(str, "0", size) != 0;
 		}
 
 	public:
@@ -141,7 +151,7 @@ namespace MSRPC
 		template <class T>
 		void in_serialize(T& tValue) const
 		{
-			ToValue(tValue, m_node->value());
+			ToValue(tValue, m_node->value(), m_node->value_size());
 		}
 
 		void in_serialize(const char*& tValue) const

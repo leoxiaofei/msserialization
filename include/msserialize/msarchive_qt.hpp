@@ -4,11 +4,15 @@
 #include "msarchive.hpp"
 #include "msbasetypeapt_qt.hpp"
 #include <QString>
+#include <QTextStream>
 #include <QDataStream>
 #include <QSharedPointer>
+#include <QDateTime>
 #include <QMetaType>
 #include <QSet>
 #include <QQueue>
+#include <QLine>
+#include <QMargins>
 
 #ifdef QT_GUI_LIB
 #include <QPolygon>
@@ -504,17 +508,13 @@ namespace MSRPC
 		{
 			vNewNode.set_object();
 
-			///保存QVariant内部数据类型
 			NODE vNodeType = vNewNode.new_node();
 			ISerialize<NODE, const char*>::serialize(vNodeType, tValue.typeName());
 			vNewNode.add_member("type", vNodeType);
 
 			NODE vNodeValue = vNewNode.new_node();
 
-			///根据类型保存值
-			///这里其实我想用Map，但是这是个纯头文件的库，Map的数据保存在哪里还没想清楚，
-			///只好靠C++编译器优化switch了。
-			switch (static_cast<QMetaType::Type>(tValue.type()))
+			switch (tValue.type())
 			{
 			case QMetaType::Bool:
 				ISerialize<NODE, bool>::serialize(vNodeValue, tValue.toBool());
@@ -644,8 +644,7 @@ namespace MSRPC
 				QString baData;
 				vNodeType.in_serialize(baData);
 				int nType = QVariant::nameToType(baData.toUtf8().data());
-				///这里其实我想用Map，但是这是个纯头文件的库，Map的数据保存在哪里还没想清楚，
-				///只好靠C++编译器优化switch了。
+
 				switch (nType)
 				{
 				case QMetaType::Bool:

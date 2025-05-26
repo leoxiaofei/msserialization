@@ -108,7 +108,6 @@ namespace MSRPC
 	{
 	private:
 		QScopedPointer<NJVBase> m_node;
-		QJsonDocument* m_doc;
 
 	public:
 		NJValue* set_value()
@@ -171,15 +170,17 @@ namespace MSRPC
 
 		INodeJson new_node()
 		{
-			return INodeJson(m_doc);
+			return INodeJson();
 		}
 
-		void set_object()
+		NJObject* set_object()
 		{
 			if (!m_node || m_node->type() != NJObject::Type)
 			{
 				m_node.reset(new NJObject);
 			}
+
+			return (NJObject*)m_node.data();
 		}
 
 		void add_member(const char* strName, INodeJson& vNode)
@@ -189,12 +190,14 @@ namespace MSRPC
 			obj[strName] = vNode.data();
 		}
 
-		void set_array()
+		NJArray* set_array()
 		{
 			if (!m_node || m_node->type() != NJArray::Type)
 			{
 				m_node.reset(new NJArray);
 			}
+
+			return (NJArray*)m_node.data();
 		}
 
 		void push_node(INodeJson& vNode)
@@ -203,9 +206,9 @@ namespace MSRPC
 			arr.append(vNode.data());
 		}
 
-		void finish()
+		void finish(QJsonDocument* doc)
 		{
-			m_node->setDoc(m_doc);
+			m_node->setDoc(doc);
 		}
 
 	public:
@@ -214,13 +217,12 @@ namespace MSRPC
 			return m_node->data();
 		}
 
-		INodeJson(QJsonDocument* doc)
-			: m_doc(doc)
-		{}
+		INodeJson()
+		{
+		}
 
 		INodeJson(const INodeJson& other)
 			: m_node(const_cast<INodeJson&>(other).m_node.take())
-			, m_doc(other.m_doc)
 		{}
 
 	};
