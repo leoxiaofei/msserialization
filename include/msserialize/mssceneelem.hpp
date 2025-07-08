@@ -14,7 +14,7 @@
 namespace MSRPC
 {
 	template<class NODE>
-	class ISerialize<NODE, QGraphicsItem*>
+	class Serializer<NODE, QGraphicsItem*>
 	{
 	public:
 		static void serialize(NODE& vNewNode, const QGraphicsItem* tValue)
@@ -29,41 +29,41 @@ namespace MSRPC
 				switch (nType)
 				{
 				case QGraphicsRectItem::Type:
-					ISerialize<NODE, QGraphicsRectItem*>::serialize(vNewNode,
+					Serializer<NODE, QGraphicsRectItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsRectItem*>(tValue));
 					break;
 				case QGraphicsLineItem::Type:
-					ISerialize<NODE, QGraphicsLineItem*>::serialize(vNewNode,
+					Serializer<NODE, QGraphicsLineItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsLineItem*>(tValue));
 					break;
 				case QGraphicsEllipseItem::Type:
-					ISerialize<NODE, QGraphicsEllipseItem*>::serialize(vNewNode,
+					Serializer<NODE, QGraphicsEllipseItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsEllipseItem*>(tValue));
 					break;
 				case QGraphicsPixmapItem::Type:
-					ISerialize<NODE, QGraphicsPixmapItem*>::serialize(vNewNode,
+					Serializer<NODE, QGraphicsPixmapItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsPixmapItem*>(tValue));
 					break;
 #ifdef QT_SVG_LIB
 				case QGraphicsSvgItem::Type:
-					ISerialize<NODE, QGraphicsSvgItem*>::serialize(vNewNode,
+					Serializer<NODE, QGraphicsSvgItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsSvgItem*>(tValue));
 					break;
 #endif
 				case QGraphicsTextItem::Type:
-					ISerialize<NODE, QGraphicsTextItem*>::serialize(vNewNode,
+					Serializer<NODE, QGraphicsTextItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsTextItem*>(tValue));
 					break;
 				case QGraphicsPolygonItem::Type:
-					ISerialize<NODE, QGraphicsPolygonItem*>::serialize(vNewNode,
+					Serializer<NODE, QGraphicsPolygonItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsPolygonItem*>(tValue));
 					break;
 				case QGraphicsPathItem::Type:
-					ISerialize<NODE, QGraphicsPathItem*>::serialize(vNewNode,
+					Serializer<NODE, QGraphicsPathItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsPathItem*>(tValue));
 					break;
 				case QGraphicsItemGroup::Type:
-					ISerialize<NODE, QGraphicsItemGroup*>::serialize(vNewNode,
+					Serializer<NODE, QGraphicsItemGroup*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsItemGroup*>(tValue));
 					break;
 				default:
@@ -71,13 +71,8 @@ namespace MSRPC
 				}
 			}
 		}
-	};
 
-	template<class NODE>
-	class OSerialize<NODE, QGraphicsItem*>
-	{
-	public:
-		static void serialize(const NODE& vNewNode, QGraphicsItem*& tValue)
+		static void deserialize(const NODE& vNewNode, QGraphicsItem*& tValue)
 		{
 			int nType;
 			OArchiveHelper<NODE> ar(vNewNode);
@@ -87,28 +82,28 @@ namespace MSRPC
 			case QGraphicsRectItem::Type:
 			{
 				QGraphicsRectItem* pVal = 0;
-				OSerialize<NODE, QGraphicsRectItem*>::serialize(vNewNode, pVal);
+				Serializer<NODE, QGraphicsRectItem*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
 			case QGraphicsLineItem::Type:
 			{
 				QGraphicsLineItem* pVal = 0;
-				OSerialize<NODE, QGraphicsLineItem*>::serialize(vNewNode, pVal);
+				Serializer<NODE, QGraphicsLineItem*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
 			case QGraphicsEllipseItem::Type:
 			{
 				QGraphicsEllipseItem* pVal = 0;
-				OSerialize<NODE, QGraphicsEllipseItem*>::serialize(vNewNode, pVal);
+				Serializer<NODE, QGraphicsEllipseItem*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
 			case QGraphicsPixmapItem::Type:
 			{
 				QGraphicsPixmapItem* pVal = 0;
-				OSerialize<NODE, QGraphicsPixmapItem*>::serialize(vNewNode, pVal);
+				Serializer<NODE, QGraphicsPixmapItem*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
@@ -116,7 +111,7 @@ namespace MSRPC
 			case QGraphicsSvgItem::Type:
 			{
 				QGraphicsSvgItem* pVal = 0;
-				OSerialize<NODE, QGraphicsSvgItem*>::serialize(vNewNode, pVal);
+				Serializer<NODE, QGraphicsSvgItem*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
@@ -124,28 +119,28 @@ namespace MSRPC
 			case QGraphicsTextItem::Type:
 			{
 				QGraphicsTextItem* pVal = 0;
-				OSerialize<NODE, QGraphicsTextItem*>::serialize(vNewNode, pVal);
+				Serializer<NODE, QGraphicsTextItem*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
 			case QGraphicsPolygonItem::Type:
 			{
 				QGraphicsPolygonItem* pVal = 0;
-				OSerialize<NODE, QGraphicsPolygonItem*>::serialize(vNewNode, pVal);
+				Serializer<NODE, QGraphicsPolygonItem*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
 			case QGraphicsPathItem::Type:
 			{
 				QGraphicsPathItem* pVal = 0;
-				OSerialize<NODE, QGraphicsPathItem*>::serialize(vNewNode, pVal);
+				Serializer<NODE, QGraphicsPathItem*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
 			case QGraphicsItemGroup::Type:
 			{
 				QGraphicsItemGroup* pVal = 0;
-				OSerialize<NODE, QGraphicsItemGroup*>::serialize(vNewNode, pVal);
+				Serializer<NODE, QGraphicsItemGroup*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}

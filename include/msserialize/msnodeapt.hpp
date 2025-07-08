@@ -73,20 +73,15 @@ namespace MSRPC
 	};
 
 	template<class NODE, class T>
-	class ISerialize<NODE, EnumApt<T> >
+	class Serializer<NODE, EnumApt<T> >
 	{
 	public:
 		static void serialize(NODE& vNewNode, const EnumApt<T>& tValue)
 		{
 			vNewNode.in_serialize(StrApt<EnumApt<T> >(tValue));
 		}
-	};
 
-	template<class NODE, class T>
-	class OSerialize<NODE, EnumApt<T> >
-	{
-	public:
-		static void serialize(NODE& vNewNode, EnumApt<T>& tValue)
+		static void deserialize(NODE& vNewNode, EnumApt<T>& tValue)
 		{
 			StrApt<EnumApt<T> > aptValue(tValue);
 			vNewNode.in_serialize(aptValue);
@@ -160,9 +155,9 @@ namespace MSRPC
 #endif
 
 	//////////////////////////////////////////////////////////////////////////
-	// std::vector<T> 
+	// 
 	template<class NODE, typename T, typename F, typename ELEM>
-	class ISerialize<NODE, ArrayReshape<T, F, ELEM> >
+	class Serializer<NODE, ArrayReshape<T, F, ELEM> >
 	{
 	public:
 		static void serialize(NODE& vNewNode, const ArrayReshape<T, F, ELEM>& tValue)
@@ -172,24 +167,19 @@ namespace MSRPC
 			for (; tValue; ++tValue)
 			{
 				NODE vNode = vNewNode.new_node();
-				ISerialize<NODE, typename ArrayReshape<T, F, ELEM>::item_type>
+				Serializer<NODE, typename ArrayReshape<T, F, ELEM>::item_type>
 					::serialize(vNode, *tValue);
 				vNewNode.push_node(vNode);
 			}
 		}
-	};
 
-	template<class NODE, typename T, typename F, typename ELEM>
-	class OSerialize<NODE, ArrayReshape<T, F, ELEM> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, ArrayReshape<T, F, ELEM>& tValue)
+		static void deserialize(const NODE& vNewNode, ArrayReshape<T, F, ELEM>& tValue)
 		{
 			typename NODE::ArrIter itor = vNewNode.sub_nodes();
 			for (; itor; ++itor)
 			{
 				ELEM itemValue = tValue.push();
-				OSerialize<NODE, ELEM>::serialize(*itor, itemValue);
+				Serializer<NODE, ELEM>::deserialize(*itor, itemValue);
 			}
 		}
 	};
@@ -234,23 +224,18 @@ namespace MSRPC
 	class ExtractApt;
 
 	template<class NODE, class R, class T, class F>
-	class ISerialize<NODE, ExtractApt<R, T, F> >
+	class Serializer<NODE, ExtractApt<R, T, F> >
 	{
 	public:
 		static void serialize(NODE& vNewNode, const ExtractApt<R, T, F>& tValue)
 		{
-			ISerialize<NODE, R>::serialize(vNewNode, (const R&)tValue);
+			Serializer<NODE, R>::serialize(vNewNode, (const R&)tValue);
 		}
-	};
 
-	template<class NODE, class R, class T, class F>
-	class OSerialize<NODE, ExtractApt<R, T, F> >
-	{
-	public:
-		static void serialize(const NODE& vNewNode, ExtractApt<R, T, F>& tValue)
+		static void deserialize(const NODE& vNewNode, ExtractApt<R, T, F>& tValue)
 		{
 			R ptValue = tValue;
-			OSerialize<NODE, R>::serialize(vNewNode, ptValue);
+			OSerialize<NODE, R>::deserialize(vNewNode, ptValue);
 			tValue = ptValue;
 		}
 	};
