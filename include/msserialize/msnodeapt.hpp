@@ -72,10 +72,11 @@ namespace MSRPC
 		}
 	};
 
-	template<class NODE, class T>
-	class Serializer<NODE, EnumApt<T> >
+	template<class T>
+	class Serializer<EnumApt<T> >
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const EnumApt<T>& tValue)
 		{
 			vNewNode.in_serialize(StrApt<EnumApt<T> >(tValue));
@@ -156,10 +157,11 @@ namespace MSRPC
 
 	//////////////////////////////////////////////////////////////////////////
 	// 
-	template<class NODE, typename T, typename F, typename ELEM>
-	class Serializer<NODE, ArrayReshape<T, F, ELEM> >
+	template<typename T, typename F, typename ELEM>
+	class Serializer<ArrayReshape<T, F, ELEM> >
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const ArrayReshape<T, F, ELEM>& tValue)
 		{
 			vNewNode.set_array();
@@ -167,19 +169,20 @@ namespace MSRPC
 			for (; tValue; ++tValue)
 			{
 				NODE vNode = vNewNode.new_node();
-				Serializer<NODE, typename ArrayReshape<T, F, ELEM>::item_type>
+				Serializer<typename ArrayReshape<T, F, ELEM>::item_type>
 					::serialize(vNode, *tValue);
 				vNewNode.push_node(vNode);
 			}
 		}
 
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, ArrayReshape<T, F, ELEM>& tValue)
 		{
 			typename NODE::ArrIter itor = vNewNode.sub_nodes();
 			for (; itor; ++itor)
 			{
 				ELEM itemValue = tValue.push();
-				Serializer<NODE, ELEM>::deserialize(*itor, itemValue);
+				Serializer<ELEM>::deserialize(*itor, itemValue);
 			}
 		}
 	};
@@ -223,15 +226,17 @@ namespace MSRPC
 	template<class R, class T, class F>
 	class ExtractApt;
 
-	template<class NODE, class R, class T, class F>
-	class Serializer<NODE, ExtractApt<R, T, F> >
+	template<class R, class T, class F>
+	class Serializer<ExtractApt<R, T, F> >
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const ExtractApt<R, T, F>& tValue)
 		{
-			Serializer<NODE, R>::serialize(vNewNode, (const R&)tValue);
+			Serializer<R>::serialize(vNewNode, (const R&)tValue);
 		}
 
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, ExtractApt<R, T, F>& tValue)
 		{
 			R ptValue = tValue;

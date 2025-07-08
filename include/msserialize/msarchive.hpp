@@ -67,10 +67,11 @@ namespace MSRPC
 	template <class NODE>
 	class OArchiveHelper;
 
-	template <class NODE, typename T, typename IsEnum = void>
+	template <typename T, typename IsEnum = void>
 	class Serializer 
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const T& tValue)
 		{
 			vNewNode.set_object();
@@ -78,6 +79,7 @@ namespace MSRPC
 			ex_serialize(oh, const_cast<T&>(tValue));
 		}
 
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, T& tValue)
 		{
 			OArchiveHelper<NODE> oh(vNewNode);
@@ -85,74 +87,82 @@ namespace MSRPC
 		}
 	};
 
-	template <class NODE, class T>
-	class Serializer<NODE, T&>
+	template<typename T>
+	class Serializer<T&>
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const T& tValue)
 		{
-			Serializer<NODE, T>::serialize(vNewNode, tValue);
+			Serializer<T>::serialize(vNewNode, tValue);
 		}
 
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, T& tValue)
 		{
-			Serializer<NODE, T>::deserialize(vNewNode, tValue);
+			Serializer<T>::deserialize(vNewNode, tValue);
 		}
 	};
 
-	template<class NODE, typename T>
-	class Serializer<NODE, T*>
+	template<typename T>
+	class Serializer<T*>
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const T* tValue)
 		{
 			if (tValue)
 			{
-				Serializer<NODE, T>::serialize(vNewNode, *tValue);
+				Serializer<T>::serialize(vNewNode, *tValue);
 			}
 		}
 
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, T*& tValue)
 		{
 			tValue = new T;
-			Serializer<NODE, T>::deserialize(vNewNode, *tValue);
+			Serializer<T>::deserialize(vNewNode, *tValue);
 		}
 	};
 
-	template<class NODE, typename T, int N>
-	class Serializer<NODE, T[N]>
+	template<typename T, int N>
+	class Serializer<T[N]>
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const T(&tValue)[N])
 		{
 			vNewNode.set_array();
 			for (int ix = 0; ix != N; ++ix)
 			{
 				NODE vNode = vNewNode.new_node();
-				Serializer<NODE, T>::serialize(vNode, tValue[ix]);
+				Serializer<T>::serialize(vNode, tValue[ix]);
 				vNewNode.push_node(vNode);
 			}
 		}
 
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, T(&tValue)[N])
 		{
 			typename NODE::ArrIter itor = vNewNode.sub_nodes();
 			for (int ix = 0; ix != N && itor; ++itor, ++ix)
 			{
-				Serializer<NODE, T>::deserialize(*itor, tValue[ix]);
+				Serializer<T>::deserialize(*itor, tValue[ix]);
 			}
 		}
 	};
 
 #define IN_SERIALIZER(T) \
-	template<class NODE> \
-	class Serializer<NODE, T> \
+	template<> \
+	class Serializer<T> \
 	{ \
 	public: \
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const T& tValue) \
 		{ \
 			vNewNode.in_serialize(tValue); \
 		} \
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, T& tValue) \
 		{ \
 			vNewNode.in_serialize(tValue); \
@@ -169,15 +179,17 @@ IN_SERIALIZER(unsigned long long);
 IN_SERIALIZER(float);
 IN_SERIALIZER(double);
 
-	template<class NODE>
-	class Serializer<NODE, char>
+	template<>
+	class Serializer<char>
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const char& tValue)
 		{
 			vNewNode.in_serialize(static_cast<short>(tValue));
 		}
 
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, char& tValue)
 		{
 			int uValue(0);
@@ -186,15 +198,17 @@ IN_SERIALIZER(double);
 		}
 	};
 
-	template<class NODE>
-	class Serializer<NODE, unsigned char>
+	template<>
+	class Serializer<unsigned char>
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const unsigned char& tValue)
 		{
 			vNewNode.in_serialize(static_cast<unsigned short>(tValue));
 		}
 
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, unsigned char& tValue)
 		{
 			unsigned int uValue(0);
@@ -203,15 +217,17 @@ IN_SERIALIZER(double);
 		}
 	};
 
-	template<class NODE>
-	class Serializer<NODE, short>
+	template<>
+	class Serializer<short>
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const short& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
 
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, short& tValue)
 		{
 			int uValue(0);
@@ -220,15 +236,17 @@ IN_SERIALIZER(double);
 		}
 	};
 
-	template<class NODE>
-	class Serializer<NODE, unsigned short>
+	template<>
+	class Serializer<unsigned short>
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const unsigned short& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
 
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, unsigned short& tValue)
 		{
 			unsigned int uValue(0);
@@ -237,75 +255,85 @@ IN_SERIALIZER(double);
 		}
 	};
 
-	template<class NODE>
-	class Serializer<NODE, char*>
+	template<>
+	class Serializer<char*>
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, char* tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
 
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, char*& tValue)
 		{
 			vNewNode.in_serialize(const_cast<const char*&>(tValue));
 		}
 	};
 
-	template<class NODE>
-	class Serializer<NODE, const char*>
+	template<>
+	class Serializer<const char*>
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const char* tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
 
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, const char*& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
 	};
 
-	template<class NODE, int N>
-	class Serializer<NODE, char[N]>
+	template<int N>
+	class Serializer<char[N]>
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const char(&tValue)[N])
 		{
 			vNewNode.in_serialize(tValue);
 		}
 
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, char(&tValue)[N])
 		{
 			vNewNode.in_serialize(tValue, N);
 		}
 	};
 
-	template<class NODE, class T>
-	class Serializer<NODE, StrApt<T> >
+	template<class T>
+	class Serializer<StrApt<T> >
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const StrApt<T>& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
 
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, StrApt<T>& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
 	};
 
-	template<class NODE, class S, class T>
-	class Serializer<NODE, BaseTypeApt<S, T> >
+	template<class S, class T>
+	class Serializer<BaseTypeApt<S, T> >
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const BaseTypeApt<S, T>& tValue)
 		{
 			vNewNode.in_serialize(tValue);
 		}
 
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, BaseTypeApt<S, T>&& tValue)
 		{
 			vNewNode.in_serialize((BaseTypeApt<S, T>&)tValue);
@@ -313,20 +341,21 @@ IN_SERIALIZER(double);
 	};
 
 #if ANY_CPP11_OR_GREATER
-	template<class NODE, class ENUM>
-	class Serializer<NODE, ENUM, typename std::enable_if<std::is_enum<ENUM>::value>::type>
+	template<class ENUM>
+	class Serializer<ENUM, typename std::enable_if<std::is_enum<ENUM>::value>::type>
 	{
 	public:
 		using UnderlyingType = typename std::underlying_type<ENUM>::type;
 
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const ENUM& tValue)
 		{
-			Serializer<NODE, UnderlyingType>::serialize(vNewNode, static_cast<UnderlyingType>(tValue));
+			Serializer<UnderlyingType>::serialize(vNewNode, static_cast<UnderlyingType>(tValue));
 		}
 
 		static void deserialize(NODE& vNewNode, ENUM& tValue)
 		{
-			Serializer<NODE, UnderlyingType>::deserialize(vNewNode, *reinterpret_cast<UnderlyingType*>(&tValue));
+			Serializer<UnderlyingType>::deserialize(vNewNode, *reinterpret_cast<UnderlyingType*>(&tValue));
 		}
 	};
 #endif
@@ -349,7 +378,7 @@ IN_SERIALIZER(double);
 		template <class T>
 		IArchiveHelper &operator&(const T &tValue)
 		{
-			Serializer<NODE, T>::serialize(m_vCurNode, tValue);
+			Serializer<T>::serialize(m_vCurNode, tValue);
 			return *this;
 		}
 
@@ -357,7 +386,7 @@ IN_SERIALIZER(double);
 		IArchiveHelper& io(const char* strName, const T& tValue)
 		{
 			NODE vNewNode = m_vCurNode.new_node();
-			Serializer<NODE, T>::serialize(vNewNode, tValue);
+			Serializer<T>::serialize(vNewNode, tValue);
 			m_vCurNode.add_member(strName, vNewNode);
 
 			return *this;
@@ -380,7 +409,7 @@ IN_SERIALIZER(double);
 		template <class T>
 		const OArchiveHelper& operator & (T& tValue) const
 		{
-			Serializer<NODE, T>::deserialize(m_vCurNode, tValue);
+			Serializer<T>::deserialize(m_vCurNode, tValue);
 			return *this;
 		}
 
@@ -389,7 +418,7 @@ IN_SERIALIZER(double);
 		{
 			if (NODE vNewNode = m_vCurNode.sub_member(strName))
 			{
-				Serializer<NODE, T>::deserialize(vNewNode, const_cast<T&>(tValue));
+				Serializer<T>::deserialize(vNewNode, const_cast<T&>(tValue));
 			}
 
 			return *this;
@@ -404,10 +433,11 @@ IN_SERIALIZER(double);
 
 #define DiExSe(EX) \
 	namespace MSRPC { \
-	template <class NODE> \
-	class Serializer<NODE, EX> \
+	template <> \
+	class Serializer<EX> \
 	{ \
 	public: \
+		template<class NODE> \
 		static void serialize(NODE& vNewNode, EX const& tValue) \
 		{ \
 			vNewNode.set_object(); \
@@ -415,6 +445,7 @@ IN_SERIALIZER(double);
 			ex_serialize(oh, const_cast<EX&>(tValue)); \
 		} \
 
+		template<class NODE> \
 		static void deserialize(const NODE& vNewNode, EX& tValue) \
 		{ \
 			OArchiveHelper<NODE> oh(vNewNode); \

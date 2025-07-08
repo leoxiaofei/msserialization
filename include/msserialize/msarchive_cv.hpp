@@ -7,18 +7,20 @@
 
 namespace MSRPC
 {
-	// template<class NODE, class T>
-	// class Serializer<NODE, cv::Point_<T> >
+	// template<class T>
+	// class Serializer<cv::Point_<T> >
 	// {
 	// public:
-	// 	static void serialize(NODE& vNewNode, const cv::Point_<T>& tValue)
+	// 	template<class NODE>
+		static void serialize(NODE& vNewNode, const cv::Point_<T>& tValue)
 	// 	{
 	// 		std::stringstream ss;
 	// 		ss << tValue.x << ',' << tValue.y;
 	// 		ISerialize<NODE, std::string>::serialize(vNewNode, ss.str());
 	// 	}
 
-	// 	static void deserialize(const NODE& vNewNode, cv::Point_<T>& tValue)
+	// 	template<class NODE>
+		static void deserialize(const NODE& vNewNode, cv::Point_<T>& tValue)
 	// 	{
 	// 		std::string strValue;
 	// 		OSerialize<NODE, std::string>::deserialize(vNewNode, strValue);
@@ -28,11 +30,12 @@ namespace MSRPC
 	// 	}
 	// };
 
-	// template<class NODE, class T>
+	// template<class T>
 	// class ISerialize<NODE, cv::Rect_<T> >
 	// {
 	// public:
-	// 	static void serialize(NODE& vNewNode, const cv::Rect_<T>& tValue)
+	// 	template<class NODE>
+		static void serialize(NODE& vNewNode, const cv::Rect_<T>& tValue)
 	// 	{
 	// 		std::stringstream ss;
 	// 		ss << tValue.x << ',' << tValue.y << ',' << tValue.width << ',' << tValue.height;
@@ -40,7 +43,7 @@ namespace MSRPC
 	// 	}
 	// };
 
-	// template<class NODE, class T>
+	// template<class T>
 	// class OSerialize<NODE, cv::Rect_<T> >
 	// {
 	// public:

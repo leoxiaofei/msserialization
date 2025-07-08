@@ -13,10 +13,11 @@
 
 namespace MSRPC
 {
-	template<class NODE>
-	class Serializer<NODE, QGraphicsItem*>
+	template<>
+	class Serializer<QGraphicsItem*>
 	{
 	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const QGraphicsItem* tValue)
 		{
 			if (tValue)
@@ -29,41 +30,41 @@ namespace MSRPC
 				switch (nType)
 				{
 				case QGraphicsRectItem::Type:
-					Serializer<NODE, QGraphicsRectItem*>::serialize(vNewNode,
+					Serializer<QGraphicsRectItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsRectItem*>(tValue));
 					break;
 				case QGraphicsLineItem::Type:
-					Serializer<NODE, QGraphicsLineItem*>::serialize(vNewNode,
+					Serializer<QGraphicsLineItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsLineItem*>(tValue));
 					break;
 				case QGraphicsEllipseItem::Type:
-					Serializer<NODE, QGraphicsEllipseItem*>::serialize(vNewNode,
+					Serializer<QGraphicsEllipseItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsEllipseItem*>(tValue));
 					break;
 				case QGraphicsPixmapItem::Type:
-					Serializer<NODE, QGraphicsPixmapItem*>::serialize(vNewNode,
+					Serializer<QGraphicsPixmapItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsPixmapItem*>(tValue));
 					break;
 #ifdef QT_SVG_LIB
 				case QGraphicsSvgItem::Type:
-					Serializer<NODE, QGraphicsSvgItem*>::serialize(vNewNode,
+					Serializer<QGraphicsSvgItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsSvgItem*>(tValue));
 					break;
 #endif
 				case QGraphicsTextItem::Type:
-					Serializer<NODE, QGraphicsTextItem*>::serialize(vNewNode,
+					Serializer<QGraphicsTextItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsTextItem*>(tValue));
 					break;
 				case QGraphicsPolygonItem::Type:
-					Serializer<NODE, QGraphicsPolygonItem*>::serialize(vNewNode,
+					Serializer<QGraphicsPolygonItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsPolygonItem*>(tValue));
 					break;
 				case QGraphicsPathItem::Type:
-					Serializer<NODE, QGraphicsPathItem*>::serialize(vNewNode,
+					Serializer<QGraphicsPathItem*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsPathItem*>(tValue));
 					break;
 				case QGraphicsItemGroup::Type:
-					Serializer<NODE, QGraphicsItemGroup*>::serialize(vNewNode,
+					Serializer<QGraphicsItemGroup*>::serialize(vNewNode,
 						qgraphicsitem_cast<const QGraphicsItemGroup*>(tValue));
 					break;
 				default:
@@ -72,6 +73,7 @@ namespace MSRPC
 			}
 		}
 
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, QGraphicsItem*& tValue)
 		{
 			int nType;
@@ -82,28 +84,28 @@ namespace MSRPC
 			case QGraphicsRectItem::Type:
 			{
 				QGraphicsRectItem* pVal = 0;
-				Serializer<NODE, QGraphicsRectItem*>::deserialize(vNewNode, pVal);
+				Serializer<QGraphicsRectItem*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
 			case QGraphicsLineItem::Type:
 			{
 				QGraphicsLineItem* pVal = 0;
-				Serializer<NODE, QGraphicsLineItem*>::deserialize(vNewNode, pVal);
+				Serializer<QGraphicsLineItem*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
 			case QGraphicsEllipseItem::Type:
 			{
 				QGraphicsEllipseItem* pVal = 0;
-				Serializer<NODE, QGraphicsEllipseItem*>::deserialize(vNewNode, pVal);
+				Serializer<QGraphicsEllipseItem*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
 			case QGraphicsPixmapItem::Type:
 			{
 				QGraphicsPixmapItem* pVal = 0;
-				Serializer<NODE, QGraphicsPixmapItem*>::deserialize(vNewNode, pVal);
+				Serializer<QGraphicsPixmapItem*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
@@ -111,7 +113,7 @@ namespace MSRPC
 			case QGraphicsSvgItem::Type:
 			{
 				QGraphicsSvgItem* pVal = 0;
-				Serializer<NODE, QGraphicsSvgItem*>::deserialize(vNewNode, pVal);
+				Serializer<QGraphicsSvgItem*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
@@ -119,28 +121,28 @@ namespace MSRPC
 			case QGraphicsTextItem::Type:
 			{
 				QGraphicsTextItem* pVal = 0;
-				Serializer<NODE, QGraphicsTextItem*>::deserialize(vNewNode, pVal);
+				Serializer<QGraphicsTextItem*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
 			case QGraphicsPolygonItem::Type:
 			{
 				QGraphicsPolygonItem* pVal = 0;
-				Serializer<NODE, QGraphicsPolygonItem*>::deserialize(vNewNode, pVal);
+				Serializer<QGraphicsPolygonItem*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
 			case QGraphicsPathItem::Type:
 			{
 				QGraphicsPathItem* pVal = 0;
-				Serializer<NODE, QGraphicsPathItem*>::deserialize(vNewNode, pVal);
+				Serializer<QGraphicsPathItem*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
 			case QGraphicsItemGroup::Type:
 			{
 				QGraphicsItemGroup* pVal = 0;
-				Serializer<NODE, QGraphicsItemGroup*>::deserialize(vNewNode, pVal);
+				Serializer<QGraphicsItemGroup*>::deserialize(vNewNode, pVal);
 				tValue = pVal;
 				break;
 			}
