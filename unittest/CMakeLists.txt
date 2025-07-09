@@ -4,9 +4,6 @@ enable_testing()
 
 find_package(GTest REQUIRED)
 
-#FILE(GLOB MSTEST_INCLUDE_FILES "*.h")
-#FILE(GLOB MSTEST_SOURCE_FILES "*.cpp")
-
 find_package(RapidJSON CONFIG)
 
 if (RapidJSON_FOUND)

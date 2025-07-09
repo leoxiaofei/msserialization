@@ -157,12 +157,12 @@ namespace MSRPC
 	class Serializer<T> \
 	{ \
 	public: \
-		template<class NODE>
+		template<class NODE> \
 		static void serialize(NODE& vNewNode, const T& tValue) \
 		{ \
 			vNewNode.in_serialize(tValue); \
 		} \
-		template<class NODE>
+		template<class NODE> \
 		static void deserialize(const NODE& vNewNode, T& tValue) \
 		{ \
 			vNewNode.in_serialize(tValue); \
@@ -353,6 +353,7 @@ IN_SERIALIZER(double);
 			Serializer<UnderlyingType>::serialize(vNewNode, static_cast<UnderlyingType>(tValue));
 		}
 
+		template<class NODE>
 		static void deserialize(NODE& vNewNode, ENUM& tValue)
 		{
 			Serializer<UnderlyingType>::deserialize(vNewNode, *reinterpret_cast<UnderlyingType*>(&tValue));
@@ -444,7 +445,6 @@ IN_SERIALIZER(double);
 			IArchiveHelper<NODE> oh(vNewNode); \
 			ex_serialize(oh, const_cast<EX&>(tValue)); \
 		} \
-
 		template<class NODE> \
 		static void deserialize(const NODE& vNewNode, EX& tValue) \
 		{ \

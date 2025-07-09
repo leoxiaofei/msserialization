@@ -483,7 +483,7 @@ namespace MSRPC
 		}
 	};
 
-	template <class NODE, typename... T>
+	template <typename... T>
 	class Serializer<std::tuple<T...> >
 	{
 	public:

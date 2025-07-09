@@ -1,0 +1,8 @@
+{
+    "cmake.configureArgs": [
+        "-DTEST_OPT=ON"
+    ],
+    "files.associations": {
+        "tuple": "cpp"
+    }
+}
