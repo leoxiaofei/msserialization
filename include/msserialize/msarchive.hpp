@@ -179,81 +179,32 @@ IN_SERIALIZER(unsigned long long);
 IN_SERIALIZER(float);
 IN_SERIALIZER(double);
 
-	template<>
-	class Serializer<char>
-	{
-	public:
-		template<class NODE>
-		static void serialize(NODE& vNewNode, const char& tValue)
-		{
-			vNewNode.in_serialize(static_cast<short>(tValue));
-		}
+#undef IN_SERIALIZER
 
-		template<class NODE>
-		static void deserialize(const NODE& vNewNode, char& tValue)
-		{
-			int uValue(0);
-			vNewNode.in_serialize(uValue);
-			tValue = static_cast<char>(uValue);
-		}
-	};
+#define DEFINE_INT_SERIALIZER(ORIG_TYPE, INTER_TYPE) \
+    template<> \
+    class Serializer<ORIG_TYPE> { \
+    public: \
+        template<class NODE> \
+        static void serialize(NODE& vNewNode, const ORIG_TYPE& tValue) { \
+            vNewNode.in_serialize(static_cast<INTER_TYPE>(tValue)); \
+        } \
+        template<class NODE> \
+        static void deserialize(const NODE& vNewNode, ORIG_TYPE& tValue) { \
+            INTER_TYPE uValue(0); \
+            vNewNode.in_serialize(uValue); \
+            tValue = static_cast<ORIG_TYPE>(uValue); \
+        } \
+    };
 
-	template<>
-	class Serializer<unsigned char>
-	{
-	public:
-		template<class NODE>
-		static void serialize(NODE& vNewNode, const unsigned char& tValue)
-		{
-			vNewNode.in_serialize(static_cast<unsigned short>(tValue));
-		}
+DEFINE_INT_SERIALIZER(char, int)
+DEFINE_INT_SERIALIZER(signed char, int)
+DEFINE_INT_SERIALIZER(unsigned char, unsigned int)
+DEFINE_INT_SERIALIZER(short, int)
+DEFINE_INT_SERIALIZER(unsigned short, unsigned int)
 
-		template<class NODE>
-		static void deserialize(const NODE& vNewNode, unsigned char& tValue)
-		{
-			unsigned int uValue(0);
-			vNewNode.in_serialize(uValue);
-			tValue = static_cast<unsigned char>(uValue);
-		}
-	};
-
-	template<>
-	class Serializer<short>
-	{
-	public:
-		template<class NODE>
-		static void serialize(NODE& vNewNode, const short& tValue)
-		{
-			vNewNode.in_serialize(tValue);
-		}
-
-		template<class NODE>
-		static void deserialize(const NODE& vNewNode, short& tValue)
-		{
-			int uValue(0);
-			vNewNode.in_serialize(uValue);
-			tValue = static_cast<short>(uValue);
-		}
-	};
-
-	template<>
-	class Serializer<unsigned short>
-	{
-	public:
-		template<class NODE>
-		static void serialize(NODE& vNewNode, const unsigned short& tValue)
-		{
-			vNewNode.in_serialize(tValue);
-		}
-
-		template<class NODE>
-		static void deserialize(const NODE& vNewNode, unsigned short& tValue)
-		{
-			unsigned int uValue(0);
-			vNewNode.in_serialize(uValue);
-			tValue = static_cast<unsigned short>(uValue);
-		}
-	};
+// 可以继续扩展
+#undef DEFINE_INT_SERIALIZER
 
 	template<>
 	class Serializer<char*>
@@ -453,6 +404,11 @@ IN_SERIALIZER(double);
 		} \
 	}; \
 	}
+
+#define BaExSe(BASE) \
+	DiExSe(BASE*) \
+	template <class Ar, class T> \
+	void BASE##Conv(Ar &ar, BASE *&tValue) { ar &*reinterpret_cast<T **>(&tValue); }
 }
 
 #endif // MSARCHIVE_H__

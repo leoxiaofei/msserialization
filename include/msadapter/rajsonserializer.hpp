@@ -35,8 +35,8 @@ bool BuffDocWrite(rapidjson::Document& doc, RsvBuffer& buffer, bool bFormat)
 	return bRet;
 }
 
-template<class T>
-std::string ToJsonS(const T& t, bool bFormat = false)
+template<class T, class StrBuf = std::string>
+StrBuf ToJsonS(const T& t, bool bFormat = false)
 {
 	//Serialization
 	rapidjson::Document doc;
@@ -45,8 +45,8 @@ std::string ToJsonS(const T& t, bool bFormat = false)
 	ia & t;
 
 	//Output the JSON string
-	std::string strRet;
-	typedef MSRPC::TBufferAdapter<std::string> RsvBuffer;
+	StrBuf strRet;
+	typedef MSRPC::TBufferAdapter<StrBuf> RsvBuffer;
 	RsvBuffer buffer(strRet);
 
 	BuffDocWrite(doc, buffer, bFormat);
@@ -58,7 +58,14 @@ template<class T, class StrBuf>
 bool FromJsonS(T& t, StrBuf& strJson)
 {
 	rapidjson::Document doc;
-	doc.Parse(strJson.data(), strJson.size());
+	if(std::is_const_v<StrBuf>)
+	{
+		doc.Parse(strJson.data(), strJson.size());
+	}
+	else
+	{
+		doc.ParseInsitu((char*)strJson.data());
+	}
 
 	MSRPC::OJsonArc::Node objO(&doc);
 	MSRPC::OJsonArc oa(objO);

@@ -1,7 +1,7 @@
 {
   "name": "msserialization",
   "version": "1.0.0",
-  "builtin-baseline": "687b901843db7726b05558a8e705808dee9370f2",
+  "builtin-baseline": "c6f09fc73ebfbfddd769f8fac9f33f95304c77e5",
   "dependencies": [
     "rapidjson",
     "gtest"
@@ -9,7 +9,7 @@
   "overrides": [
     {
       "name": "gtest",
-      "version": "1.11.0"
+      "version": "1.12.1"
     }
   ]
 }
