@@ -82,6 +82,7 @@ namespace MSRPC
 			vNewNode.in_serialize(StrApt<EnumApt<T> >(tValue));
 		}
 
+		template<class NODE>
 		static void deserialize(NODE& vNewNode, EnumApt<T>& tValue)
 		{
 			StrApt<EnumApt<T> > aptValue(tValue);
@@ -240,7 +241,7 @@ namespace MSRPC
 		static void deserialize(const NODE& vNewNode, ExtractApt<R, T, F>& tValue)
 		{
 			R ptValue = tValue;
-			OSerialize<NODE, R>::deserialize(vNewNode, ptValue);
+			Serializer<R>::deserialize(vNewNode, ptValue);
 			tValue = ptValue;
 		}
 	};
