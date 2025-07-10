@@ -109,6 +109,11 @@ public:
     virtual int Type() = 0;
 
     std::string name = "Type";
+
+    bool operator ==(const TypeBase &rhs) const
+    {
+        return name == rhs.name;
+    }
 };
 
 SiExSe(TypeBase, name);
@@ -120,6 +125,12 @@ public:
 
     char c = 1;
     bool b = true;
+
+    bool operator ==(const Type1 &rhs) const
+    {
+        return static_cast<const TypeBase&>(*this) == (rhs)
+            && c == rhs.c && b == rhs.b;
+    }
 };
 
 SiExSeInhe(Type1, TypeBase, c, b);
@@ -131,6 +142,12 @@ public:
 
     long long l = 40000000000;
     float f = 5.1f;
+
+    bool operator ==(const Type2 &rhs) const
+    {
+        return static_cast<const TypeBase&>(*this) == (rhs)
+            && l == rhs.l && f == rhs.f;
+    }
 };
 
 SiExSeInhe(Type2, TypeBase, l, f);
@@ -142,6 +159,12 @@ public:
 
     double d = 60000000.2;
     std::string str = "str";
+
+    bool operator ==(const Type3 &rhs) const
+    {
+        return static_cast<const TypeBase&>(*this) == (rhs)
+            && d == rhs.d && str == rhs.str;
+    }
 };
 
 SiExSeInhe(Type3, TypeBase, d, str);
@@ -253,6 +276,22 @@ public:
 
     std::unordered_multimap<std::string, double> ummapStrD;
     std::unordered_multimap<double, Type3> ummapDT3;
+
+    bool operator == (const ContType& rhs) const
+    {
+        return vecN32 == rhs.vecN32 &&
+            lsU16 == rhs.lsU16 &&
+            deqT1 == rhs.deqT1 &&
+            stF == rhs.stF &&
+            ustU32 == rhs.ustU32 &&
+            umstStrN8 == rhs.umstStrN8 &&
+            mapStrN8 == rhs.mapStrN8 &&
+            mapDN64 == rhs.mapDN64 &&
+            hsStrT2 == rhs.hsStrT2 &&
+            hsDStr == rhs.hsDStr &&
+            ummapStrD == rhs.ummapStrD &&
+            ummapDT3 == rhs.ummapDT3;
+    }
 };
 
 SiExSe(ContType, vecN32, lsU16, deqT1, stF, ustU32, umstStrN8, mapStrN8, mapDN64, hsStrT2, hsDStr, ummapStrD, ummapDT3)
@@ -299,23 +338,55 @@ TEST(RaJson, cont2json)
     EXPECT_EQ(strJson, s);
 }
 
-// TEST(RaJson, json2cont)
-// {
-//     ContType pt;
-//     std::string s = R"({"pI":10,"pT1":{"name":"pT1","c":1,"b":true},"pT2":{"name":"pT2","l":40000000000,"f":5.099999904632568},"pT3":{"name":"pT3","d":60000000.2,"str":"str"},"pBT1":{"type":1,"name":"pBT1","c":20,"b":true},"pBT2":{"type":2,"name":"pBT2","l":30,"f":5.099999904632568},"pBT3":{"type":3,"name":"pBT3","d":40.0,"str":"str"}})";
+TEST(RaJson, json2cont)
+{
+    ContType ct2;
+    std::string s = R"({"vecN32":[1,2,3,4],"lsU16":[5,6,7],"deqT1":[{"name":"name0","c":0,"b":true},{"name":"name1","c":1,"b":true},{"name":"name2","c":2,"b":true}],"stF":[8.100000381469727,9.199999809265137,10.300000190734863],"ustU32":[11,12,13,14],"umstStrN8":["15","16","16","17"],"mapStrN8":{"aaa":1,"bbb":2},"mapDN64":[[12.0,22],[13.0,33]],"hsStrT2":{"0":{"name":"hsStrT2_0","l":40000000000,"f":0.0},"1":{"name":"hsStrT2_1","l":40000000000,"f":5.0},"2":{"name":"hsStrT2_2","l":40000000000,"f":10.0},"3":{"name":"hsStrT2_3","l":40000000000,"f":15.0},"4":{"name":"hsStrT2_4","l":40000000000,"f":20.0}},"hsDStr":[[21.0,"21"],[22.0,"22"]],"ummapStrD":[["aaa",1.1],["aaa",4.4],["bbb",2.2],["ccc",3.3]],"ummapDT3":[[1.1,{"name":"Type","d":60000000.2,"str":"str"}],[3.3,{"name":"Type","d":60000000.2,"str":"str"}],[3.3,{"name":"Type","d":60000000.2,"str":"str"}],[2.2,{"name":"Type","d":60000000.2,"str":"str"}]]})";
 
-//     MSRPC::FromJsonS(pt, s);
+    MSRPC::FromJsonS(ct2, s);
 
-//     EXPECT_EQ(*pt.pI, 10);
-//     EXPECT_EQ(pt.pT1->name, "pT1");
-//     EXPECT_EQ(pt.pT2->name, "pT2");
-//     EXPECT_EQ(pt.pT3->name, "pT3");
-//     EXPECT_EQ(pt.pBT1->name, "pBT1");
-//     EXPECT_EQ(pt.pBT2->name, "pBT2");
-//     EXPECT_EQ(pt.pBT3->name, "pBT3");
-//     EXPECT_EQ(std::static_pointer_cast<Type1>(pt.pBT1)->c, 20);
-//     EXPECT_EQ(std::static_pointer_cast<Type2>(pt.pBT2)->l, 30);
-//     EXPECT_EQ(std::static_pointer_cast<Type3>(pt.pBT3)->d, 40);
+    ContType ct;
 
-//     delete pt.pT1;
-// }
+    ct.vecN32 = {1,2,3,4};
+    ct.lsU16 = {5,6,7};
+
+    for (int i = 0; i < 3; i++)
+    {
+        Type1 t;
+        t.name = "name" + std::to_string(i);
+        t.c = i;
+        ct.deqT1.emplace_back(std::move(t));
+    }
+    
+    ct.stF = {8.1f, 9.2f, 10.3f};
+    ct.ustU32 = {11,12,13,14};
+    ct.umstStrN8 = {"15", "16", "16", "17"};
+
+    ct.mapStrN8 = {{"aaa", 1}, {"bbb", 2}};
+    ct.mapDN64 = {{12,22}, {13,33}};
+
+    for (size_t i = 0; i < 5; i++)
+    {
+        auto& t = ct.hsStrT2[std::to_string(i)];
+        t.f = i * 5;
+        t.name = "hsStrT2_" + std::to_string(i);
+    }
+    
+    ct.hsDStr = {{21, "21"}, {22, "22"}};
+
+    ct.ummapStrD = {{"aaa", 1.1}, {"aaa", 4.4}, {"bbb", 2.2}, {"ccc", 3.3}};
+
+    ct.ummapDT3 = {{1.1, {}}, {3.3, {}}, {2.2, {}}, {3.3, {}}};
+
+
+    EXPECT_EQ(ct, ct2);
+    // EXPECT_EQ(pt.pT1->name, "pT1");
+    // EXPECT_EQ(pt.pT2->name, "pT2");
+    // EXPECT_EQ(pt.pT3->name, "pT3");
+    // EXPECT_EQ(pt.pBT1->name, "pBT1");
+    // EXPECT_EQ(pt.pBT2->name, "pBT2");
+    // EXPECT_EQ(pt.pBT3->name, "pBT3");
+    // EXPECT_EQ(std::static_pointer_cast<Type1>(pt.pBT1)->c, 20);
+    // EXPECT_EQ(std::static_pointer_cast<Type2>(pt.pBT2)->l, 30);
+    // EXPECT_EQ(std::static_pointer_cast<Type3>(pt.pBT3)->d, 40);
+}
