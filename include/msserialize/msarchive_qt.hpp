@@ -421,8 +421,8 @@ namespace MSRPC
 	};
 
 #define DefQStringBaseType(TYPE) \
-	template<class NODE> \
-	class Serializer<TYPE> : public Serializer<BaseTypeApt<QString, TYPE>> { }; \
+	template<> \
+	class Serializer<TYPE> : public Serializer<BaseTypeApt<QString, TYPE>> { };
 
 
 	DefQStringBaseType(QColor)
