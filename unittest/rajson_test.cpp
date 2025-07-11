@@ -169,27 +169,15 @@ public:
 
 SiExSeInhe(Type3, TypeBase, d, str);
 
-BaExSe(TypeBase);
-
-template<class Ar>
-void ex_serialize(Ar& ar, TypeBase *&tValue)
-{
-    int32_t type = tValue ? tValue->Type() : 0;
-    ar.io("type", type);
-
-	typedef void (*TypeBaseConvT)(Ar &ar, TypeBase *&tValue);
+BeginBaExSe(TypeBase)
     static std::map<int32_t, TypeBaseConvT> map = {
         {1, TypeBaseConv<Ar, Type1>},
         {2, TypeBaseConv<Ar, Type2>},
         {3, TypeBaseConv<Ar, Type3>},
     };
-
-    auto iFind = map.find(type);
-    if (iFind != map.end())
-    {
-        (iFind->second)(ar, tValue);
-    }
-}
+    int32_t type = tValue ? tValue->Type() : 0;
+    ar.io("type", type);
+EndBaExSe(map, type)
 
 class PointerType
 { 

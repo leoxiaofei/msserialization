@@ -84,3 +84,48 @@ void ex_serialize(Ar& ar, TYPE& tValue) \
 { \
 	MS_ENUMARGS(SiArIo, __VA_ARGS__) \
 }
+
+#define DiExSe(EX) \
+	namespace MSRPC { \
+	template <typename T, typename IsEnum> \
+	class Serializer; \
+	template <> \
+	class Serializer<EX, void> \
+	{ \
+	public: \
+		template<class NODE> \
+		static void serialize(NODE& vNewNode, EX const& tValue) \
+		{ \
+			vNewNode.set_object(); \
+			IArchiveHelper<NODE> oh(vNewNode); \
+			ex_serialize(oh, const_cast<EX&>(tValue)); \
+		} \
+		template<class NODE> \
+		static void deserialize(const NODE& vNewNode, EX& tValue) \
+		{ \
+			OArchiveHelper<NODE> oh(vNewNode); \
+			ex_serialize(oh, tValue); \
+		} \
+	}; \
+	}
+
+#define BeginBaExSe(BASE) \
+	DiExSe(BASE*) \
+	template <class Ar, class T> \
+	void BASE##Conv(Ar &ar, BASE *&tValue) { ar &*reinterpret_cast<T **>(&tValue); } \
+	template<class Ar> \
+	void ex_serialize(Ar& ar, BASE *&tValue) \
+	{ \
+		typedef void (*BASE##ConvT)(Ar &ar, BASE *&tValue); \
+		BASE##ConvT defConv = nullptr;
+		
+#define EndBaExSe(MAP, TYPE) \
+		auto iFind = MAP.find(TYPE); \
+		if (iFind != MAP.end()) \
+		{ \
+			(iFind->second)(ar, tValue); \
+		} else if(defConv) \
+		{ \
+			(defConv)(ar, tValue); \
+		} \
+	}

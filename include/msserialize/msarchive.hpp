@@ -383,32 +383,7 @@ DEFINE_INT_SERIALIZER(unsigned short, unsigned int)
 
 	};
 
-#define DiExSe(EX) \
-	namespace MSRPC { \
-	template <> \
-	class Serializer<EX> \
-	{ \
-	public: \
-		template<class NODE> \
-		static void serialize(NODE& vNewNode, EX const& tValue) \
-		{ \
-			vNewNode.set_object(); \
-			IArchiveHelper<NODE> oh(vNewNode); \
-			ex_serialize(oh, const_cast<EX&>(tValue)); \
-		} \
-		template<class NODE> \
-		static void deserialize(const NODE& vNewNode, EX& tValue) \
-		{ \
-			OArchiveHelper<NODE> oh(vNewNode); \
-			ex_serialize(oh, tValue); \
-		} \
-	}; \
-	}
 
-#define BaExSe(BASE) \
-	DiExSe(BASE*) \
-	template <class Ar, class T> \
-	void BASE##Conv(Ar &ar, BASE *&tValue) { ar &*reinterpret_cast<T **>(&tValue); }
 }
 
 #endif // MSARCHIVE_H__
