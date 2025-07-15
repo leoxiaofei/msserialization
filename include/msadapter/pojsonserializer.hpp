@@ -12,7 +12,7 @@ namespace MSRPC
 template<class T>
 std::string ToJsonS(const T& t, unsigned int indent = 0)
 {
-	MSRPC::INodeDoc doc;
+	MSRPC::IDoc doc;
 	MSRPC::IJsonArc ia(doc);
 	ia & t;
 
@@ -25,8 +25,7 @@ bool FromJsonS(T& t, StrBuf& strJson)
 	bool bRet(false);
 	try
 	{
-
-		MSRPC::ONodeDoc doc;
+		MSRPC::ODoc doc;
 
 		if (doc.Parse(strJson))
 		{
@@ -46,7 +45,7 @@ bool FromJsonS(T& t, StrBuf& strJson)
 template<class T>
 bool ToJsonFile(const T& t, const char* strFilePath, unsigned int indent = 0)
 {
-	MSRPC::INodeDoc doc;
+	MSRPC::IDoc doc;
 	MSRPC::IJsonArc ia(doc);
 	ia & t;
 

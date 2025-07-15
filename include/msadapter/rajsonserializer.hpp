@@ -16,42 +16,16 @@
 namespace MSRPC
 {
 
-template<class RsvBuffer>
-bool BuffDocWrite(rapidjson::Document& doc, RsvBuffer& buffer, bool bFormat)
-{
-	bool bRet = false;
-
-	if (bFormat)
-	{
-		rapidjson::PrettyWriter<RsvBuffer> writer(buffer);
-		bRet = doc.Accept(writer);
-	}
-	else
-	{
-		rapidjson::Writer<RsvBuffer> writer(buffer);
-		bRet = doc.Accept(writer);
-	}
-
-	return bRet;
-}
-
 template<class T, class StrBuf = std::string>
-StrBuf ToJsonS(const T& t, bool bFormat = false)
+StrBuf ToJsonS(const T& t, unsigned int indent = 0)
 {
 	//Serialization
-	rapidjson::Document doc;
-	MSRPC::IJsonArc::Node nObjI(&doc);
-	MSRPC::IJsonArc ia(nObjI);
+	MSRPC::IDoc iDoc;
+	MSRPC::IJsonArc ia(iDoc);
 	ia & t;
 
 	//Output the JSON string
-	StrBuf strRet;
-	typedef MSRPC::TBufferAdapter<StrBuf> RsvBuffer;
-	RsvBuffer buffer(strRet);
-
-	BuffDocWrite(doc, buffer, bFormat);
-
-	return strRet;
+	return iDoc.Stringify<StrBuf>(indent);
 }
 
 template<class T, class StrBuf>

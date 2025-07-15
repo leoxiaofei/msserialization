@@ -21,7 +21,7 @@
 
 namespace MSRPC
 {
-	class INodeJson
+	class INodePocoJson
 	{
 	protected:
 		Poco::Dynamic::Var m_data;
@@ -76,9 +76,9 @@ namespace MSRPC
 			}
 		}
 
-		INodeJson new_node()
+		INodePocoJson new_node()
 		{
-			return INodeJson();
+			return INodePocoJson();
 		}
 
 		void set_object()
@@ -86,7 +86,7 @@ namespace MSRPC
 			*m_node = Poco::JSON::Object::Ptr(new Poco::JSON::Object);
 		}
 
-		void add_member(const char* strName, INodeJson& vNode)
+		void add_member(const char* strName, INodePocoJson& vNode)
 		{
 			Poco::JSON::Object::Ptr ptr = m_node->extract<Poco::JSON::Object::Ptr>();
 			ptr->set(strName, *vNode.m_node);
@@ -97,7 +97,7 @@ namespace MSRPC
 			*m_node = Poco::makeShared<Poco::JSON::Array>();
 		}
 
-		void push_node(INodeJson& vNode)
+		void push_node(INodePocoJson& vNode)
 		{
 			Poco::JSON::Array::Ptr ptr = m_node->extract<Poco::JSON::Array::Ptr>();
 
@@ -115,19 +115,19 @@ namespace MSRPC
 			return !m_node->isEmpty();
 		}
 
-		INodeJson()
+		INodePocoJson()
 			: m_node(&m_data)
 		{
 
 		}
 
-		INodeJson(Poco::Dynamic::Var* doc)
+		INodePocoJson(Poco::Dynamic::Var* doc)
 			: m_node(doc)
 		{
 
 		}
 
-		INodeJson(INodeJson&& other)
+		INodePocoJson(INodePocoJson&& other)
 			: m_node(&m_data)
 		{
 			if (other.m_node == &other.m_data)
@@ -141,25 +141,25 @@ namespace MSRPC
 		}
 	};
 
-	class ONodeJson
+	class ONodePocoJson
 	{
 	protected:
 		Poco::Dynamic::Var m_data;
 		const Poco::Dynamic::Var* m_node;
 
 	public:
-		ONodeJson()
+		ONodePocoJson()
 			: m_node(&m_data)
 		{
 		}
 
-		ONodeJson(Poco::Dynamic::Var&& node)
+		ONodePocoJson(Poco::Dynamic::Var&& node)
 			: m_node(&m_data)
 		{
 			m_data.swap(node);
 		}
 
-		ONodeJson(const Poco::Dynamic::Var* node)
+		ONodePocoJson(const Poco::Dynamic::Var* node)
 			: m_node(node)
 		{
 		}
@@ -214,20 +214,20 @@ namespace MSRPC
 			}
 		}
 
-		ONodeJson sub_member(const char* strName) const
+		ONodePocoJson sub_member(const char* strName) const
 		{
 			try
 			{
 				Poco::JSON::Object::Ptr str = m_node->extract<Poco::JSON::Object::Ptr>();
 
-				return ONodeJson(str->get(strName));
+				return ONodePocoJson(str->get(strName));
 			}
 			catch (...)
 			{
 
 			}
 
-			return ONodeJson();
+			return ONodePocoJson();
 		}
 
 		class ONodeObjIter
@@ -247,9 +247,9 @@ namespace MSRPC
 			}
 
 		public:
-			ONodeJson operator *() const
+			ONodePocoJson operator *() const
 			{
-				return ONodeJson(&citCur->second);
+				return ONodePocoJson(&citCur->second);
 			}
 
 			const char* key() const
@@ -304,9 +304,9 @@ namespace MSRPC
 			}
 
 		public:
-			ONodeJson operator *() const
+			ONodePocoJson operator *() const
 			{
-				return ONodeJson(&*citCur);
+				return ONodePocoJson(&*citCur);
 			}
 
 			operator bool() const
@@ -348,9 +348,6 @@ namespace MSRPC
 			return !m_node->isEmpty();
 		}
 	};
-
-	typedef OArchiveHelper<ONodeJson> OJsonArc;
-	typedef IArchiveHelper<INodeJson> IJsonArc;
 
 	class MemBuf : public std::streambuf
 	{
@@ -400,7 +397,7 @@ namespace MSRPC
 		}
 	};
 
-	class ONodeDoc : public ONodeJson
+	class ODocPocoJson : public ONodePocoJson
 	{
 	public:
 		template<class StrBuf>
@@ -445,7 +442,7 @@ namespace MSRPC
 		}
 	};
 
-	class INodeDoc : public INodeJson
+	class IDocPocoJson : public INodePocoJson
 	{
 	public:
 		std::string Stringify(unsigned int indent = 0)
@@ -478,6 +475,10 @@ namespace MSRPC
 		}
 	};
 
+	typedef OArchiveHelper<ONodePocoJson> OJsonArc;
+	typedef IArchiveHelper<INodePocoJson> IJsonArc;
+	typedef IDocPocoJson IDoc;
+	typedef ODocPocoJson ODoc;
 }
 
 #endif // POJSONNODE_H__

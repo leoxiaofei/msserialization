@@ -4,7 +4,9 @@
   "builtin-baseline": "c6f09fc73ebfbfddd769f8fac9f33f95304c77e5",
   "dependencies": [
     "rapidjson",
-    "gtest"
+    "qt5",
+    "gtest",
+    "poco"
   ],
   "overrides": [
     {

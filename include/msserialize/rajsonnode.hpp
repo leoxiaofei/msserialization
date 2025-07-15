@@ -12,7 +12,7 @@ namespace MSRPC
 {
 	#define is_valid_number(x) (!std::isnan(x) && !std::isinf(x))
 
-	class INodeJson
+	class INodeRapidJson
 	{
 	private:
 		rapidjson::Value m_data;
@@ -76,9 +76,9 @@ namespace MSRPC
 			}
 		}
 
-		INodeJson new_node()
+		INodeRapidJson new_node()
 		{
-			return INodeJson(m_allocator);
+			return INodeRapidJson(m_allocator);
 		}
 
 		void set_object()
@@ -89,12 +89,12 @@ namespace MSRPC
 			}
 		}
 
-		void add_member(const char* strName, INodeJson& vNode)
+		void add_member(const char* strName, INodeRapidJson& vNode)
 		{
 			m_node->AddMember(rapidjson::StringRef(strName), *vNode.m_node, *m_allocator);
 		}
 
-		void add_member(char* strName, INodeJson& vNode)
+		void add_member(char* strName, INodeRapidJson& vNode)
 		{
 			rapidjson::Value vName(strName, *m_allocator);
 			m_node->AddMember(vName, *vNode.m_node, *m_allocator);
@@ -108,7 +108,7 @@ namespace MSRPC
 			}
 		}
 
-		void push_node(INodeJson& vNode)
+		void push_node(INodeRapidJson& vNode)
 		{
 			m_node->PushBack(*vNode.m_node, *m_allocator);
 		}
@@ -128,21 +128,21 @@ namespace MSRPC
 			return m_node && !m_node->IsNull();
 		}
 
-		INodeJson(rapidjson::Document::AllocatorType* allocator)
+		INodeRapidJson(rapidjson::Document::AllocatorType* allocator)
 			: m_node(&m_data)
 			, m_allocator(allocator)
 		{
 
 		}
 
-		INodeJson(rapidjson::Document* doc)
+		INodeRapidJson(rapidjson::Document* doc)
 			: m_node(doc)
 			, m_allocator(&doc->GetAllocator())
 		{
 
 		}
 
-		INodeJson(const INodeJson& other)
+		INodeRapidJson(const INodeRapidJson& other)
 			: m_node(other.m_node == &other.m_data ? &m_data : other.m_node)
 			, m_allocator(other.m_allocator)
 		{
@@ -151,12 +151,12 @@ namespace MSRPC
 
 	};
 
-	class ONodeJson
+	class ONodeRapidJson
 	{
 	public:
 		const rapidjson::Value* m_node;
 
-		ONodeJson(const rapidjson::Value* node)
+		ONodeRapidJson(const rapidjson::Value* node)
 			: m_node(node) {}
 
 	public:
@@ -252,7 +252,7 @@ namespace MSRPC
 			}
 		}
 
-		ONodeJson sub_member(const char* strName) const
+		ONodeRapidJson sub_member(const char* strName) const
 		{
 			const rapidjson::Value* node = 0;
 			do 
@@ -272,7 +272,7 @@ namespace MSRPC
 
 			} while (false);
 
-			return ONodeJson(node);
+			return ONodeRapidJson(node);
 		}
 
 		class ONodeObjIter
@@ -287,9 +287,9 @@ namespace MSRPC
 			{}
 
 		public:
-			ONodeJson operator *() const
+			ONodeRapidJson operator *() const
 			{
-				return ONodeJson(&citCur->value);
+				return ONodeRapidJson(&citCur->value);
 			}
 
 			const char* key() const
@@ -328,9 +328,9 @@ namespace MSRPC
 			{}
 
 		public:
-			ONodeJson operator *() const
+			ONodeRapidJson operator *() const
 			{
-				return ONodeJson(citCur);
+				return ONodeRapidJson(citCur);
 			}
 
 			operator bool() const
@@ -358,8 +358,114 @@ namespace MSRPC
 		}
 	};
 
-	typedef MSRPC::OArchiveHelper<MSRPC::ONodeJson> OJsonArc;
-	typedef MSRPC::IArchiveHelper<MSRPC::INodeJson> IJsonArc;
+	class ODocRapidJson : public ONodeRapidJson
+	{
+	public:
+		template<class StrBuf>
+		bool Parse(StrBuf& strJson)
+		{
+			bool bRet = false;
+			try
+			{
+				// Poco::JSON::Parser parser;
+				// BufferApt<StrBuf> apt(strJson);
+				// parser.parse(apt).swap(m_data);
+				// bRet = !m_data.isEmpty();
+			}
+			catch (const Poco::Exception& e)
+			{
+				std::cerr << e.displayText() << std::endl;
+			}
+
+			return bRet;
+		}
+
+		bool Load(const char* strFilePath)
+		{
+			bool bRet = false;
+			try
+			{
+				std::ifstream ifs(strFilePath);
+				if (ifs)
+				{
+					// Poco::JSON::Parser parser;
+					// parser.parse(ifs).swap(m_data);
+					// bRet = !m_data.isEmpty();
+				}
+			}
+			catch (const std::exception&)
+			{
+
+			}
+
+			return bRet;
+		}
+	};
+
+	class IDocRapidJson : public INodeRapidJson
+	{
+		rapidjson::Document m_doc;
+	public:
+		IDocRapidJson()
+			: INodeRapidJson(&m_doc)
+		{ }
+
+		template<class RsvBuffer>
+		bool BuffDocWrite(RsvBuffer& buffer, unsigned int indent)
+		{
+			bool bRet = false;
+
+			if (indent)
+			{
+				rapidjson::PrettyWriter<RsvBuffer> writer(buffer);
+				writer.SetIndent(' ', indent);
+				bRet = doc.Accept(writer);
+			}
+			else
+			{
+				rapidjson::Writer<RsvBuffer> writer(buffer);
+				bRet = doc.Accept(writer);
+			}
+
+			return bRet;
+		}
+
+		template<class StrBuf = std::string>
+		StrBuf Stringify(unsigned int indent = 0)
+		{
+			StrBuf strRet;
+			typedef MSRPC::TBufferAdapter<StrBuf> RsvBuffer;
+			RsvBuffer buffer(strRet);
+
+			BuffDocWrite(doc, buffer, indent);
+
+			return strRet;
+		}
+
+		template<class StrBuf>
+		void Stringify(StrBuf& buf, unsigned int indent = 0)
+		{
+			// Poco::JSON::Stringifier::stringify(m_data, buf, indent, -1, Poco::JSON_WRAP_STRINGS);
+		}
+
+		bool Save(const char* strFilePath, unsigned int indent = 0)
+		{
+			bool bRet = false;
+
+			std::ofstream outfile(strFilePath);
+			if (outfile)
+			{
+				// Poco::JSON::Stringifier::stringify(m_data, outfile, indent, 1, Poco::JSON_WRAP_STRINGS);
+				bRet = true;
+			}
+
+			return bRet;
+		}
+	};
+
+	typedef MSRPC::OArchiveHelper<MSRPC::ONodeRapidJson> OJsonArc;
+	typedef MSRPC::IArchiveHelper<MSRPC::INodeRapidJson> IJsonArc;
+	typedef MSRPC::IDocRapidJson IDoc;
 }
 
 #endif // RAJSONNODE_H__
