@@ -7,8 +7,11 @@
 
 namespace MSRPC
 {
+	template<typename T>
+	class StrApt;
+
 	template <typename Enum>
-	class EnumApt
+	class EnumApt : public StrApt<EnumApt<Enum> >
 	{
 	public:
 		template<int N>
@@ -28,18 +31,19 @@ namespace MSRPC
 
 		}
 
-		operator const char* () const
+		const char* Get() const
 		{
 			return m_szText[static_cast<int>(m_en)];
 		}
 
-		void operator = (const char* szText)
+		void Set(const char* tValue, const size_t& sSize)
 		{
 			for (int ix = 0; ix != m_n; ++ix)
 			{
-				if (strcmp(m_szText[ix], szText) == 0)
+				if (strncmp(m_szText[ix], tValue, sSize) == 0)
 				{
 					m_en = static_cast<Enum>(ix);
+					break;
 				}
 			}
 		}
@@ -50,45 +54,23 @@ namespace MSRPC
 		int m_n;
 	};
 
-	template <typename Enum>
-	class StrApt<EnumApt<Enum> >
-	{
-	public:
-		EnumApt<Enum>& m_data;
+	// template<class T>
+	// class Serializer<EnumApt<T> >
+	// {
+	// public:
+	// 	template<class NODE>
+	// 	static void serialize(NODE& vNewNode, const EnumApt<T>& tValue)
+	// 	{
+	// 		vNewNode.in_serialize(StrApt<EnumApt<T> >(tValue));
+	// 	}
 
-	public:
-		StrApt(EnumApt<Enum>& data) : m_data(data) {}
-		StrApt(const EnumApt<Enum>& data) 
-			: m_data(const_cast<EnumApt<Enum>&>(data)) {}
-
-		const char* Get() const
-		{
-			return m_data;
-		}
-
-		void Set(const char* tValue, const size_t& sSize)
-		{
-			m_data = tValue;
-		}
-	};
-
-	template<class T>
-	class Serializer<EnumApt<T> >
-	{
-	public:
-		template<class NODE>
-		static void serialize(NODE& vNewNode, const EnumApt<T>& tValue)
-		{
-			vNewNode.in_serialize(StrApt<EnumApt<T> >(tValue));
-		}
-
-		template<class NODE>
-		static void deserialize(NODE& vNewNode, EnumApt<T>& tValue)
-		{
-			StrApt<EnumApt<T> > aptValue(tValue);
-			vNewNode.in_serialize(aptValue);
-		}
-	};
+	// 	template<class NODE>
+	// 	static void deserialize(NODE& vNewNode, EnumApt<T>& tValue)
+	// 	{
+	// 		StrApt<EnumApt<T> > aptValue(tValue);
+	// 		vNewNode.in_serialize(aptValue);
+	// 	}
+	// };
 
 
 	template<typename C, typename F, typename I>
@@ -156,10 +138,12 @@ namespace MSRPC
 	}
 #endif
 
+	template <typename T, typename IsEnum>
+	class Serializer;
 	//////////////////////////////////////////////////////////////////////////
 	// 
 	template<typename T, typename F, typename ELEM>
-	class Serializer<ArrayReshape<T, F, ELEM> >
+	class Serializer<ArrayReshape<T, F, ELEM>, void>
 	{
 	public:
 		template<class NODE>
@@ -209,6 +193,48 @@ namespace MSRPC
 			}
 		}
 
+		StrApt(StrApt&& other)
+		: m_data(other.m_data)
+		, m_size(other.m_size)
+		{
+			other.m_data = nullptr;
+			other.m_size = 0;
+		}
+
+		StrApt& operator=(StrApt&& other)
+		{
+			if (this != &other)
+			{
+				this->~StrApt();
+
+				m_data = other.m_data;
+				m_size = other.m_size;
+
+				other.m_data = nullptr;
+				other.m_size = 0;
+			}
+			return *this;
+		}
+
+		StrApt(const StrApt& other)
+		: m_data(other.m_data)
+		, m_size(0)
+		{
+
+		}
+
+		StrApt& operator = (const StrApt& other)
+		{
+			if (this != &other)
+			{
+				this->~StrApt();
+
+				m_data = other.m_data;
+				m_size = 0;
+			}
+			return *this;
+		}
+
 		const char* Get() const
 		{
 			return m_data;
@@ -216,10 +242,19 @@ namespace MSRPC
 
 		void Set(const char* tValue, const size_t& sSize)
 		{
-			m_data = new char[sSize+1];
-			memcpy((void*)m_data, tValue, sSize+1);
+			auto data = new char[sSize+1];
+			memcpy(data, tValue, sSize);
+			data[sSize] = '\0';
+			m_data = data;
 			m_size = sSize;
 		}
+
+		bool operator < (const StrApt& other) const
+		{
+			return strcmp(m_data, other.m_data) < 0;
+		}
+
+	private:
 	};
 
 	typedef StrApt<StrType> StrTypeApt;
@@ -228,7 +263,7 @@ namespace MSRPC
 	class ExtractApt;
 
 	template<class R, class T, class F>
-	class Serializer<ExtractApt<R, T, F> >
+	class Serializer<ExtractApt<R, T, F>, void>
 	{
 	public:
 		template<class NODE>

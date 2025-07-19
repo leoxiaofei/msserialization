@@ -27,7 +27,7 @@ QByteArray ToJsonS(const T& t, bool bFormat = false)
 }
 
 template<class T>
-bool FromJsonS(T& t, QByteArray& strJson)
+bool FromJsonS(T& t, const QByteArray& strJson)
 {
 	QJsonDocument doc = QJsonDocument::fromJson(strJson);
 
