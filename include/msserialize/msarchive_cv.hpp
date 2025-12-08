@@ -7,28 +7,28 @@
 
 namespace MSRPC
 {
-	// template<class T>
-	// class Serializer<cv::Point_<T> >
-	// {
-	// public:
-	// 	template<class NODE>
+	template<class T>
+	class Serializer<cv::Point_<T> >
+	{
+	public:
+		template<class NODE>
 		static void serialize(NODE& vNewNode, const cv::Point_<T>& tValue)
-	// 	{
-	// 		std::stringstream ss;
-	// 		ss << tValue.x << ',' << tValue.y;
-	// 		ISerialize<NODE, std::string>::serialize(vNewNode, ss.str());
-	// 	}
+		{
+			std::stringstream ss;
+			ss << tValue.x << ',' << tValue.y;
+			ISerialize<NODE, std::string>::serialize(vNewNode, ss.str());
+		}
 
-	// 	template<class NODE>
+		template<class NODE>
 		static void deserialize(const NODE& vNewNode, cv::Point_<T>& tValue)
-	// 	{
-	// 		std::string strValue;
-	// 		OSerialize<NODE, std::string>::deserialize(vNewNode, strValue);
-	// 		std::stringstream ss(strValue);
-	// 		char ch(0);
-	// 		ss >> tValue.x >> ch >> tValue.y;
-	// 	}
-	// };
+		{
+			std::string strValue;
+			OSerialize<NODE, std::string>::deserialize(vNewNode, strValue);
+			std::stringstream ss(strValue);
+			char ch(0);
+			ss >> tValue.x >> ch >> tValue.y;
+		}
+	};
 
 	// template<class T>
 	// class ISerialize<NODE, cv::Rect_<T> >

@@ -11,7 +11,7 @@ namespace MSRPC
 {
 	enum CtrlSign { CS_NODE, CS_ARRAY };
 
-	class INodeXml
+	class SeNodeXml
 	{
 	private:
 		QDomElement m_node;
@@ -41,9 +41,9 @@ namespace MSRPC
 			in_serialize(tValue.Get());
 		}
 
-		INodeXml new_node()
+		SeNodeXml add_element()
 		{
-			return INodeXml(m_doc, m_doc->createElement("A"));
+			return SeNodeXml(m_doc, m_doc->createElement("A"));
 		}
 
 		void set_object()
@@ -51,7 +51,7 @@ namespace MSRPC
 			m_csign = CS_NODE;
 		}
 
-		void add_member(const char* strName, INodeXml& vNode)
+		void add_member(const char* strName, SeNodeXml& vNode)
 		{
 			switch (vNode.m_csign)
 			{
@@ -79,7 +79,7 @@ namespace MSRPC
 			m_csign = CS_ARRAY;
 		}
 
-		void push_node(INodeXml& vNode)
+		void push_node(SeNodeXml& vNode)
 		{
 			m_node.appendChild(vNode.m_node);
 		}
@@ -95,14 +95,14 @@ namespace MSRPC
 			return m_node;
 		}
 
-		INodeXml(QDomDocument* doc, const QString& strRootName)
+		SeNodeXml(QDomDocument* doc, const QString& strRootName)
 			: m_node(doc->createElement(strRootName))
 			, m_doc(doc)
 			, m_csign(CS_NODE)
 		{
 		}
 
-		INodeXml(QDomDocument* doc, const QDomElement& node)
+		SeNodeXml(QDomDocument* doc, const QDomElement& node)
 			: m_node(node)
 			, m_doc(doc)
 			, m_csign(CS_NODE)
@@ -112,16 +112,16 @@ namespace MSRPC
 
 	};
 
-	class ONodeXml
+	class DeNodeXml
 	{
 	private:
 		QDomElement m_node;
 
 	public:
-		ONodeXml(const QDomElement& node)
+		DeNodeXml(const QDomElement& node)
 			: m_node(node) {}
 
-		ONodeXml(const QDomDocument* doc)
+		DeNodeXml(const QDomDocument* doc)
 			: m_node(doc->firstChildElement()) {}
 
 
@@ -164,28 +164,28 @@ namespace MSRPC
 			memcpy(tValue, str, nSize);
 		}
 
-		ONodeXml sub_member(const char* strName) const
+		DeNodeXml sub_member(const char* strName) const
 		{
 			QDomElement elem = m_node.firstChildElement(
 				QString::fromUtf8(strName));
-			return ONodeXml(elem);
+			return DeNodeXml(elem);
 		}
 
-		class ONodeArrIter
+		class DeNodeArrIter
 		{
 		public:
 			QDomElement m_curNode;
 			QString m_name;
 
-			ONodeArrIter(const QDomElement& node, const QString& name)
+			DeNodeArrIter(const QDomElement& node, const QString& name)
 				: m_curNode(node)
 				, m_name(name)
 			{}
 
 		public:
-			ONodeXml operator *() const
+			DeNodeXml operator *() const
 			{
-				return ONodeXml(m_curNode);
+				return DeNodeXml(m_curNode);
 			}
 
 			operator bool() const
@@ -193,16 +193,16 @@ namespace MSRPC
 				return !m_curNode.isNull();
 			}
 
-			ONodeArrIter& operator ++ ()
+			DeNodeArrIter& operator ++ ()
 			{
 				m_curNode = m_curNode.nextSiblingElement(m_name);
 				return *this;
 			}
 		};
 
-		typedef ONodeArrIter ArrIter;
+		typedef DeNodeArrIter ArrIter;
 
-		ArrIter sub_nodes() const
+		ArrIter sub_elements() const
 		{
 			return ArrIter(m_node, m_node.tagName());
 		}
@@ -214,8 +214,8 @@ namespace MSRPC
 
 	};
 
-	typedef MSRPC::OArchiveHelper<MSRPC::ONodeXml> OXmlArc;
-	typedef MSRPC::IArchiveHelper<MSRPC::INodeXml> IXmlArc;
+	typedef MSRPC::OArchiveHelper<MSRPC::DeNodeXml> OXmlArc;
+	typedef MSRPC::IArchiveHelper<MSRPC::SeNodeXml> IXmlArc;
 }
 
 #endif // QXMLNODE_H__

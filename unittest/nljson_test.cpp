@@ -1,10 +1,11 @@
 #include "stltypedef.hpp"
 
-#include "msadapter/rajsonserializer.hpp"
+#include "msadapter/nljsonserializer.hpp"
 #include <gtest/gtest.h>
 #include <chrono>
 
-TEST(RaJson, BaseType_Self)
+
+TEST(NlJson, BaseType_Self)
 {
     BaseType data1;
     InitData1(data1);
@@ -17,7 +18,7 @@ TEST(RaJson, BaseType_Self)
     EXPECT_EQ(data1, data2);
 }
 
-TEST(RaJson, BaseType_From)
+TEST(NlJson, BaseType_From)
 {
     BaseType data1;
     InitData2(data1);
@@ -29,7 +30,7 @@ TEST(RaJson, BaseType_From)
     EXPECT_EQ(data1, data2);
 }
 
-TEST(RaJson, StringType_Self)
+TEST(NlJson, StringType_Self)
 {
     StringType data1;
     InitData1(data1);
@@ -42,7 +43,7 @@ TEST(RaJson, StringType_Self)
     EXPECT_EQ(data1, data2);
 }
 
-TEST(RaJson, StringType_From)
+TEST(NlJson, StringType_From)
 {
     StringType data1;
     InitData1(data1);
@@ -54,7 +55,7 @@ TEST(RaJson, StringType_From)
     EXPECT_EQ(data1, data2);
 }
 
-TEST(RaJson, PointerType_Self)
+TEST(NlJson, PointerType_Self)
 {
     PointerType data1;
     InitData1(data1);
@@ -67,7 +68,7 @@ TEST(RaJson, PointerType_Self)
     EXPECT_EQ(data1, data2);
 }
 
-TEST(RaJson, PointerType_From)
+TEST(NlJson, PointerType_From)
 {
     PointerType data1;
     InitData1(data1);
@@ -79,7 +80,7 @@ TEST(RaJson, PointerType_From)
     EXPECT_EQ(data1, data2);
 }
 
-TEST(RaJson, ContType_Self)
+TEST(NlJson, ContType_Self)
 {
     ContType data1;
     InitData1(data1);
@@ -92,7 +93,7 @@ TEST(RaJson, ContType_Self)
     EXPECT_EQ(data1, data2);
 }
 
-TEST(RaJson, ContType_From)
+TEST(NlJson, ContType_From)
 {
     ContType data1;
     InitData1(data1);
@@ -104,7 +105,7 @@ TEST(RaJson, ContType_From)
     EXPECT_EQ(data1, data2);
 }
 
-TEST(RaJson, FixContType_Self)
+TEST(NlJson, FixContType_Self)
 {
     FixContType data1;
     InitData1(data1);
@@ -117,7 +118,7 @@ TEST(RaJson, FixContType_Self)
     EXPECT_EQ(data1, data2);
 }
 
-TEST(RaJson, FixContType_From)
+TEST(NlJson, FixContType_From)
 {
     FixContType data1;
     InitData1(data1);
@@ -129,7 +130,7 @@ TEST(RaJson, FixContType_From)
     EXPECT_EQ(data1, data2);
 }
 
-TEST(RaJson, File)
+TEST(NlJson, File)
 {
     BaseType bt1;
     InitData1(bt1);
@@ -140,8 +141,7 @@ TEST(RaJson, File)
     EXPECT_EQ(bt1, bt2);
 }
 
-
-TEST(RaJson, FilePerformance)
+TEST(NlJson, FilePerformance)
 {
     std::vector<PointerType> vecData1(10000);
 
@@ -166,7 +166,7 @@ TEST(RaJson, FilePerformance)
     EXPECT_EQ(vecData1, vecData2);
 }
 
-TEST(RaJson, Performance)
+TEST(NlJson, Performance)
 {
     std::vector<PointerType> vecData1(10000);
 
@@ -191,8 +191,7 @@ TEST(RaJson, Performance)
     EXPECT_EQ(vecData1, vecData2);
 }
 
-
-TEST(RaJson, Performance2)
+TEST(NlJson, Performance2)
 {
     std::vector<BaseType> vecData1(100000);
 
@@ -216,3 +215,4 @@ TEST(RaJson, Performance2)
 
     EXPECT_EQ(vecData1, vecData2);
 }
+

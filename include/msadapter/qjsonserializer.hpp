@@ -15,8 +15,8 @@ namespace MSRPC
 template<class T>
 QByteArray ToJsonS(const T& t, bool bFormat = false)
 {
-	MSRPC::IJsonArc::Node nObjI;
-	MSRPC::IJsonArc ia(nObjI);
+	MSRPC::SeJsonArc::Node nObjI;
+	MSRPC::SeJsonArc ia(nObjI);
 	ia & t;
 
 	QJsonDocument doc;
@@ -31,8 +31,8 @@ bool FromJsonS(T& t, QByteArray& strJson)
 {
 	QJsonDocument doc = QJsonDocument::fromJson(strJson);
 
-	MSRPC::OJsonArc::Node objO(&doc);
-	MSRPC::OJsonArc oa(objO);
+	MSRPC::DeJsonArc::Node objO(&doc);
+	MSRPC::DeJsonArc oa(objO);
 
 	if (objO)
 	{
@@ -47,8 +47,8 @@ bool ToJsonFile(const T& t, const QString& strFilePath, bool bFormat = true)
 {
 	bool bRet(false);
 
-	MSRPC::IJsonArc::Node nObjI;
-	MSRPC::IJsonArc ia(nObjI);
+	MSRPC::SeJsonArc::Node nObjI;
+	MSRPC::SeJsonArc ia(nObjI);
 	ia & t;
 
 	QJsonDocument doc;
@@ -77,8 +77,8 @@ bool FromJsonFile(T& t, const QString& strFilePath)
 		doc = QJsonDocument::fromJson(strJson);
 	}
 
-	MSRPC::OJsonArc::Node objO(&doc);
-	MSRPC::OJsonArc oa(objO);
+	MSRPC::DeJsonArc::Node objO(&doc);
+	MSRPC::DeJsonArc oa(objO);
 
 	if (objO)
 	{

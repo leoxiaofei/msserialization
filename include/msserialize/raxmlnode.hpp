@@ -11,7 +11,7 @@ namespace MSRPC
 {
 	enum CtrlSign { CS_NODE, CS_ARRAY };
 
-	class INodeXml
+	class SeNodeXml
 	{
 	private:
 		rapidxml::xml_node<>* m_node;
@@ -57,16 +57,16 @@ namespace MSRPC
 			in_serialize(tValue.Get());
 		}
 
-		INodeXml new_node()
+		SeNodeXml add_element()
 		{
-			return INodeXml(m_doc, m_doc->allocate_node(rapidxml::node_element));
+			return SeNodeXml(m_doc, m_doc->allocate_node(rapidxml::node_element));
 		}
 
 		void set_object()
 		{
 		}
 
-		void add_member(const char* strName, INodeXml& vNode)
+		void add_member(const char* strName, SeNodeXml& vNode)
 		{
 			switch (vNode.m_csign)
 			{
@@ -93,7 +93,7 @@ namespace MSRPC
 			m_csign = CS_ARRAY;
 		}
 
-		void push_node(INodeXml& vNode)
+		void push_node(SeNodeXml& vNode)
 		{
 			m_node->append_node(vNode.m_node);
 		}
@@ -108,7 +108,7 @@ namespace MSRPC
 			return *m_node;
 		}
 
-		INodeXml(rapidxml::xml_document<>* doc)
+		SeNodeXml(rapidxml::xml_document<>* doc)
 			: m_node(doc)
 			, m_doc(doc)
 			, m_csign(CS_NODE)
@@ -116,7 +116,7 @@ namespace MSRPC
 
 		}
 
-		INodeXml(rapidxml::xml_document<>* doc, rapidxml::xml_node<>* node)
+		SeNodeXml(rapidxml::xml_document<>* doc, rapidxml::xml_node<>* node)
 			: m_node(node)
 			, m_doc(doc)
 			, m_csign(CS_NODE)
@@ -125,7 +125,7 @@ namespace MSRPC
 		}
 	};
 
-	class ONodeXml
+	class DeNodeXml
 	{
 	private:
 		const rapidxml::xml_node<>* m_node;
@@ -143,7 +143,7 @@ namespace MSRPC
 		}
 
 	public:
-		ONodeXml(const rapidxml::xml_node<>* node)
+		DeNodeXml(const rapidxml::xml_node<>* node)
 			: m_node(node) {}
 
 
@@ -177,26 +177,26 @@ namespace MSRPC
 			memcpy(tValue, str, nSize);
 		}
 
-		ONodeXml sub_member(const char* strName) const
+		DeNodeXml sub_member(const char* strName) const
 		{
-			return ONodeXml(m_node->first_node(strName));
+			return DeNodeXml(m_node->first_node(strName));
 		}
 
-		class ONodeArrIter
+		class DeNodeArrIter
 		{
 		public:
 			const rapidxml::xml_node<char>* m_curNode;
 			const char* m_name;
 
-			ONodeArrIter(const rapidxml::xml_node<char>* node, const char* name)
+			DeNodeArrIter(const rapidxml::xml_node<char>* node, const char* name)
 				: m_curNode(node)
 				, m_name(name)
 			{}
 
 		public:
-			ONodeXml operator *() const
+			DeNodeXml operator *() const
 			{
-				return ONodeXml(m_curNode);
+				return DeNodeXml(m_curNode);
 			}
 
 			operator bool() const
@@ -204,7 +204,7 @@ namespace MSRPC
 				return !!m_curNode;
 			}
 
-			ONodeArrIter& operator ++ ()
+			DeNodeArrIter& operator ++ ()
 			{
 				m_curNode = m_curNode->next_sibling(m_name);
 				return *this;
@@ -216,14 +216,14 @@ namespace MSRPC
 			}
 		};
 
-		typedef ONodeArrIter ArrIter;
+		typedef DeNodeArrIter ArrIter;
 
-		ArrIter sub_nodes() const
+		ArrIter sub_elements() const
 		{
 			return ArrIter(m_node, m_node->name());
 		}
 
-		typedef ONodeArrIter ObjIter;
+		typedef DeNodeArrIter ObjIter;
 
 		ObjIter sub_members() const
 		{
@@ -237,8 +237,8 @@ namespace MSRPC
 
 	};
 
-	typedef MSRPC::OArchiveHelper<MSRPC::ONodeXml> OXmlArc;
-	typedef MSRPC::IArchiveHelper<MSRPC::INodeXml> IXmlArc;
+	typedef MSRPC::OArchiveHelper<MSRPC::DeNodeXml> OXmlArc;
+	typedef MSRPC::IArchiveHelper<MSRPC::SeNodeXml> IXmlArc;
 }
 
 #endif // RAXMLNODE_H__

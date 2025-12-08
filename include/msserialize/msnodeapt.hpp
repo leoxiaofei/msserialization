@@ -169,17 +169,16 @@ namespace MSRPC
 
 			for (; tValue; ++tValue)
 			{
-				NODE vNode = vNewNode.new_node();
+				NODE vNode = vNewNode.add_element();
 				Serializer<typename ArrayReshape<T, F, ELEM>::item_type>
 					::serialize(vNode, *tValue);
-				vNewNode.push_node(vNode);
 			}
 		}
 
 		template<class NODE>
 		static void deserialize(const NODE& vNewNode, ArrayReshape<T, F, ELEM>& tValue)
 		{
-			typename NODE::ArrIter itor = vNewNode.sub_nodes();
+			typename NODE::ArrIter itor = vNewNode.sub_elements();
 			for (; itor; ++itor)
 			{
 				ELEM itemValue = tValue.push();

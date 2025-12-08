@@ -60,9 +60,8 @@ namespace MSRPC
 			vNewNode.set_array();
 			for (int ix = 0; ix != tValue.size(); ++ix)
 			{
-				NODE vNode = vNewNode.new_node();
+				NODE vNode = vNewNode.add_element();
 				Serializer<T>::serialize(vNode, tValue[ix]);
-				vNewNode.push_node(vNode);
 			}
 		}
 
@@ -70,7 +69,7 @@ namespace MSRPC
 		static void deserialize(const NODE& vNewNode, QVector<T>& tValue)
 		{
 			int ix = 0;
-			typename NODE::ArrIter itor = vNewNode.sub_nodes();
+			typename NODE::ArrIter itor = vNewNode.sub_elements();
 			for (; itor; ++itor, ++ix)
 			{
 				if (NODE node = *itor)
@@ -101,9 +100,8 @@ namespace MSRPC
 			vNewNode.set_array();
 			for (int ix = 0; ix != tValue.size(); ++ix)
 			{
-				NODE vNode = vNewNode.new_node();
+				NODE vNode = vNewNode.add_element();
 				Serializer<T>::serialize(vNode, tValue[ix]);
-				vNewNode.push_node(vNode);
 			}
 		}
 
@@ -111,7 +109,7 @@ namespace MSRPC
 		static void deserialize(const NODE& vNewNode, QList<T>& tValue)
 		{
 			int ix = 0;
-			typename NODE::ArrIter itor = vNewNode.sub_nodes();
+			typename NODE::ArrIter itor = vNewNode.sub_elements();
 			for (; itor; ++itor, ++ix)
 			{
 				if (NODE node = *itor)
@@ -151,9 +149,8 @@ namespace MSRPC
 			citor != tValue.constEnd(); ++citor)
 			{
 				QByteArray baKey = citor.key().toUtf8();
-				NODE vNode = vNewNode.new_node();
+				NODE vNode = vNewNode.add_member(baKey.data());
 				Serializer<T>::serialize(vNode, *citor);
-				vNewNode.add_member(baKey.data(), vNode);
 			}
 		}
 
@@ -202,22 +199,20 @@ namespace MSRPC
 
 			if (!tValue.isEmpty())
 			{
-				NODE vKeyNode = vNewNode.new_node();
+				NODE vKeyNode = vNewNode.add_element();
 				vKeyNode.set_array();
 
-				NODE vValueNode = vNewNode.new_node();
+				NODE vValueNode = vNewNode.add_element();
 				vValueNode.set_array();
 
 				for (typename QHash<K, T>::const_iterator citor = tValue.constBegin();
 					 citor != tValue.constEnd(); ++citor)
 				{
-					NODE vKNode = vKeyNode.new_node();
+					NODE vKNode = vKeyNode.add_element();
 					Serializer<K>::serialize(vKNode, citor.key());
-					vKeyNode.push_node(vKNode);
-
-					NODE vVNode = vValueNode.new_node();
+					
+					NODE vVNode = vValueNode.add_element();
 					Serializer<T>::serialize(vVNode, citor.value());
-					vValueNode.push_node(vVNode);
 				}
 
 				vNewNode.add_member("key", vKeyNode);
@@ -235,8 +230,8 @@ namespace MSRPC
 
 			if (vKeyNode && vValueNode)
 			{
-				typename NODE::ArrIter itorKey = vKeyNode.sub_nodes();
-				typename NODE::ArrIter itorValue = vValueNode.sub_nodes();
+				typename NODE::ArrIter itorKey = vKeyNode.sub_elements();
+				typename NODE::ArrIter itorValue = vValueNode.sub_elements();
 				for (; itorKey && itorValue; ++itorKey, ++itorValue)
 				{
 					NODE nodeKey = *itorKey;
@@ -282,7 +277,7 @@ namespace MSRPC
 				citor != tValue.constEnd(); ++citor)
 			{
 				QByteArray baKey = citor.key().toUtf8();
-				NODE vNode = vNewNode.new_node();
+				NODE vNode = vNewNode.add_element();
 				Serializer<T>::serialize(vNode, *citor);
 				vNewNode.add_member(baKey.data(), vNode);
 			}
@@ -333,22 +328,20 @@ namespace MSRPC
 
 			if (!tValue.isEmpty())
 			{
-				NODE vKeyNode = vNewNode.new_node();
+				NODE vKeyNode = vNewNode.add_element();
 				vKeyNode.set_array();
 
-				NODE vValueNode = vNewNode.new_node();
+				NODE vValueNode = vNewNode.add_element();
 				vValueNode.set_array();
 
 				for (typename QMap<K, T>::const_iterator citor = tValue.constBegin();
 					 citor != tValue.constEnd(); ++citor)
 				{
-					NODE vKNode = vKeyNode.new_node();
+					NODE vKNode = vKeyNode.add_element();
 					Serializer<K>::serialize(vKNode, citor.key());
-					vKeyNode.push_node(vKNode);
-
-					NODE vVNode = vValueNode.new_node();
+					
+					NODE vVNode = vValueNode.add_element();
 					Serializer<T>::serialize(vVNode, citor.value());
-					vValueNode.push_node(vVNode);
 				}
 
 				vNewNode.add_member("key", vKeyNode);
@@ -366,8 +359,8 @@ namespace MSRPC
 			{
 				QSet<K> setKey;
 
-				typename NODE::ArrIter itorKey = vKeyNode.sub_nodes();
-				typename NODE::ArrIter itorValue = vValueNode.sub_nodes();
+				typename NODE::ArrIter itorKey = vKeyNode.sub_elements();
+				typename NODE::ArrIter itorValue = vValueNode.sub_elements();
 				for (; itorKey && itorValue; ++itorKey, ++itorValue)
 				{
 					NODE nodeKey = *itorKey;
@@ -467,11 +460,11 @@ namespace MSRPC
 		{
 			vNewNode.set_object();
 
-			NODE vNodeType = vNewNode.new_node();
+			NODE vNodeType = vNewNode.add_element();
 			Serializer<const char*>::serialize(vNodeType, tValue.typeName());
 			vNewNode.add_member("type", vNodeType);
 
-			NODE vNodeValue = vNewNode.new_node();
+			NODE vNodeValue = vNewNode.add_element();
 
 			switch (tValue.type())
 			{

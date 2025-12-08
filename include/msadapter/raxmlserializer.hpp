@@ -18,7 +18,7 @@ std::string ToXmlS(const T& t, const char* strRootName)
 {
 	rapidxml::xml_document<> doc;
 	MSRPC::IXmlArc::Node nObjI(&doc);
-	MSRPC::IXmlArc::Node root = nObjI.new_node();
+	MSRPC::IXmlArc::Node root = nObjI.add_element();
 	MSRPC::IXmlArc ia(root);
 	ia & t;
 
@@ -63,7 +63,7 @@ bool FromXmlS(T& t, StrBuf& strXml)
 
 	 rapidxml::xml_document<> doc;
 	 MSRPC::IXmlArc::Node nObjI(&doc);
-	 MSRPC::IXmlArc::Node root = nObjI.new_node();
+	 MSRPC::IXmlArc::Node root = nObjI.add_element();
 	 MSRPC::IXmlArc ia(root);
 	 ia & t;
 

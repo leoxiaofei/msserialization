@@ -11,7 +11,7 @@ endif()
 
 target_include_directories(${PROJECT_NAME} INTERFACE "include")
 
-option(TEST_OPT "option for test" OFF)
+option(TEST_OPT "option for test" ON)
 
 if (TEST_OPT)
 	include(CTest)

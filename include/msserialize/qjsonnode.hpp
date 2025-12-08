@@ -104,7 +104,7 @@ namespace MSRPC
 		virtual int type() const { return Type; }
 	};
 
-	class INodeJson
+	class SeNodeJson
 	{
 	private:
 		QScopedPointer<NJVBase> m_node;
@@ -168,9 +168,9 @@ namespace MSRPC
 			in_serialize(tValue.Get());
 		}
 
-		INodeJson new_node()
+		SeNodeJson add_element()
 		{
-			return INodeJson();
+			return SeNodeJson();
 		}
 
 		NJObject* set_object()
@@ -183,7 +183,7 @@ namespace MSRPC
 			return (NJObject*)m_node.data();
 		}
 
-		void add_member(const char* strName, INodeJson& vNode)
+		void add_member(const char* strName, SeNodeJson& vNode)
 		{
 			QJsonObject& obj = static_cast<NJObject*>(m_node.data())->value();
 
@@ -200,7 +200,7 @@ namespace MSRPC
 			return (NJArray*)m_node.data();
 		}
 
-		void push_node(INodeJson& vNode)
+		void push_node(SeNodeJson& vNode)
 		{
 			QJsonArray& arr = static_cast<NJArray*>(m_node.data())->value();
 			arr.append(vNode.data());
@@ -217,17 +217,17 @@ namespace MSRPC
 			return m_node->data();
 		}
 
-		INodeJson()
+		SeNodeJson()
 		{
 		}
 
-		INodeJson(const INodeJson& other)
-			: m_node(const_cast<INodeJson&>(other).m_node.take())
+		SeNodeJson(const SeNodeJson& other)
+			: m_node(const_cast<SeNodeJson&>(other).m_node.take())
 		{}
 
 	};
 
-	class ONodeJson
+	class DeNodeJson
 	{
 	private:
 		QJsonValue m_node;
@@ -262,25 +262,25 @@ namespace MSRPC
 			tValue.Set(strValue.data(), strValue.size());
 		}
 
-		ONodeJson sub_member(const char* strName) const
+		DeNodeJson sub_member(const char* strName) const
 		{
-			return ONodeJson(m_node.toObject()[strName]);
+			return DeNodeJson(m_node.toObject()[strName]);
 		}
 
-		class ONodeArrIter
+		class DeNodeArrIter
 		{
 		public:
 			QJsonArray m_node;
 			int m_idx;
 
-			ONodeArrIter(const QJsonArray& node)
+			DeNodeArrIter(const QJsonArray& node)
 				: m_node(node)
 				, m_idx(0) {}
 
 		public:
-			ONodeJson operator *() const
+			DeNodeJson operator *() const
 			{
-				return ONodeJson(m_node[m_idx]);
+				return DeNodeJson(m_node[m_idx]);
 			}
 
 			operator bool() const
@@ -288,37 +288,37 @@ namespace MSRPC
 				return m_idx != m_node.size();
 			}
 
-			ONodeArrIter& operator ++ ()
+			DeNodeArrIter& operator ++ ()
 			{
 				++m_idx;
 				return *this;
 			}
 		};
 
-		typedef ONodeArrIter ArrIter;
+		typedef DeNodeArrIter ArrIter;
 
-		ArrIter sub_nodes() const
+		ArrIter sub_elements() const
 		{
 			return ArrIter(m_node.toArray());
 		}
 
-		class ONodeObjIter
+		class DeNodeObjIter
 		{
 		public:
 			QJsonObject m_node;
 			QJsonObject::const_iterator m_citCur;
 			QJsonObject::const_iterator m_citEnd;
 
-			ONodeObjIter(const QJsonObject& node)
+			DeNodeObjIter(const QJsonObject& node)
 				: m_node(node)
 				, m_citCur(m_node.constBegin()) 
 				, m_citEnd(m_node.constEnd())
 			{}
 
 		public:
-			ONodeJson operator *() const
+			DeNodeJson operator *() const
 			{
-				return ONodeJson(*m_citCur);
+				return DeNodeJson(*m_citCur);
 			}
 
 			QString key() const
@@ -331,14 +331,14 @@ namespace MSRPC
 				return m_citCur != m_citEnd;
 			}
 
-			ONodeObjIter& operator ++ ()
+			DeNodeObjIter& operator ++ ()
 			{
 				++m_citCur;
 				return *this;
 			}
 		};
 
-		typedef ONodeObjIter ObjIter;
+		typedef DeNodeObjIter ObjIter;
 
 		ObjIter sub_members() const
 		{
@@ -351,10 +351,10 @@ namespace MSRPC
 		}
 
 	public:
-		ONodeJson(const QJsonValue& node)
+		DeNodeJson(const QJsonValue& node)
 			: m_node(node) {}
 
-		ONodeJson(const QJsonDocument* node)
+		DeNodeJson(const QJsonDocument* node)
 			: m_node(node->isObject() ? node->object() 
 			: node->isArray() ? node->array() : QJsonValue())
 		{
@@ -363,8 +363,8 @@ namespace MSRPC
 
 	};
 
-	typedef MSRPC::OArchiveHelper<MSRPC::ONodeJson> OJsonArc;
-	typedef MSRPC::IArchiveHelper<MSRPC::INodeJson> IJsonArc;
+	typedef MSRPC::OArchiveHelper<MSRPC::DeNodeJson> DeJsonArc;
+	typedef MSRPC::IArchiveHelper<MSRPC::SeNodeJson> SeJsonArc;
 }
 
 #endif // QJSONNODE_H__

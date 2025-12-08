@@ -2,6 +2,7 @@
 #define MSARCHIVE_H__
 
 #include <cstddef>
+#include <cmath>
 #include "cplusplusmacros.h"
 #include "msbasetypeapt.hpp"
 #include "siexse.hpp"
@@ -9,6 +10,8 @@
 #if ANY_CPP11_OR_GREATER
 #include <type_traits>
 #endif
+
+#define is_valid_float(x) (!std::isnan(x) && !std::isinf(x))
 
 namespace MSRPC
 {
@@ -135,16 +138,15 @@ namespace MSRPC
 			vNewNode.set_array();
 			for (int ix = 0; ix != N; ++ix)
 			{
-				NODE vNode = vNewNode.new_node();
+				NODE vNode = vNewNode.add_element();
 				Serializer<T>::serialize(vNode, tValue[ix]);
-				vNewNode.push_node(vNode);
 			}
 		}
 
 		template<class NODE>
 		static void deserialize(const NODE& vNewNode, T(&tValue)[N])
 		{
-			typename NODE::ArrIter itor = vNewNode.sub_nodes();
+			typename NODE::ArrIter itor = vNewNode.sub_elements();
 			for (int ix = 0; ix != N && itor; ++itor, ++ix)
 			{
 				Serializer<T>::deserialize(*itor, tValue[ix]);
@@ -176,7 +178,6 @@ IN_SERIALIZER(long);
 IN_SERIALIZER(unsigned long);
 IN_SERIALIZER(long long);
 IN_SERIALIZER(unsigned long long);
-IN_SERIALIZER(float);
 IN_SERIALIZER(double);
 
 #undef IN_SERIALIZER
@@ -202,6 +203,7 @@ DEFINE_INT_SERIALIZER(signed char, int)
 DEFINE_INT_SERIALIZER(unsigned char, unsigned int)
 DEFINE_INT_SERIALIZER(short, int)
 DEFINE_INT_SERIALIZER(unsigned short, unsigned int)
+DEFINE_INT_SERIALIZER(float, double)
 
 // 可以继续扩展
 #undef DEFINE_INT_SERIALIZER
@@ -219,7 +221,7 @@ DEFINE_INT_SERIALIZER(unsigned short, unsigned int)
 		template<class NODE>
 		static void deserialize(const NODE& vNewNode, char*& tValue)
 		{
-			vNewNode.in_serialize(const_cast<const char*&>(tValue));
+			vNewNode.in_serialize(tValue);
 		}
 	};
 
@@ -337,10 +339,8 @@ DEFINE_INT_SERIALIZER(unsigned short, unsigned int)
 		template <class T>
 		IArchiveHelper& io(const char* strName, const T& tValue)
 		{
-			NODE vNewNode = m_vCurNode.new_node();
+			NODE vNewNode = m_vCurNode.add_member(strName);
 			Serializer<T>::serialize(vNewNode, tValue);
-			m_vCurNode.add_member(strName, vNewNode);
-
 			return *this;
 		}
 	};
