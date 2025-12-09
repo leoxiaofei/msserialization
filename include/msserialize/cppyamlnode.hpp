@@ -49,33 +49,42 @@ namespace MSRPC
 			}
 		}
 
-		void set_object() 
+		typedef SeNodeCppYaml& ObjApt;
+
+		ObjApt set_object() 
 		{
 			if (!m_node.IsMap())
 			{
 				/* code */
 				m_node = YAML::Node(YAML::NodeType::Map);
 			}
+
+			return *this;
 		}
 
 		SeNodeCppYaml add_member(const char* strName)
 		{
-			m_node.force_insert(strName, YAML::Node());
+			// YAML::Node node;
+			// m_node.force_insert(strName, node);
 			return SeNodeCppYaml(m_node[strName]);
 		}
 
-		void set_array() 
+		typedef SeNodeCppYaml& ArrApt;
+		ArrApt set_array() 
 		{
 			if(!m_node.IsSequence())
 			{
 				m_node = YAML::Node(YAML::NodeType::Sequence);
 			}
+
+			return *this;
 		}
 
 		SeNodeCppYaml add_element()
 		{
-			m_node.push_back(YAML::Node());
-			return SeNodeCppYaml(m_node[m_node.size() - 1]);
+			YAML::Node node;
+			m_node.push_back(node);
+			return SeNodeCppYaml(node);
 		}
 
 	public:
@@ -312,7 +321,11 @@ namespace MSRPC
 			return bRet;
 		}
 
-
+		template <class T>
+		void operator>>(T &tValue)
+		{
+			Serializer<T>::deserialize(*static_cast<DeNodeCppYaml*>(this), tValue);
+		}
 	};
 
 	class SeDocCppYaml : public SeNodeCppYaml
@@ -347,6 +360,12 @@ namespace MSRPC
 			}
 
 			return bRet;
+		}
+
+		template <class T>
+		void operator<<(const T &tValue)
+		{
+			Serializer<T>::serialize(*static_cast<SeNodeCppYaml*>(this), tValue);
 		}
 	};
 

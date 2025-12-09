@@ -51,13 +51,16 @@ namespace MSRPC
 			}
 		}
 
-		void set_object() 
+		typedef SeNodeNlohmannJson& ObjApt;
+		ObjApt set_object() 
 		{
 			if (!m_node->is_object())
 			{
 				/* code */
 				*m_node = nlohmann::json::object();
 			}
+
+			return *this;
 		}
 
 		SeNodeNlohmannJson add_member(const char* strName)
@@ -65,12 +68,15 @@ namespace MSRPC
 			return SeNodeNlohmannJson(&*m_node->emplace(strName, nlohmann::json()).first);
 		}
 
-		void set_array() 
+		typedef SeNodeNlohmannJson& ArrApt;
+		ArrApt set_array() 
 		{
 			if(!m_node->is_array())
 			{
 				*m_node = nlohmann::json::array();
 			}
+
+			return *this;
 		}
 
 		SeNodeNlohmannJson add_element()
@@ -336,7 +342,11 @@ namespace MSRPC
 			return bRet;
 		}
 
-
+		template <class T>
+		void operator >> (T &tValue)
+		{
+			Serializer<T>::deserialize(*static_cast<DeNodeNlohmannJson*>(this), tValue);
+		}
 	};
 
 	class SeDocNlohmannJson : public SeNodeNlohmannJson
@@ -365,6 +375,12 @@ namespace MSRPC
 			}
 
 			return bRet;
+		}
+
+		template <class T>
+		void operator<<(const T &tValue)
+		{
+			Serializer<T>::serialize(*static_cast<SeNodeNlohmannJson*>(this), tValue);
 		}
 	};
 

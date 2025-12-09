@@ -11,59 +11,49 @@
 namespace MSRPC
 {
 
-template<class T, class StrBuf = std::string, class SEDOC = MSRPC::SeDoc, class SENODE = MSRPC::SeNode>
+template<class T, class StrBuf = std::string, class SEDOC = MSRPC::SeDoc>
 StrBuf ToJsonS(const T& t, unsigned int indent = 0)
 {
 	//Serialization
-	typedef MSRPC::IArchiveHelper<SENODE> SeJsonArc;
 
 	SEDOC seDoc;
-	SeJsonArc ia(seDoc);
-	ia & t;
+	seDoc << t;
 
 	//Output the JSON string
 	return seDoc.Stringify<StrBuf>(indent);
 }
 
-template<class T, class StrBuf, class DEDOC = MSRPC::DeDoc, class DENODE = MSRPC::DeNode>
+template<class T, class StrBuf, class DEDOC = MSRPC::DeDoc>
 bool FromJsonS(T& t, StrBuf& strJson)
 {
-	typedef MSRPC::OArchiveHelper<DENODE> DeJsonArc;
-
 	DEDOC deDoc;
 	deDoc.Parse(strJson);
 	if (deDoc)
 	{
-		DeJsonArc oa(deDoc);
-		oa & t;
+		deDoc >> t;
 	}
 
 	return deDoc;
 }
 
-template<class T, class SEDOC = MSRPC::SeDoc, class SENODE = MSRPC::SeNode>
+template<class T, class SEDOC = MSRPC::SeDoc>
 bool ToJsonF(const T& t, const char* strFilePath, unsigned int indent = 0)
 {
-	typedef MSRPC::IArchiveHelper<SENODE> SeJsonArc;
 	//Serialization
 	SEDOC seDoc;
-	SeJsonArc ia(seDoc);
-	ia & t;
+	seDoc << t;
 
 	return seDoc.Save(strFilePath, indent);
 }
 
-template<class T, class DEDOC = MSRPC::DeDoc, class DENODE = MSRPC::DeNode>
+template<class T, class DEDOC = MSRPC::DeDoc>
 bool FromJsonF(T& t, const char* strFilePath)
 {
-	typedef MSRPC::OArchiveHelper<DENODE> DeJsonArc;
-
 	DEDOC deDoc;
 	deDoc.Load(strFilePath);
 	if (deDoc)
 	{
-		DeJsonArc oa(deDoc);
-		oa & t;
+		deDoc >> t;
 	}
 
 	return deDoc;

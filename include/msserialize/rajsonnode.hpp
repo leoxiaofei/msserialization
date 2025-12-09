@@ -77,12 +77,16 @@ namespace MSRPC
 			}
 		}
 
-		void set_object()
+		typedef SeNodeRapidJson &ObjApt;
+
+		ObjApt set_object()
 		{
 			if (!m_node->IsObject())
 			{
 				m_node->SetObject();
 			}
+
+			return *this;
 		}
 
 		SeNodeRapidJson add_member(const char* strName)
@@ -92,18 +96,15 @@ namespace MSRPC
 			return SeNodeRapidJson(&(m_node->MemberEnd() - 1)->value, m_allocator);
 		}
 
-		SeNodeRapidJson add_member(char* strName, SeNodeRapidJson& vNode)
-		{
-			rapidjson::Value vName(strName, *m_allocator);
-			m_node->AddMember(vName, *vNode.m_node, *m_allocator);
-		}
-
-		void set_array()
+		typedef SeNodeRapidJson &ArrApt;
+		ArrApt set_array()
 		{
 			if (!m_node->IsArray())
 			{
 				m_node->SetArray();
 			}
+
+			return *this;
 		}
 
 		SeNodeRapidJson add_element()
@@ -405,6 +406,12 @@ namespace MSRPC
 
 			return bRet;
 		}
+
+		template <class T>
+		void operator>>(T &tValue)
+		{
+			Serializer<T>::deserialize(*static_cast<DeNodeRapidJson*>(this), tValue);
+		}
 	};
 
 	class SeDocRapidJson : public SeNodeRapidJson
@@ -473,6 +480,12 @@ namespace MSRPC
 			}
 
 			return bRet;
+		}
+
+		template <class T>
+		void operator<<(const T &tValue)
+		{
+			Serializer<T>::serialize(*static_cast<SeNodeRapidJson*>(this), tValue);
 		}
 	};
 	

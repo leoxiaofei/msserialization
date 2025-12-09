@@ -51,10 +51,10 @@ namespace MSRPC
 		template<class NODE>
 		static void serialize(NODE& vNewNode, const std::vector<T>& tValue)
 		{
-			vNewNode.set_array();
+			typename NODE::ArrApt apt = vNewNode.set_array();
 			for (int ix = 0; ix != tValue.size(); ++ix)
 			{
-				NODE vNode = vNewNode.add_element();
+				NODE vNode = apt.add_element();
 				Serializer<T>::serialize(vNode, tValue[ix]);
 			}
 		}
@@ -201,11 +201,11 @@ namespace MSRPC
 		template<class NODE>
 		static void serialize(NODE& vNewNode, const std::map<std::string, T>& tValue)
 		{
-			vNewNode.set_object();
+			typename NODE::ObjApt apt = vNewNode.set_object();
 			for (typename std::map<std::string, T>::const_iterator citor = tValue.begin();
 				citor != tValue.end(); ++citor)
 			{
-				NODE vNode = vNewNode.add_member(citor->first.c_str());
+				NODE vNode = apt.add_member(citor->first.c_str());
 				Serializer<T>::serialize(vNode, citor->second);
 			}
 		}
@@ -502,11 +502,11 @@ namespace MSRPC
 		template<class NODE>
 		static void serialize(NODE& vNewNode, const std::unordered_map<std::string, T>& tValue)
 		{
-			vNewNode.set_object();
+			typename NODE::ObjApt apt = vNewNode.set_object();
 			for (typename std::unordered_map<std::string, T>::const_iterator citor = tValue.begin();
 				citor != tValue.end(); ++citor)
 			{
-				NODE vNode = vNewNode.add_member(citor->first.c_str());
+				NODE vNode = apt.add_member(citor->first.c_str());
 				Serializer<T>::serialize(vNode, citor->second);
 			}
 		}

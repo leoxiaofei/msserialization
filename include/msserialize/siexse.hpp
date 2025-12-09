@@ -96,7 +96,6 @@ void ex_serialize(Ar& ar, TYPE& tValue) \
 		template<class NODE> \
 		static void serialize(NODE& vNewNode, EX const& tValue) \
 		{ \
-			vNewNode.set_object(); \
 			IArchiveHelper<NODE> oh(vNewNode); \
 			ex_serialize(oh, const_cast<EX&>(tValue)); \
 		} \

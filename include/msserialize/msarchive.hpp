@@ -77,7 +77,6 @@ namespace MSRPC
 		template<class NODE>
 		static void serialize(NODE& vNewNode, const T& tValue)
 		{
-			vNewNode.set_object();
 			IArchiveHelper<NODE> oh(vNewNode);
 			ex_serialize(oh, const_cast<T&>(tValue));
 		}
@@ -319,6 +318,7 @@ DEFINE_INT_SERIALIZER(float, double)
 	{
 	private:
 		NODE& m_vCurNode;
+		typename NODE::ObjApt m_vObjApt;
 
 	public:
 		typedef NODE Node;
@@ -326,6 +326,7 @@ DEFINE_INT_SERIALIZER(float, double)
 	public:
 		IArchiveHelper(NODE &vNode)
 			: m_vCurNode(vNode)
+			, m_vObjApt(m_vCurNode.set_object())
 		{
 		}
 
@@ -333,13 +334,14 @@ DEFINE_INT_SERIALIZER(float, double)
 		IArchiveHelper &operator&(const T &tValue)
 		{
 			Serializer<T>::serialize(m_vCurNode, tValue);
+			m_vObjApt = m_vCurNode.set_object();
 			return *this;
 		}
 
 		template <class T>
 		IArchiveHelper& io(const char* strName, const T& tValue)
 		{
-			NODE vNewNode = m_vCurNode.add_member(strName);
+			NODE vNewNode = m_vObjApt.add_member(strName);
 			Serializer<T>::serialize(vNewNode, tValue);
 			return *this;
 		}

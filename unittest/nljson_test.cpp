@@ -1,6 +1,6 @@
 #include "stltypedef.hpp"
 
-#include "msadapter/nljsonserializer.hpp"
+#include "msadapter/nljson.hpp"
 #include <gtest/gtest.h>
 #include <chrono>
 

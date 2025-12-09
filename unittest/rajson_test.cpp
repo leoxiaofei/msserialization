@@ -1,6 +1,6 @@
 #include "stltypedef.hpp"
 
-#include "msadapter/rajsonserializer.hpp"
+#include "msadapter/rajson.hpp"
 #include <gtest/gtest.h>
 #include <chrono>
 

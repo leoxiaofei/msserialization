@@ -11,59 +11,48 @@
 namespace MSRPC
 {
 
-template<class T, class StrBuf = std::string, class SEDOC = MSRPC::SeDoc, class SENODE = MSRPC::SeNode>
+template<class T, class StrBuf = std::string, class SEDOC = MSRPC::SeDoc>
 StrBuf ToYamlS(const T& t)
 {
 	//Serialization
-	typedef MSRPC::IArchiveHelper<SENODE> SeYamlArc;
-
 	SEDOC seDoc;
-	SeYamlArc ia(seDoc);
-	ia & t;
+	seDoc << t;
 
 	//Output the JSON string
 	return seDoc.Stringify<StrBuf>();
 }
 
-template<class T, class StrBuf, class DEDOC = MSRPC::DeDoc, class DENODE = MSRPC::DeNode>
+template<class T, class StrBuf, class DEDOC = MSRPC::DeDoc>
 bool FromYamlS(T& t, StrBuf& strYaml)
 {
-	typedef MSRPC::OArchiveHelper<DENODE> DeYamlArc;
-
 	DEDOC deDoc;
 	deDoc.Parse(strYaml);
 	if (deDoc)
 	{
-		DeYamlArc oa(deDoc);
-		oa & t;
+		deDoc >> t;
 	}
 
 	return deDoc;
 }
 
-template<class T, class SEDOC = MSRPC::SeDoc, class SENODE = MSRPC::SeNode>
+template<class T, class SEDOC = MSRPC::SeDoc>
 bool ToYamlF(const T& t, const char* strFilePath)
 {
-	typedef MSRPC::IArchiveHelper<SENODE> SeYamlArc;
 	//Serialization
 	SEDOC seDoc;
-	SeYamlArc ia(seDoc);
-	ia & t;
+	seDoc << t;
 
 	return seDoc.Save(strFilePath);
 }
 
-template<class T, class DEDOC = MSRPC::DeDoc, class DENODE = MSRPC::DeNode>
+template<class T, class DEDOC = MSRPC::DeDoc>
 bool FromYamlF(T& t, const char* strFilePath)
 {
-	typedef MSRPC::OArchiveHelper<DENODE> DeYamlArc;
-
 	DEDOC deDoc;
 	deDoc.Load(strFilePath);
 	if (deDoc)
 	{
-		DeYamlArc oa(deDoc);
-		oa & t;
+		deDoc >> t;
 	}
 
 	return deDoc;
