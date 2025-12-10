@@ -1,6 +1,6 @@
-#include "stltypedef.hpp"
 
 #include "msadapter/cppyaml.hpp"
+#include "stltypedef.hpp"
 #include <gtest/gtest.h>
 #include <chrono>
 

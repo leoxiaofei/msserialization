@@ -1,6 +1,5 @@
-#include "stltypedef.hpp"
-
 #include "msadapter/rajson.hpp"
+#include "stltypedef.hpp"
 #include <gtest/gtest.h>
 #include <chrono>
 

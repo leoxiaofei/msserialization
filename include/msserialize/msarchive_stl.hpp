@@ -221,9 +221,9 @@ namespace MSRPC
 			{
 				if (NODE node = *itor)
 				{
-					T& t = tValue[itor.key<std::string>()];
+					T& t = tValue[itor.template key<std::string>()];
 					Serializer<T>::deserialize(node, t);
-					setKey.insert(itor.key<std::string>());
+					setKey.insert(itor.template key<std::string>());
 				}
 			}
 
@@ -342,7 +342,7 @@ namespace MSRPC
 				itor; ++itor)
 			{
 				typename std::multimap<K, T>::value_type subVal;
-				Serializer<typename std::multimap<K, T>::value_type>::deserialize(*itorSub, subVal);
+				Serializer<typename std::multimap<K, T>::value_type>::deserialize(*itor, subVal);
 
 #if ANY_CPP11_OR_GREATER
 				tValue.emplace(std::move(subVal.first), std::move(subVal.second));
@@ -400,7 +400,7 @@ namespace MSRPC
 		template<class NODE>
 		static void Push(typename NODE::ArrApt &vUpNode, const TUPLET& tValue)
 		{
-			SNode<N - 1, TUPLET>::Push<NODE>(vUpNode, tValue);
+			SNode<N - 1, TUPLET>::template Push<NODE>(vUpNode, tValue);
 
 			NODE vKeyNode = vUpNode.add_element();
 			typedef typename std::tuple_element<N, TUPLET>::type V;
@@ -410,7 +410,7 @@ namespace MSRPC
 		template<class NODE>
 		static void Pull(typename NODE::ArrIter &itor, TUPLET &tValue)
 		{
-			SNode<N - 1, TUPLET>::Pull<NODE>(itor, tValue);
+			SNode<N - 1, TUPLET>::template Pull<NODE>(itor, tValue);
 
 			if (itor)
 			{
@@ -462,14 +462,14 @@ namespace MSRPC
 		{
 			typename NODE::ArrApt apt = vNewNode.set_array();
 
-			SNode<std::tuple_size<std::tuple<T...> >::value - 1, std::tuple<T...> >::Push<NODE>(apt, tValue);
+			SNode<std::tuple_size<std::tuple<T...> >::value - 1, std::tuple<T...> >::template Push<NODE>(apt, tValue);
 		}
 
 		template<class NODE>
 		static void deserialize(const NODE& vNewNode, std::tuple<T...>& tValue)
 		{
 			typename NODE::ArrIter itor = vNewNode.sub_elements();
-			SNode<std::tuple_size<std::tuple<T...> >::value - 1, std::tuple<T...> >::Pull<NODE>(itor, tValue);
+			SNode<std::tuple_size<std::tuple<T...> >::value - 1, std::tuple<T...> >::template Pull<NODE>(itor, tValue);
 		}
 	};
 
@@ -499,9 +499,9 @@ namespace MSRPC
 			{
 				if (NODE node = *itor)
 				{
-					T& t = tValue[itor.key<std::string>()];
+					T& t = tValue[itor.template key<std::string>()];
 					Serializer<T>::deserialize(node, t);
-					setKey.insert(itor.key<std::string>());
+					setKey.insert(itor.template key<std::string>());
 				}
 			}
 

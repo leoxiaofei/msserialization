@@ -136,12 +136,11 @@ namespace MSRPC
 
 		}
 
-		// SeNodeRapidJson(const SeNodeRapidJson& other)
-		// 	: m_node(other.m_node == &other.m_data ? &m_data : other.m_node)
-		// 	, m_allocator(other.m_allocator)
-		// {
-
-		// }
+		template <class T>
+		void operator<<(const T &tValue)
+		{
+			Serializer<T>::serialize(*this, tValue);
+		}
 
 	};
 
@@ -353,6 +352,12 @@ namespace MSRPC
 		{
 			return m_node && !m_node->IsNull();
 		}
+
+		template <class T>
+		void operator>>(T &tValue)
+		{
+			Serializer<T>::deserialize(*this, tValue);
+		}
 	};
 
 	class DeDocRapidJson : public DeNodeRapidJson
@@ -395,11 +400,6 @@ namespace MSRPC
 			return bRet;
 		}
 
-		template <class T>
-		void operator>>(T &tValue)
-		{
-			Serializer<T>::deserialize(*static_cast<DeNodeRapidJson*>(this), tValue);
-		}
 	};
 
 	class SeDocRapidJson : public SeNodeRapidJson
@@ -449,7 +449,7 @@ namespace MSRPC
 		void Stringify(StrBuf& buf, unsigned int indent = 0)
 		{
 			typedef MSRPC::TBufferAdapter<StrBuf> RsvBuffer;
-			RsvBuffer buffer(strRet);
+			RsvBuffer buffer(buf);
 
 			BuffDocWrite(buffer, indent);
 		}
@@ -470,11 +470,7 @@ namespace MSRPC
 			return bRet;
 		}
 
-		template <class T>
-		void operator<<(const T &tValue)
-		{
-			Serializer<T>::serialize(*static_cast<SeNodeRapidJson*>(this), tValue);
-		}
+
 	};
 	
 }

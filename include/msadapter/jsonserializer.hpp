@@ -20,7 +20,7 @@ StrBuf ToJsonS(const T& t, unsigned int indent = 0)
 	seDoc << t;
 
 	//Output the JSON string
-	return seDoc.Stringify<StrBuf>(indent);
+	return seDoc.template Stringify<StrBuf>(indent);
 }
 
 template<class T, class StrBuf, class DEDOC = MSRPC::DeDoc>

@@ -108,6 +108,11 @@ namespace MSRPC
 
 		}
 
+		template <class T>
+		void operator<<(const T &tValue)
+		{
+			Serializer<T>::serialize(*this, tValue);
+		}
 	};
 
 	class DeNodeNlohmannJson
@@ -287,6 +292,12 @@ namespace MSRPC
 		{
 			return m_node && !m_node->is_null();
 		}
+
+		template <class T>
+		void operator>>(T &tValue)
+		{
+			Serializer<T>::deserialize(*this, tValue);
+		}
 	};
 
 	class DeDocNlohmannJson : public DeNodeNlohmannJson
@@ -333,12 +344,6 @@ namespace MSRPC
 
 			return bRet;
 		}
-
-		template <class T>
-		void operator >> (T &tValue)
-		{
-			Serializer<T>::deserialize(*static_cast<DeNodeNlohmannJson*>(this), tValue);
-		}
 	};
 
 	class SeDocNlohmannJson : public SeNodeNlohmannJson
@@ -367,12 +372,6 @@ namespace MSRPC
 			}
 
 			return bRet;
-		}
-
-		template <class T>
-		void operator<<(const T &tValue)
-		{
-			Serializer<T>::serialize(*static_cast<SeNodeNlohmannJson*>(this), tValue);
 		}
 	};
 

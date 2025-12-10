@@ -1,4 +1,4 @@
-#include <msadapter/rajsonserializer.hpp>
+#include <msadapter/rajson.hpp>
 #include <msserialize/msnodeapt.hpp>
 #include <iostream>
 

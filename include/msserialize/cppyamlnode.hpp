@@ -5,6 +5,7 @@
 #include <yaml-cpp/yaml.h>
 #include <fstream>
 #include <iostream>
+#include <cstring>
 
 namespace MSRPC
 {
@@ -99,7 +100,7 @@ namespace MSRPC
 		}
 
 
-		SeNodeCppYaml(YAML::Node& node)
+		SeNodeCppYaml(const YAML::Node& node)
 		: m_node(node)
 		{
 
@@ -111,6 +112,11 @@ namespace MSRPC
 
 		}
 
+		template <class T>
+		void operator<<(const T &tValue)
+		{
+			Serializer<T>::serialize(*this, tValue);
+		}
 	};
 
 	class DeNodeCppYaml
@@ -282,6 +288,12 @@ namespace MSRPC
 		{
 			return !!m_node;
 		}
+
+		template <class T>
+		void operator>>(T &tValue)
+		{
+			Serializer<T>::deserialize(*this, tValue);
+		}
 	};
 
 	class DeDocCppYaml : public DeNodeCppYaml
@@ -325,12 +337,6 @@ namespace MSRPC
 
 			return bRet;
 		}
-
-		template <class T>
-		void operator>>(T &tValue)
-		{
-			Serializer<T>::deserialize(*static_cast<DeNodeCppYaml*>(this), tValue);
-		}
 	};
 
 	class SeDocCppYaml : public SeNodeCppYaml
@@ -367,11 +373,7 @@ namespace MSRPC
 			return bRet;
 		}
 
-		template <class T>
-		void operator<<(const T &tValue)
-		{
-			Serializer<T>::serialize(*static_cast<SeNodeCppYaml*>(this), tValue);
-		}
+
 	};
 
 

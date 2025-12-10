@@ -19,7 +19,7 @@ StrBuf ToYamlS(const T& t)
 	seDoc << t;
 
 	//Output the JSON string
-	return seDoc.Stringify<StrBuf>();
+	return seDoc.template Stringify<StrBuf>();
 }
 
 template<class T, class StrBuf, class DEDOC = MSRPC::DeDoc>

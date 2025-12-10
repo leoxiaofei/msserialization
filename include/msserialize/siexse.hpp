@@ -117,7 +117,8 @@ void ex_serialize(Ar& ar, TYPE& tValue) \
 	{ \
 		typedef void (*BASE##ConvT)(Ar &ar, BASE *&tValue); \
 		BASE##ConvT defConv = nullptr;
-		
+
+
 #define EndBaExSe(MAP, TYPE) \
 		auto iFind = MAP.find(TYPE); \
 		if (iFind != MAP.end()) \

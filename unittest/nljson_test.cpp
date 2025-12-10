@@ -1,9 +1,20 @@
-#include "stltypedef.hpp"
-
 #include "msadapter/nljson.hpp"
+#include "stltypedef.hpp"
 #include <gtest/gtest.h>
 #include <chrono>
 
+TEST(NlJson, FromJsonO)
+{
+    BaseType data1;
+    InitData1(data1);
+
+    std::string strJson = BaseTypeJson1();
+    auto m_doc = nlohmann::json::parse(strJson);
+    BaseType data2;
+    MSRPC::FromJsonO(data2, m_doc);
+
+    EXPECT_EQ(data1, data2);
+}
 
 TEST(NlJson, BaseType_Self)
 {
