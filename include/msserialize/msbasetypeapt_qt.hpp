@@ -7,6 +7,8 @@
 #include <QDateTime>
 #include <QMargins>
 #include <QLine>
+#include <QSize>
+#include <QRect> 
 
 #ifdef QT_GUI_LIB
 #include <QColor>

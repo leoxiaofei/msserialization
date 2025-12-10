@@ -256,49 +256,35 @@ namespace MSRPC
 			}
 		}
 
-		DeNodeRapidJson sub_member(const char* strName) const
-		{
-			const rapidjson::Value* node = 0;
-			do 
-			{
-				if (!m_node->IsObject())
-				{
-					break;
-				}
-
-				rapidjson::Value::ConstMemberIterator itrFind = m_node->FindMember(strName);
-				if (itrFind == m_node->MemberEnd())
-				{
-					break;
-				}
-
-				node = &itrFind->value;
-
-			} while (false);
-
-			return DeNodeRapidJson(node);
-		}
-
 		class DeNodeObjIter
 		{
-		public:
+			const rapidjson::Value* self;
 			rapidjson::Value::ConstMemberIterator citCur;
 			rapidjson::Value::ConstMemberIterator citEnd;
+		public:
 
 			DeNodeObjIter(const rapidjson::Value* node)
-				: citCur(node ? node->MemberBegin() : rapidjson::Value::ConstMemberIterator())
+				: self(node)
+				, citCur(node ? node->MemberBegin() : rapidjson::Value::ConstMemberIterator())
 				, citEnd(node ? node->MemberEnd() : rapidjson::Value::ConstMemberIterator())
 			{}
 
-		public:
+			DeNodeRapidJson find_member(const char *strName) const
+			{
+				rapidjson::Value::ConstMemberIterator itrFind = self->FindMember(strName);
+				return DeNodeRapidJson(itrFind != self->MemberEnd() ? &itrFind->value : nullptr);
+			}
+
 			DeNodeRapidJson operator *() const
 			{
 				return DeNodeRapidJson(&citCur->value);
 			}
 
-			const char* key() const
+			template <typename T>
+			T key() const
 			{
-				return citCur->name.GetString();
+				T t = citCur->name.GetString();
+				return t;
 			}
 
 			operator bool() const
@@ -323,11 +309,13 @@ namespace MSRPC
 		class DeNodeArrIter
 		{
 		public:
+			const rapidjson::Value* self;
 			rapidjson::Value::ConstValueIterator citCur;
 			rapidjson::Value::ConstValueIterator citEnd;
 
 			DeNodeArrIter(const rapidjson::Value* node)
-				: citCur(node ? node->Begin() : rapidjson::Value::ConstValueIterator())
+				: self(node)
+				, citCur(node ? node->Begin() : rapidjson::Value::ConstValueIterator())
 				, citEnd(node ? node->End() : rapidjson::Value::ConstValueIterator())
 			{}
 
@@ -347,6 +335,11 @@ namespace MSRPC
 				++citCur;
 				return *this;
 			}
+
+			size_t array_size() const
+			{
+				return self->Size();
+			}
 		};
 
 		typedef DeNodeArrIter ArrIter;
@@ -354,11 +347,6 @@ namespace MSRPC
 		ArrIter sub_elements() const
 		{
 			return ArrIter(m_node && m_node->IsArray() ? m_node : nullptr);
-		}
-
-		size_t array_size() const
-		{
-			return m_node->Size();
 		}
 
 		operator bool() const

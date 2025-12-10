@@ -14,116 +14,55 @@
 
 namespace MSRPC
 {
-	class NJVBase
+	// class NJVBase
+	// {
+	// protected:
+	// 	enum { NJVType = 100 };
+
+	// public:
+	// 	virtual ~NJVBase() {}
+	// 	virtual QJsonValue data() const = 0;
+	// 	virtual int type() const = 0;
+	// 	virtual void setDoc(QJsonDocument* doc) = 0;
+	// };
+
+	// class NJValue : public NJVBase
+	// {
+	// protected:
+	// 	QJsonValue m_data;
+
+	// public:
+	// 	virtual QJsonValue data() const
+	// 	{
+	// 		return m_data;
+	// 	}
+
+	// 	virtual void setDoc(QJsonDocument* doc)
+	// 	{
+	// 		// qt is not supported. 
+	// 		Q_ASSERT(false);
+	// 	}
+
+	// 	QJsonValue& value()
+	// 	{
+	// 		return m_data;
+	// 	}
+
+	// 	enum {Type = NJVType + 1};
+	// 	virtual int type() const { return Type; }
+
+	// };
+
+	class SeNodeQJson
 	{
 	protected:
-		enum { NJVType = 100 };
+		QJsonValueRef m_node;
 
 	public:
-		virtual ~NJVBase() {}
-		virtual QJsonValue data() const = 0;
-		virtual int type() const = 0;
-		virtual void setDoc(QJsonDocument* doc) = 0;
-	};
-
-	class NJValue : public NJVBase
-	{
-	protected:
-		QJsonValue m_data;
-
-	public:
-		virtual QJsonValue data() const
-		{
-			return m_data;
-		}
-
-		virtual void setDoc(QJsonDocument* doc)
-		{
-			// qt is not supported. 
-			Q_ASSERT(false);
-		}
-
-		QJsonValue& value()
-		{
-			return m_data;
-		}
-
-		enum {Type = NJVType + 1};
-		virtual int type() const { return Type; }
-
-	};
-
-	class NJObject : public NJVBase
-	{
-	private:
-		QJsonObject m_value;
-
-	public:
-		virtual QJsonValue data() const
-		{
-			return m_value;
-		}
-
-		virtual void setDoc(QJsonDocument* doc)
-		{
-			doc->setObject(m_value);
-		}
-
-		QJsonObject& value()
-		{
-			return m_value;
-		}
-
-		enum { Type = NJVType + 2 };
-		virtual int type() const { return Type; }
-
-	};
-
-	class NJArray : public NJVBase
-	{
-	private:
-		QJsonArray m_value;
-
-	public:
-		virtual QJsonValue data() const
-		{
-			return m_value;
-		}
-
-		virtual void setDoc(QJsonDocument* doc)
-		{
-			doc->setArray(m_value);
-		}
-
-		QJsonArray& value()
-		{
-			return m_value;
-		}
-
-		enum { Type = NJVType + 3 };
-		virtual int type() const { return Type; }
-	};
-
-	class SeNodeJson
-	{
-	private:
-		QScopedPointer<NJVBase> m_node;
-
-	public:
-		NJValue* set_value()
-		{
-			if (!m_node || m_node->type() != NJValue::Type)
-			{
-				m_node.reset(new NJValue);
-			}
-			return (NJValue*)m_node.data();
-		}
-
 		template <class T>
 		void in_serialize(const T& tValue)
 		{
-			NJValue* nj = set_value();
-			nj->value() = tValue;
+			m_node = tValue;
 		}
 
 		template<class S, class T>
@@ -134,33 +73,29 @@ namespace MSRPC
 
 		void in_serialize(const unsigned int& tValue)
 		{
-			NJValue* nj = set_value();
-			nj->value() = (int)tValue;
+			m_node = (int)tValue;
 		}
 
 		void in_serialize(const unsigned long long& tValue)
 		{
-			NJValue* nj = set_value();
-			nj->value() = (qint64)tValue;
+			m_node = (qint64)tValue;
 		}
 
 		void in_serialize(const long& tValue)
 		{
-			NJValue* nj = set_value();
-			nj->value() = (qint64)tValue;
+			m_node = (qint64)tValue;
 		}
 
 		void in_serialize(const unsigned long& tValue)
 		{
-			NJValue* nj = set_value();
-			nj->value() = (qint64)tValue;
+			m_node = (qint64)tValue;
 		}
 
-		void in_serialize(const char* tValue)
-		{
-			NJValue* nj = set_value();
-			nj->value() = tValue;
-		}
+		// void in_serialize(const char* tValue)
+		// {
+		// 	NJValue* nj = set_value();
+		// 	nj->value() = tValue;
+		// }
 
 		template <typename T>
 		void in_serialize(const StrApt<T>& tValue)
@@ -168,69 +103,117 @@ namespace MSRPC
 			in_serialize(tValue.Get());
 		}
 
-		SeNodeJson add_element()
-		{
-			return SeNodeJson();
-		}
 
-		NJObject* set_object()
+		class NJArray
 		{
-			if (!m_node || m_node->type() != NJObject::Type)
+		private:
+			SeNodeQJson* m_parent;
+			QJsonArray m_value;
+
+		public:
+			NJArray(NJArray&& other) noexcept
+				: m_value(std::move(other.m_value))
+				, m_parent(other.m_parent)
 			{
-				m_node.reset(new NJObject);
+				other.m_parent = nullptr;
 			}
 
-			return (NJObject*)m_node.data();
-		}
-
-		void add_member(const char* strName, SeNodeJson& vNode)
-		{
-			QJsonObject& obj = static_cast<NJObject*>(m_node.data())->value();
-
-			obj[strName] = vNode.data();
-		}
-
-		NJArray* set_array()
-		{
-			if (!m_node || m_node->type() != NJArray::Type)
+			NJArray(SeNodeQJson* parent)
+			: m_parent(parent)
 			{
-				m_node.reset(new NJArray);
 			}
 
-			return (NJArray*)m_node.data();
+			~NJArray()
+			{
+				if (m_parent)
+				{
+					m_parent->in_serialize(m_value);
+				}
+			}
+
+			SeNodeQJson add_element()
+			{
+				m_value.append(QJsonValue());
+				return SeNodeQJson(m_value[m_value.size() - 1]);
+			}
+
+		};
+		typedef NJArray ArrApt;
+
+		NJArray set_array()
+		{
+			return NJArray(this);
 		}
 
-		void push_node(SeNodeJson& vNode)
+		class NJObject
 		{
-			QJsonArray& arr = static_cast<NJArray*>(m_node.data())->value();
-			arr.append(vNode.data());
-		}
+		private:
+			SeNodeQJson* m_parent;
+			QJsonObject m_value;
 
-		void finish(QJsonDocument* doc)
+		public:
+		    NJObject(NJObject&& other) noexcept
+				: m_value(std::move(other.m_value))
+				, m_parent(other.m_parent)
+			{
+				other.m_parent = nullptr;
+			}
+
+			NJObject(SeNodeQJson* parent)
+			: m_parent(parent)
+			, m_value(m_parent->m_node.toObject())
+			{
+			}
+
+			~NJObject()
+			{
+				if (m_parent)
+				{
+					m_parent->in_serialize(m_value);
+				}
+			}
+
+			NJObject& operator = (NJObject&& other) noexcept
+			{
+				if (this != &other)
+				{
+					if (m_parent)
+					{
+						m_parent->in_serialize(m_value);
+					}
+					m_value = std::move(other.m_value);
+					m_parent = other.m_parent;
+					other.m_parent = nullptr;
+				}
+				return *this;
+			}
+
+			SeNodeQJson add_member(const char* strName)
+			{
+				return SeNodeQJson(m_value[strName]);
+			}
+
+		};
+
+		typedef NJObject ObjApt;
+		ObjApt set_object()
 		{
-			m_node->setDoc(doc);
+			return ObjApt(this);
 		}
 
 	public:
-		QJsonValue data()
-		{
-			return m_node->data();
-		}
 
-		SeNodeJson()
+		SeNodeQJson(const QJsonValueRef& node)
+			: m_node(node)
 		{
 		}
-
-		SeNodeJson(const SeNodeJson& other)
-			: m_node(const_cast<SeNodeJson&>(other).m_node.take())
-		{}
 
 	};
 
-	class DeNodeJson
+	class DeNodeQJson
 	{
-	private:
-		QJsonValue m_node;
+	protected:
+		QJsonValueRef m_node;
 
 	public:
 		template <class T>
@@ -251,8 +234,9 @@ namespace MSRPC
 		{
 			QByteArray baBuffer = m_node.toString().toUtf8();
 
-			tValue = new char[baBuffer.size()];
-			memcpy(tValue, baBuffer.data(), baBuffer.size());
+			auto nSize = baBuffer.size() + 1;
+			tValue = new char[nSize];
+			std::copy(baBuffer.data(), baBuffer.data() + nSize, tValue);
 		}
 
 		template <typename T>
@@ -262,9 +246,15 @@ namespace MSRPC
 			tValue.Set(strValue.data(), strValue.size());
 		}
 
-		DeNodeJson sub_member(const char* strName) const
+		void in_serialize(char *tValue, size_t nSize) const
 		{
-			return DeNodeJson(m_node.toObject()[strName]);
+			QByteArray baBuffer = m_node.toString().toUtf8();
+			if (nSize > baBuffer.size() + 1)
+			{
+				nSize = baBuffer.size() + 1;
+			}
+
+			std::copy(baBuffer.data(), baBuffer.data() + nSize, tValue);
 		}
 
 		class DeNodeArrIter
@@ -278,9 +268,9 @@ namespace MSRPC
 				, m_idx(0) {}
 
 		public:
-			DeNodeJson operator *() const
+			DeNodeQJson operator *()
 			{
-				return DeNodeJson(m_node[m_idx]);
+				return DeNodeQJson(m_node[m_idx]);
 			}
 
 			operator bool() const
@@ -293,6 +283,11 @@ namespace MSRPC
 				++m_idx;
 				return *this;
 			}
+
+			size_t array_size() const
+			{
+				return m_node.size();
+			}
 		};
 
 		typedef DeNodeArrIter ArrIter;
@@ -304,26 +299,32 @@ namespace MSRPC
 
 		class DeNodeObjIter
 		{
-		public:
 			QJsonObject m_node;
-			QJsonObject::const_iterator m_citCur;
-			QJsonObject::const_iterator m_citEnd;
-
+			QJsonObject::iterator m_citCur;
+			QJsonObject::iterator m_citEnd;
+			
+		public:
 			DeNodeObjIter(const QJsonObject& node)
 				: m_node(node)
-				, m_citCur(m_node.constBegin()) 
-				, m_citEnd(m_node.constEnd())
+				, m_citCur(m_node.begin()) 
+				, m_citEnd(m_node.end())
 			{}
 
-		public:
-			DeNodeJson operator *() const
+			DeNodeQJson find_member(const char* strName) 
 			{
-				return DeNodeJson(*m_citCur);
+				return DeNodeQJson(m_node[strName]);
 			}
 
-			QString key() const
+			DeNodeQJson operator *() 
 			{
-				return m_citCur.key();
+				return DeNodeQJson(*m_citCur);
+			}
+
+			template <typename T>
+			T key() const
+			{
+				T t = m_citCur.key().toUtf8().data();
+				return t;
 			}
 
 			operator bool() const
@@ -351,20 +352,103 @@ namespace MSRPC
 		}
 
 	public:
-		DeNodeJson(const QJsonValue& node)
+		DeNodeQJson(const QJsonValueRef& node)
 			: m_node(node) {}
-
-		DeNodeJson(const QJsonDocument* node)
-			: m_node(node->isObject() ? node->object() 
-			: node->isArray() ? node->array() : QJsonValue())
-		{
-			
-		}
 
 	};
 
-	typedef MSRPC::OArchiveHelper<MSRPC::DeNodeJson> DeJsonArc;
-	typedef MSRPC::IArchiveHelper<MSRPC::SeNodeJson> SeJsonArc;
+	class DeDocQJson
+	{
+		QJsonDocument m_doc;
+	public:
+		DeDocQJson()
+		{ }
+
+		bool Parse(QByteArray& strJson)
+		{
+			QJsonParseError err;
+			m_doc = QJsonDocument::fromJson(strJson, &err);
+			return err.error == QJsonParseError::NoError;
+		}
+
+		bool Load(const QString& strFilePath)
+		{
+			bool bRet = false;
+			QFile f(strFilePath);
+			if (f.open(QFile::ReadOnly))
+			{
+				QByteArray strJson = f.readAll();
+				bRet = Parse(strJson);
+			}
+
+			return bRet;
+		}
+
+		template <class T>
+		void operator >> (T &tValue)
+		{
+			QJsonArray array;
+			if(m_doc.isObject())
+			{
+				array.append(m_doc.object());
+			}
+			else if(m_doc.isArray())
+			{
+				array.append(m_doc.array());
+			}
+
+			DeNodeQJson deNode(QJsonValueRef(&array, 0));
+			Serializer<T>::deserialize(deNode, tValue);
+		}
+	};
+
+	class SeDocQJson
+	{
+		QJsonDocument m_doc;
+	public:
+		SeDocQJson()
+		{ }
+
+		QByteArray Stringify(unsigned int indent = 0)
+		{
+			return m_doc.toJson(indent ? QJsonDocument::Indented : QJsonDocument::Compact);
+		}
+
+		bool Save(const QString& strFilePath, unsigned int indent = 0)
+		{
+			bool bRet = false;
+
+			QFile f(strFilePath);
+			if (f.open(QFile::WriteOnly))
+			{
+				QByteArray strJson = Stringify(indent);
+				bRet = f.write(strJson) == strJson.size();
+			}
+
+			return bRet;
+		}
+
+		template <class T>
+		void operator<<(const T &tValue)
+		{
+			QJsonArray array;
+			array.append(QJsonValue());
+			QJsonValueRef node = QJsonValueRef(&array, 0);
+
+			SeNodeQJson seNode(node);
+
+			Serializer<T>::serialize(seNode, tValue);
+
+			if(node.isObject())
+			{
+				m_doc.setObject(node.toObject());
+			}
+			else if(node.isArray())
+			{
+				m_doc.setArray(node.toArray());
+			}
+		}
+	};
 }
 
 #endif // QJSONNODE_H__

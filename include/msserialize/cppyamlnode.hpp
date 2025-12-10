@@ -181,20 +181,17 @@ namespace MSRPC
 			}
 		}
 
-		DeNodeCppYaml sub_member(const char* strName) const
-		{
-			return DeNodeCppYaml(m_node[strName]);
-		}
-
 		class DeNodeObjIter
 		{
-		public:
+			const YAML::Node* self;
 			YAML::Node::const_iterator citCur;
 			YAML::Node::const_iterator citEnd;
+		public:
 
-			DeNodeObjIter(const YAML::Node& node)
-				: citCur(node ? node.begin() : YAML::Node::const_iterator())
-				, citEnd(node ? node.end() : YAML::Node::const_iterator())
+			DeNodeObjIter(const YAML::Node* node)
+				: self(node)
+				, citCur(node ? node->begin() : YAML::Node::const_iterator())
+				, citEnd(node ? node->end() : YAML::Node::const_iterator())
 			{}
 
 		public:
@@ -203,9 +200,16 @@ namespace MSRPC
 				return DeNodeCppYaml(citCur->second);
 			}
 
-			std::string key() const
+			DeNodeCppYaml find_member(const char *strName) const
 			{
-				return citCur->first.as<std::string>();
+				return DeNodeCppYaml((*self)[strName]);
+			}
+
+			template <typename T>
+			T key() const
+			{
+				T t = citCur->first.as<std::string>();
+				return t;
 			}
 
 			operator bool() const
@@ -224,19 +228,20 @@ namespace MSRPC
 
 		ObjIter sub_members() const
 		{
-			return ObjIter(m_node);
+			return ObjIter(m_node.IsMap() ? &m_node : nullptr);
 		}
-
 
 		class DeNodeArrIter
 		{
 		public:
+			const YAML::Node* self;
 			YAML::Node::const_iterator citCur;
 			YAML::Node::const_iterator citEnd;
 
-			DeNodeArrIter(const YAML::Node& node)
-				: citCur(node ? node.begin() : YAML::Node::const_iterator())
-				, citEnd(node ? node.end() : YAML::Node::const_iterator())
+			DeNodeArrIter(const YAML::Node* node)
+				: self(node)
+				, citCur(node ? node->begin() : YAML::Node::const_iterator())
+				, citEnd(node ? node->end() : YAML::Node::const_iterator())
 			{}
 
 		public:
@@ -255,18 +260,18 @@ namespace MSRPC
 				++citCur;
 				return *this;
 			}
+
+			size_t array_size() const
+			{
+				return self ? self->size() : 0;
+			}
 		};
 
 		typedef DeNodeArrIter ArrIter;
 
 		ArrIter sub_elements() const
 		{
-			return ArrIter(m_node);
-		}
-
-		size_t array_size() const
-		{
-			return m_node ? m_node.size() : 0;
+			return ArrIter(m_node.IsSequence() ? &m_node : nullptr);
 		}
 
 		DeNodeCppYaml(const YAML::Node& node)

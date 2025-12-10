@@ -333,6 +333,7 @@ DEFINE_INT_SERIALIZER(float, double)
 		template <class T>
 		IArchiveHelper &operator&(const T &tValue)
 		{
+			m_vObjApt = m_vCurNode.set_object();
 			Serializer<T>::serialize(m_vCurNode, tValue);
 			m_vObjApt = m_vCurNode.set_object();
 			return *this;
@@ -352,13 +353,16 @@ DEFINE_INT_SERIALIZER(float, double)
 	{
 	private:
 		const NODE& m_vCurNode;
+		typename NODE::ObjIter m_vObjIter;
 
 	public:
 		typedef NODE Node;
 
 	public:
 		OArchiveHelper(const NODE& vNode)
-			: m_vCurNode(vNode) {}
+			: m_vCurNode(vNode)
+			, m_vObjIter(m_vCurNode.sub_members())
+			{}
 
 		template <class T>
 		const OArchiveHelper& operator & (T& tValue) const
@@ -370,7 +374,7 @@ DEFINE_INT_SERIALIZER(float, double)
 		template <class T>
 		OArchiveHelper& io(const char* strName, const T& tValue)
 		{
-			if (NODE vNewNode = m_vCurNode.sub_member(strName))
+			if (NODE vNewNode = m_vObjIter.find_member(strName))
 			{
 				Serializer<T>::deserialize(vNewNode, const_cast<T&>(tValue));
 			}

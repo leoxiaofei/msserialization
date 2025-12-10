@@ -202,7 +202,11 @@ inline const char* Type1Json2()
 
 inline const char* Type1Yaml2()
 {
-    return R"()";
+    return R"(type: 1
+n8: 1
+u8: -1
+n16: 2
+u16: -2)";
 }
 
 inline void InitData1(Type2& data)
@@ -228,7 +232,11 @@ inline const char* Type2Json1()
 
 inline const char* Type2Yaml1()
 {
-    return R"()";
+    return R"(type: 2
+n8: -3
+u8: 3
+n32: -4
+u32: 4)";
 }
 
 inline const char* Type2Json2()
@@ -238,7 +246,12 @@ inline const char* Type2Json2()
 
 inline const char* Type2Yaml2()
 {
-    return R"()";
+    return R"(type: 2
+n8: 3
+u8: -3
+n32: 4
+u32: -4)";
+
 }
 
 inline void InitData1(Type3& data)
@@ -255,7 +268,7 @@ inline void InitData2(Type3& data)
     data.n8 = 5;
     data.u8 = -5;
     data.n64 = 6;
-    data.u64 = -6;
+    data.u64 = 60000000000ull;
     data.ull = 70000000000ull;
 }
 
@@ -266,15 +279,25 @@ inline const char* Type3Json1()
 
 inline const char* Type3Yaml1()
 {
-    return R"()";
+    return R"(type: 3
+n8: -5
+u8: 5
+n64: -6
+u64: 6
+ull: 60000000000)";
 }
 
 inline const char* Type3Json2()
 {
-    return R"({"type":3,"n8":5,"u8":-5,"n64":6,"u64":-6,"ull":70000000000})";
+    return R"({"type":3,"n8":5,"u8":-5,"n64":6,"u64":60000000000,"ull":70000000000})";
 }
 
 inline const char* Type3Yaml2()
 {
-    return R"()";
+    return R"(type: 3
+n8: 5
+u8: -5
+n64: 6
+u64: 60000000000
+ull: 70000000000)";
 }

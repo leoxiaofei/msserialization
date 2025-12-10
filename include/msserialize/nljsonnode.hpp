@@ -186,44 +186,35 @@ namespace MSRPC
 			}
 		}
 
-		DeNodeNlohmannJson sub_member(const char* strName) const
-		{
-			const nlohmann::json *node = nullptr;
-			do 
-			{
-				auto itrFind = m_node->find(strName);
-				if (itrFind == m_node->end())
-				{
-					break;
-				}
-
-				node = &*itrFind;
-
-			} while (false);
-
-			return DeNodeNlohmannJson(node);
-		}
-
 		class DeNodeObjIter
 		{
-		public:
+			const nlohmann::json *self;
 			nlohmann::json::const_iterator citCur;
 			nlohmann::json::const_iterator citEnd;
-
+			
+		public:
 			DeNodeObjIter(const nlohmann::json *node)
-				: citCur(node ? node->begin() : nlohmann::json::const_iterator())
+				: self(node)
+				, citCur(node ? node->begin() : nlohmann::json::const_iterator())
 				, citEnd(node ? node->end() : nlohmann::json::const_iterator())
 			{}
 
-		public:
+			DeNodeNlohmannJson find_member(const char* strName) const
+			{
+				auto itrFind = self->find(strName);
+				return DeNodeNlohmannJson(itrFind != self->end() ? &*itrFind : nullptr);
+			}
+
 			DeNodeNlohmannJson operator *() const
 			{
 				return DeNodeNlohmannJson(&*citCur);
 			}
 
-			const char* key() const
+			template <typename T>
+			T key() const
 			{
-				return citCur.key().c_str();
+				T t = citCur.key();
+				return t;
 			}
 
 			operator bool() const
@@ -245,15 +236,16 @@ namespace MSRPC
 			return ObjIter(m_node);
 		}
 
-
 		class DeNodeArrIter
 		{
 		public:
+			const nlohmann::json *self;
 			nlohmann::json::const_iterator citCur;
 			nlohmann::json::const_iterator citEnd;
 
 			DeNodeArrIter(const nlohmann::json *node)
-				: citCur(node ? node->begin() : nlohmann::json::const_iterator())
+				: self(node)
+				, citCur(node ? node->begin() : nlohmann::json::const_iterator())
 				, citEnd(node ? node->end() : nlohmann::json::const_iterator())
 			{}
 
@@ -273,6 +265,11 @@ namespace MSRPC
 				++citCur;
 				return *this;
 			}
+
+			size_t array_size() const
+			{
+				return self ? self->size() : 0;
+			}
 		};
 
 		typedef DeNodeArrIter ArrIter;
@@ -280,11 +277,6 @@ namespace MSRPC
 		ArrIter sub_elements() const
 		{
 			return ArrIter(m_node);
-		}
-
-		size_t array_size() const
-		{
-			return m_node ? m_node->size() : 0;
 		}
 
 		DeNodeNlohmannJson(const nlohmann::json *node)

@@ -10,17 +10,23 @@ find_package(nlohmann_json CONFIG)
 
 find_package(yaml-cpp CONFIG)
 
+find_package(Qt5Core CONFIG)
+
 if (RapidJSON_FOUND)
-list(APPEND MSTEST_SOURCE_FILES "rajson_test.cpp")
+list(PREPEND  MSTEST_SOURCE_FILES "rajson_test.cpp")
 endif()
 
 if (nlohmann_json_FOUND)
-list(APPEND MSTEST_SOURCE_FILES "nljson_test.cpp")
+list(PREPEND  MSTEST_SOURCE_FILES "nljson_test.cpp")
 endif()
 
 if(yaml-cpp_FOUND)
-list(APPEND MSTEST_SOURCE_FILES "cppyaml_test.cpp")
+list(PREPEND  MSTEST_SOURCE_FILES "cppyaml_test.cpp")
 endif(yaml-cpp_FOUND)
+
+if(Qt5Core_FOUND)
+list(PREPEND  MSTEST_SOURCE_FILES "qjson_test.cpp")
+endif(Qt5Core_FOUND)
 
 
 add_executable(msttest ${MSTEST_INCLUDE_FILES} ${MSTEST_SOURCE_FILES})
@@ -39,6 +45,9 @@ if(yaml-cpp_FOUND)
 target_link_libraries(msttest PRIVATE yaml-cpp::yaml-cpp)
 endif(yaml-cpp_FOUND)
 
+if(Qt5Core_FOUND)
+target_link_libraries(msttest PRIVATE Qt5::Core)
+endif(Qt5Core_FOUND)
 
 include(GoogleTest)
 gtest_add_tests(TARGET msttest)

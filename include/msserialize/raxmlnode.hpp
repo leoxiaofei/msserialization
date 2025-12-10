@@ -210,9 +210,11 @@ namespace MSRPC
 				return *this;
 			}
 
-			const char* key() const
+			template <typename T>
+			T key() const
 			{
-				return m_curNode->name();
+				T t = m_curNode->name();
+				return t;
 			}
 		};
 

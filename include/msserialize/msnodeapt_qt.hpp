@@ -12,7 +12,6 @@
 #include <QString>
 #include <QPointF>
 #include <QVariant>
-#include <QPainterPath>
 #include <QTextStream>
 #include <QBuffer>
 
@@ -20,6 +19,7 @@
 #include <QFont>
 #include <QPen>
 #include <QBrush>
+#include <QPainterPath>
 #endif
 
 #ifdef QT_WIDGETS_LIB
@@ -217,7 +217,7 @@ namespace MSRPC
 	using EtTextWidthApt = ExtractApt<qreal, T, class _TextWidth_>;
 
 	//////////////////////////////////////////////////////////////////////////
-
+#ifdef QT_GUI_LIB
 	template<class T>
 	class ExtractApt<QColor, T, class _DefaultTextColor_>
 	{
@@ -243,7 +243,7 @@ namespace MSRPC
 
 	template<class T>
 	using EtDefaultTextColorApt = ExtractApt<QColor, T, class _DefaultTextColor_>;
-
+#endif
 	//////////////////////////////////////////////////////////////////////////
 
 	template<class R, class T>
@@ -432,6 +432,7 @@ namespace MSRPC
 	using EtTransformApt = ExtractApt<QString, T, class _Transform_>;
 
 
+#ifdef QT_GUI_LIB
 	template<class T>
 	class ExtractApt<QString, T, class _Path_>
 	{
@@ -534,6 +535,7 @@ namespace MSRPC
 	template<class T>
 	using EtPathApt = ExtractApt<QString, T, class _Path_>;
 
+#endif
 
 	template<class T>
 	class ExtractApt<QString, T, class _Html_>

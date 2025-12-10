@@ -252,9 +252,11 @@ namespace MSRPC
 				return DeNodePocoJson(&citCur->second);
 			}
 
-			const char* key() const
+			template <typename T>
+			T key() const
 			{
-				return citCur->first.c_str();
+				T t = citCur->first;
+				return t;
 			}
 
 			operator bool() const
