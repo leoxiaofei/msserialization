@@ -1,7 +1,7 @@
 #pragma once
 
 #include "msarchive.hpp"
-
+#include "typeutils.hpp"
 #include <yaml-cpp/yaml.h>
 #include <fstream>
 #include <iostream>

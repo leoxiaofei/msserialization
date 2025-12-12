@@ -40,6 +40,16 @@ inline const char* BaseTypeJson1()
     return R"({"c":1,"b":true,"s":2,"i":3,"l":40000000000,"f":5.1,"d":60000000.2})";
 }
 
+inline const char* BaseTypeJsonDiffMem1()
+{
+    return R"({"c":1,"x":true,"s":2,"i":3,"y":40000000000,"z":5.1,"d":60000000.2})";
+}
+
+inline const char* BaseTypeJsonDiffType1()
+{
+    return R"({"c":"1","b":"true","s":"2","i":"3","l":"40000000000","f":"5.1","d":"60000000.2"})";
+}
+
 inline const char* BaseTypeYaml1()
 {
     return R"()";
@@ -71,6 +81,7 @@ l: 50000000000
 f: 6.0999999046325684
 d: 70000000.200000003)";
 }
+
 
 class TypeBase
 {

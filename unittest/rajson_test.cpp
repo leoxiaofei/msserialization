@@ -28,6 +28,48 @@ TEST(RaJson, BaseType_From)
     EXPECT_EQ(data1, data2);
 }
 
+TEST(RaJson, BaseType_FromDiffMem)
+{
+    BaseType data1;
+    InitData1(data1);
+
+    BaseType data2;
+    InitData1(data2);
+    data2.c = 0;
+    data2.s = 0;
+    data2.i = 0.0;
+    data2.d = 0.0;
+
+    std::string s = BaseTypeJsonDiffMem1();
+    MSRPC::FromJsonS(data2, s);
+
+    EXPECT_EQ(data1, data2);
+}
+
+TEST(RaJson, BaseType_FromDiffTypeString)
+{
+    BaseType data1;
+    InitData1(data1);
+
+    BaseType data2;
+    std::string s = BaseTypeJsonDiffType1();
+    MSRPC::FromJsonS(data2, s);
+
+    EXPECT_EQ(data1, data2);
+}
+
+TEST(RaJson, BaseStringType_FromDiffType)
+{
+    BaseStringType data1;
+    InitData1(data1);
+
+    BaseStringType data2;
+    std::string s = BaseTypeJson1();
+    MSRPC::FromJsonS(data2, s);
+
+    EXPECT_EQ(data1, data2);
+}
+
 TEST(RaJson, StringType_Self)
 {
     StringType data1;

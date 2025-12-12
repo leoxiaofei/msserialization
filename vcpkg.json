@@ -6,8 +6,7 @@
     "gtest",
     "rapidjson",
     "nlohmann-json",
-    "yaml-cpp",
-    "qt5"
+    "yaml-cpp"
   ],
   "overrides": [
     {

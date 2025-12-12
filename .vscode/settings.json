@@ -1,9 +1,10 @@
 {
     "cmake.configureSettings": {
-        "CMAKE_TOOLCHAIN_FILE": "${env:vcpkg.cmake}"
+        "CMAKE_TOOLCHAIN_FILE": "${env:vcpkg_cmake}"
     },
     "cmake.environment": {
-        "https_proxy": "http://10.24.0.253:1080"
+        "https_proxy": "http://10.24.0.253:1080",
+        "http_proxy": "http://10.24.0.253:1080"
     },
     "cmake.configureArgs": [
         "-DTEST_OPT=ON"

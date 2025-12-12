@@ -62,6 +62,49 @@ str: str
 
 }
 
+class BaseStringType
+{
+public:
+    char* c = nullptr;
+    const char* b = nullptr;
+    char s[64];
+    char i[32];
+    char l[5];
+    std::string f;
+    std::string d;
+
+    bool operator ==(const BaseStringType &rhs) const
+    {
+        return
+            std::strcmp(c ? c : "", rhs.c ? rhs.c : "") == 0 &&
+            std::strcmp(b ? b : "", rhs.b ? rhs.b : "") == 0 &&
+            std::strcmp(s, rhs.s) == 0 &&
+            std::strcmp(i, rhs.i) == 0 &&
+            std::strcmp(l, rhs.l) == 0 &&
+            f == rhs.f &&
+            d == rhs.d;
+    }
+
+    ~BaseStringType()
+    {
+        delete[] c;
+    }
+};
+
+SiExSe(BaseStringType, c, b, s, i, l, f, d)
+
+inline void InitData1(BaseStringType& data)
+{
+    data.c = new char[10];
+    strncpy(data.c, "1", sizeof(10));
+    data.b = "true";
+    strncpy(data.s, "2", sizeof(data.s));
+    strncpy(data.i, "3", sizeof(data.i));
+    strncpy(data.l, "40000000000", sizeof(data.l)-1);
+    data.f = std::to_string(5.1);
+    data.d = std::to_string(60000000.2);
+}
+
 class PointerType
 { 
 public:

@@ -3,6 +3,7 @@
 
 
 #include "msarchive.hpp"
+#include "typeutils.hpp"
 
 #include <nlohmann/json.hpp>
 #include <fstream>
@@ -36,7 +37,6 @@ namespace MSRPC
 			}
 			else
 			{
-				
 			}
 		}
 
@@ -129,6 +129,10 @@ namespace MSRPC
 			{
 				tValue = m_node->get<T>();
 			}
+			else if(const std::string* val = m_node->get_ptr<const std::string*>())
+			{
+				ToValue(tValue, *val);
+			}
 			else
 			{
 				std::cerr << "Type mismatch in in_serialize\n" << std::endl;
@@ -141,6 +145,10 @@ namespace MSRPC
 			{
 				tValue = *val;
 			}
+			else if(const std::string* val = m_node->get_ptr<const std::string*>())
+			{
+				ToValue(tValue, *val);
+			}
 		}
 
 		void in_serialize(double &tValue) const
@@ -148,6 +156,14 @@ namespace MSRPC
 			if(const double* val = m_node->get_ptr<const double*>())
 			{
 				tValue = *val;
+			}
+			else if(m_node->is_null())
+			{
+				tValue = NAN;
+			}
+			else if(const std::string* val = m_node->get_ptr<const std::string*>())
+			{
+				ToValue(tValue, *val);
 			}
 		}
 

@@ -3,8 +3,10 @@
 
 
 #include "msarchive.hpp"
+#include "typeutils.hpp"
 
 #include <fstream>
+#include <iostream>
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
@@ -159,6 +161,14 @@ namespace MSRPC
 			if(m_node->Is<T>())
 			{
 				tValue = m_node->Get<T>();
+			} 
+			else if(m_node->IsString()) 
+			{
+				ToValue(tValue, m_node->GetString());
+			}
+			else 
+			{
+				std::cerr << "Error: DeNodeRapidJson::in_serialize(T& tValue) const type: " << m_node->GetType() << std::endl;
 			}
 		}
 
@@ -169,6 +179,14 @@ namespace MSRPC
 				tValue = static_cast<unsigned short>(
 					m_node->Get<unsigned int>());
 			}
+			else if(m_node->IsString()) 
+			{
+				ToValue(tValue, m_node->GetString());
+			}
+			else 
+			{
+				std::cerr << "Error: DeNodeRapidJson::in_serialize(unsigned short& tValue) const type: " << m_node->GetType() << std::endl;
+			}
 		}
 
 		void in_serialize(long long& tValue) const
@@ -177,6 +195,14 @@ namespace MSRPC
 			{
 				tValue = static_cast<long long>(
 					m_node->Get<int64_t>());
+			}
+			else if(m_node->IsString()) 
+			{
+				ToValue(tValue, m_node->GetString());
+			}
+			else 
+			{
+				std::cerr << "Error: DeNodeRapidJson::in_serialize(unsigned short& tValue) const type: " << m_node->GetType() << std::endl;
 			}
 		}
 
@@ -187,17 +213,13 @@ namespace MSRPC
 				tValue = static_cast<unsigned long long>(
 					m_node->Get<uint64_t>());
 			}
-		}
-
-		void in_serialize(float& tValue) const
-		{
-			if(m_node->Is<float>())
+			else if(m_node->IsString()) 
 			{
-				tValue = m_node->Get<float>();
+				ToValue(tValue, m_node->GetString());
 			}
-			else if(m_node->IsNull())
+			else 
 			{
-				tValue = NAN;
+				std::cerr << "Error: DeNodeRapidJson::in_serialize(unsigned short& tValue) const type: " << m_node->GetType() << std::endl;
 			}
 		}
 
@@ -211,6 +233,53 @@ namespace MSRPC
 			{
 				tValue = NAN;
 			}
+			else if(m_node->IsString()) 
+			{
+				ToValue(tValue, m_node->GetString());
+			}
+			else 
+			{
+				std::cerr << "Error: DeNodeRapidJson::in_serialize(unsigned short& tValue) const type: " << m_node->GetType() << std::endl;
+			}
+		}
+
+		static void NodeToString(
+			const rapidjson::Value* node,
+			char* strValue,
+			size_t sSize)
+		{
+			if (node->IsInt())
+			{
+				std::snprintf(strValue, sSize, "%d", node->Get<int32_t>());
+			}
+			else if (node->IsUint())
+			{
+				std::snprintf(strValue, sSize, "%u", node->Get<uint32_t>());
+			}
+			else if (node->IsInt64())
+			{
+#ifdef _WIN32
+				std::snprintf(strValue, sSize, "%lld", node->Get<int64_t>());
+#else
+				std::snprintf(strValue, sSize, "%ld", node->Get<int64_t>());
+#endif
+			}
+			else if (node->IsUint64())
+			{
+#ifdef _WIN32
+				std::snprintf(strValue, sSize, "%llu", node->Get<uint64_t>());
+#else
+				std::snprintf(strValue, sSize, "%lu", node->Get<uint64_t>());
+#endif
+			}
+			else if (node->IsDouble())
+			{
+				std::snprintf(strValue, sSize, "%lf", node->Get<double>());
+			}
+			else if (node->IsFloat())
+			{
+				std::snprintf(strValue, sSize, "%f", node->Get<float>());
+			}
 		}
 
 		void in_serialize(char *&tValue) const
@@ -221,6 +290,20 @@ namespace MSRPC
 				std::strncpy(tValue, m_node->GetString(), m_node->GetStringLength() + 1);
 				tValue[m_node->GetStringLength()] = '\0';
 			}
+			else if(m_node->IsNumber())
+			{
+				#define BUFFER_SIZE 32
+				tValue = new char[BUFFER_SIZE];
+				NodeToString(m_node, tValue, BUFFER_SIZE);
+				#undef BUFFER_SIZE
+			}
+			else if(m_node->IsBool())
+			{
+				#define BUFFER_SIZE 8 
+				tValue = new char[BUFFER_SIZE];
+				std::snprintf(tValue, BUFFER_SIZE, "%s", m_node->GetBool() ? "true" : "false");
+				#undef BUFFER_SIZE
+			}
 		}
 
 		void in_serialize(const char*& tValue) const
@@ -228,6 +311,14 @@ namespace MSRPC
 			if(m_node->IsString())
 			{
 				tValue = m_node->GetString();
+			}
+			else if(m_node->IsBool())
+			{
+				tValue = m_node->GetBool() ? "true" : "false";
+			}
+			else
+			{
+				std::cerr << "Error: DeNodeRapidJson::in_serialize(const char*& tValue) const type: " << m_node->GetType() << std::endl;
 			}
 		}
 
@@ -237,6 +328,20 @@ namespace MSRPC
 			if(m_node->IsString())
 			{
 				tValue.Set(m_node->GetString(), m_node->GetStringLength());
+			}
+			else if(m_node->IsNumber())
+			{
+				#define BUFFER_SIZE 32
+				auto strValue = new char[BUFFER_SIZE];
+				NodeToString(m_node, strValue, BUFFER_SIZE);
+				#undef BUFFER_SIZE
+				tValue.Set(strValue, strlen(strValue));
+				delete[] strValue;
+			}
+			else if(m_node->IsBool())
+			{ 
+				const char* str = m_node->GetBool() ? "true" : "false";
+				tValue.Set(str, strlen(str));
 			}
 		}
 
@@ -252,6 +357,14 @@ namespace MSRPC
 				}
 
 				memcpy(tValue, str, nSize);
+			}
+			else if(m_node->IsNumber())
+			{
+				NodeToString(m_node, tValue, nSize);
+			}
+			else if(m_node->IsBool())
+			{ 
+				std::snprintf(tValue, nSize, "%s", m_node->GetBool() ? "true" : "false");
 			}
 		}
 

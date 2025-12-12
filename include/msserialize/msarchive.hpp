@@ -11,7 +11,6 @@
 #include <type_traits>
 #endif
 
-#define is_valid_float(x) (!std::isnan(x) && !std::isinf(x))
 
 namespace MSRPC
 {
