@@ -167,6 +167,30 @@ namespace MSRPC
 			}
 		}
 
+		static void NodeToString(const nlohmann::json *node, char *strValue, size_t sSize)
+		{
+			if (const int64_t* val = node->get_ptr<const int64_t*>())
+			{
+#ifdef _WIN32
+				std::snprintf(strValue, sSize, "%lld", *val);
+#else
+				std::snprintf(strValue, sSize, "%ld", *val);
+#endif
+			}
+			else if (const uint64_t* val = node->get_ptr<const uint64_t*>())
+			{
+#ifdef _WIN32
+				std::snprintf(strValue, sSize, "%llu", *val);
+#else
+				std::snprintf(strValue, sSize, "%lu", *val);
+#endif
+			}
+			else if (const double* val = node->get_ptr<const double*>())
+			{
+				std::snprintf(strValue, sSize, "%lf", *val);
+			}
+		}
+
 		void in_serialize(char*& tValue) const
 		{
 			if(const std::string* val = m_node->get_ptr<const std::string*>())
@@ -174,6 +198,20 @@ namespace MSRPC
 				tValue = new char[val->size() + 1];
 				std::strncpy(tValue, val->c_str(), val->size() + 1);
 				tValue[val->size()] = '\0';
+			}
+			else if(m_node->is_number())
+			{
+				#define BUFFER_SIZE 32
+				tValue = new char[BUFFER_SIZE];
+				NodeToString(m_node, tValue, BUFFER_SIZE);
+				#undef BUFFER_SIZE
+			}
+			else if(const bool* val = m_node->get_ptr<const bool*>())
+			{
+				#define BUFFER_SIZE 8 
+				tValue = new char[BUFFER_SIZE];
+				std::snprintf(tValue, BUFFER_SIZE, "%s", *val ? "true" : "false");
+				#undef BUFFER_SIZE
 			}
 		}
 
@@ -183,6 +221,10 @@ namespace MSRPC
 			{
 				tValue = val->c_str();
 			}
+			else if(const bool* val = m_node->get_ptr<const bool*>())
+			{
+				tValue = *val ? "true" : "false";
+			}
 		}
 
 		template <typename T>
@@ -191,6 +233,20 @@ namespace MSRPC
 			if(const std::string* val = m_node->get_ptr<const std::string*>())
 			{
 				tValue.Set(val->c_str(), val->size());
+			}
+			else if (m_node->is_number())
+			{
+				#define BUFFER_SIZE 32
+				auto strValue = new char[BUFFER_SIZE];
+				NodeToString(m_node, strValue, BUFFER_SIZE);
+				#undef BUFFER_SIZE
+				tValue.Set(strValue, strlen(strValue));
+				delete[] strValue;
+			}
+			else if(const bool* val = m_node->get_ptr<const bool*>())
+			{ 
+				const char* str = *val ? "true" : "false";
+				tValue.Set(str, strlen(str));
 			}
 		}
 
@@ -204,6 +260,14 @@ namespace MSRPC
 				}
 
 				std::copy(val->c_str(), val->c_str() + nSize, tValue);
+			}
+			else if(m_node->is_number())
+			{
+				NodeToString(m_node, tValue, nSize);
+			}
+			else if(const bool* val = m_node->get_ptr<const bool*>())
+			{ 
+				std::snprintf(tValue, nSize, "%s", *val ? "true" : "false");
 			}
 		}
 
@@ -254,7 +318,7 @@ namespace MSRPC
 
 		ObjIter sub_members() const
 		{
-			return ObjIter(m_node);
+			return ObjIter((m_node && m_node->is_object()) ? m_node : nullptr);
 		}
 
 		class DeNodeArrIter
@@ -297,7 +361,7 @@ namespace MSRPC
 
 		ArrIter sub_elements() const
 		{
-			return ArrIter(m_node);
+			return ArrIter(m_node && m_node->is_array() ? m_node : nullptr);
 		}
 
 		DeNodeNlohmannJson(const nlohmann::json *node)
