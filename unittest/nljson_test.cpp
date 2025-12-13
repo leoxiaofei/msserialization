@@ -78,7 +78,8 @@ TEST(NlJson, BaseStringType_FromDiffType)
 
     BaseStringType data2;
     std::string s = BaseTypeJson1();
-    MSRPC::FromJsonS(data2, s);
+    auto doc = nlohmann::json::parse(s);
+    MSRPC::FromJsonO(data2, doc);
 
     EXPECT_EQ(data1, data2);
 }

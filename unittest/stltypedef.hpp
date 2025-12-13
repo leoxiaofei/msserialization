@@ -100,7 +100,8 @@ inline void InitData1(BaseStringType& data)
     data.b = "true";
     strncpy(data.s, "2", sizeof(data.s));
     strncpy(data.i, "3", sizeof(data.i));
-    strncpy(data.l, "40000000000", sizeof(data.l)-1);
+    strncpy(data.l, "40000000000", sizeof(data.l));
+    data.l[sizeof(data.l)-1] = '\0';
     data.f = std::to_string(5.1);
     data.d = std::to_string(60000000.2);
 }

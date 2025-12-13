@@ -69,7 +69,8 @@ TEST(CppYaml, BaseStringType_FromDiffType)
 
     BaseStringType data2;
     std::string s = BaseTypeYaml1();
-    MSRPC::FromYamlS(data2, s);
+    auto root = YAML::Load(s);
+    MSRPC::FromYamlO(data2, root);
 
     EXPECT_EQ(data1, data2);
 }

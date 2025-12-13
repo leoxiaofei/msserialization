@@ -23,6 +23,18 @@ namespace MSRPC
 namespace MSRPC
 {
 
+template<class T>
+bool FromJsonO(T& t, const rapidjson::Value& obj)
+{
+	MSRPC::DeNode deNode(&obj);
+	if (deNode)
+	{
+		deNode >> t;
+	}
+
+	return deNode;
+}
+
 // template<class T, class StrBuf = std::string>
 // StrBuf ToJsonS(const T& t, unsigned int indent = 0)
 // {

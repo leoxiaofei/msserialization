@@ -15,3 +15,14 @@ namespace MSRPC
 } // namespace MSRPC
 
 #include "ymlserializer.hpp"
+
+namespace MSRPC
+{
+	template <typename T>
+	bool FromYamlO(T& t, const YAML::Node& node)
+	{
+		DeNode deDoc(node);
+		deDoc >> t;
+		return deDoc;
+	}
+}
