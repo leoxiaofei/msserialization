@@ -195,23 +195,21 @@ namespace MSRPC
 		{
 			if(const std::string* val = m_node->get_ptr<const std::string*>())
 			{
-				tValue = new char[val->size() + 1];
-				std::strncpy(tValue, val->c_str(), val->size() + 1);
-				tValue[val->size()] = '\0';
+				size_t nSize = val->size() + 1;
+				tValue = new char[nSize];
+				std::strncpy(tValue, val->c_str(), nSize);
 			}
 			else if(m_node->is_number())
 			{
-				#define BUFFER_SIZE 32
-				tValue = new char[BUFFER_SIZE];
-				NodeToString(m_node, tValue, BUFFER_SIZE);
-				#undef BUFFER_SIZE
+				size_t nSize = 32;
+				tValue = new char[nSize];
+				NodeToString(m_node, tValue, nSize);
 			}
 			else if(const bool* val = m_node->get_ptr<const bool*>())
 			{
-				#define BUFFER_SIZE 8 
-				tValue = new char[BUFFER_SIZE];
-				std::snprintf(tValue, BUFFER_SIZE, "%s", *val ? "true" : "false");
-				#undef BUFFER_SIZE
+				size_t nSize = 8;
+				tValue = new char[nSize];
+				std::snprintf(tValue, nSize, "%s", *val ? "true" : "false");
 			}
 		}
 
@@ -236,10 +234,9 @@ namespace MSRPC
 			}
 			else if (m_node->is_number())
 			{
-				#define BUFFER_SIZE 32
-				auto strValue = new char[BUFFER_SIZE];
-				NodeToString(m_node, strValue, BUFFER_SIZE);
-				#undef BUFFER_SIZE
+				size_t nSize = 32;
+				auto strValue = new char[nSize];
+				NodeToString(m_node, strValue, nSize);
 				tValue.Set(strValue, strlen(strValue));
 				delete[] strValue;
 			}
@@ -258,8 +255,13 @@ namespace MSRPC
 				{
 					nSize = val->size() + 1;
 				}
+				else
+				{
+					tValue[nSize - 1] = '\0';
+					nSize = nSize - 1;
+				}
 
-				std::copy(val->c_str(), val->c_str() + nSize, tValue);
+				std::strncpy(tValue, val->c_str(), nSize);
 			}
 			else if(m_node->is_number())
 			{

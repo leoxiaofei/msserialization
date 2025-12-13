@@ -27,18 +27,6 @@ namespace MSRPC
 			in_serialize(tValue.Get());
 		}
 
-		void in_serialize(const float& tValue)
-		{
-			if(is_valid_float(tValue))
-			{
-				m_node = tValue;
-			}
-			else
-			{
-				
-			}
-		}
-
 		void in_serialize(const double& tValue) 
 		{
 			if(is_valid_float(tValue))
@@ -143,10 +131,10 @@ namespace MSRPC
 		{
 			if (m_node.IsScalar())
 			{
-				std::string val = m_node.as<std::string>();
-				tValue = new char[val.size() + 1];
-				std::strncpy(tValue, val.c_str(), val.size() + 1);
-				tValue[val.size()] = '\0';
+				const std::string& val = m_node.Scalar();
+				size_t nSize = val.size() + 1;
+				tValue = new char[nSize];
+				std::strncpy(tValue, val.c_str(), nSize);
 			}
 		}
 
@@ -154,7 +142,7 @@ namespace MSRPC
 		{
 			if (m_node.IsScalar())
 			{
-				std::string val = m_node.as<std::string>();
+				const std::string& val = m_node.Scalar();
 				tValue = val.c_str();
 			}
 			else
@@ -168,7 +156,7 @@ namespace MSRPC
 		{
 			if (m_node.IsScalar())
 			{
-				std::string val = m_node.as<std::string>();
+				const std::string& val = m_node.Scalar();
 				tValue.Set(val.c_str(), val.size());
 			}
 		}
@@ -177,13 +165,18 @@ namespace MSRPC
 		{
 			if (m_node.IsScalar())
 			{
-				std::string val = m_node.as<std::string>();
+				const std::string& val = m_node.Scalar();
 				if (nSize > val.size() + 1)
 				{
 					nSize = val.size() + 1;
 				}
+				else
+				{
+					tValue[nSize - 1] = '\0';
+					nSize = nSize - 1;
+				}
 
-				std::copy(val.c_str(), val.c_str() + nSize, tValue);
+				std::strncpy(tValue, val.c_str(), nSize);
 			}
 		}
 
@@ -214,7 +207,7 @@ namespace MSRPC
 			template <typename T>
 			T key() const
 			{
-				T t = citCur->first.as<std::string>();
+				T t = citCur->first.Scalar();
 				return t;
 			}
 

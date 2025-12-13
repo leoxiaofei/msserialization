@@ -236,7 +236,7 @@ namespace MSRPC
 
 			auto nSize = baBuffer.size() + 1;
 			tValue = new char[nSize];
-			std::copy(baBuffer.data(), baBuffer.data() + nSize, tValue);
+			std::strncpy(tValue, baBuffer.data(), nSize);
 		}
 
 		template <typename T>
@@ -253,8 +253,13 @@ namespace MSRPC
 			{
 				nSize = baBuffer.size() + 1;
 			}
+			else
+			{
+				tValue[nSize - 1] = '\0';
+				nSize = nSize - 1;
+			}
 
-			std::copy(baBuffer.data(), baBuffer.data() + nSize, tValue);
+			std::strncpy(tValue, baBuffer.data(), nSize);
 		}
 
 		class DeNodeArrIter

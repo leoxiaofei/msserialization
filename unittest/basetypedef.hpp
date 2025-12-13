@@ -52,7 +52,36 @@ inline const char* BaseTypeJsonDiffType1()
 
 inline const char* BaseTypeYaml1()
 {
-    return R"()";
+    return R"(c: 1
+b: true
+s: 2
+i: 3
+l: 40000000000
+f: 5.100000
+d: 60000000.200000)";
+}
+
+inline const char* BaseTypeYamlDiffMem1()
+{
+    return R"(c: 1
+x: true
+s: 2
+i: 3
+y: 40000000000
+z: 5.1
+d: 60000000.2)";
+}
+
+inline const char* BaseTypeYamlDiffType1()
+{
+    // return R"({"c":"1","b":"true","s":"2","i":"3","l":"40000000000","f":"5.1","d":"60000000.2"})";
+    return R"(c: "1"
+b: "true"
+s: "2"
+i: "3"
+l: "40000000000"
+f: "5.1"
+d: "60000000.2")";
 }
 
 inline void InitData2(BaseType& data)

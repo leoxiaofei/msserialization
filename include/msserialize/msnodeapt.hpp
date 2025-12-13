@@ -216,7 +216,7 @@ namespace MSRPC
 		void Set(const char* tValue, const size_t& sSize)
 		{
 			m_data = new char[sSize+1];
-			memcpy((void*)m_data, tValue, sSize+1);
+			std::strncpy(m_data, tValue, sSize+1);
 			m_size = sSize;
 		}
 	};
