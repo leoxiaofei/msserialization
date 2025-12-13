@@ -102,7 +102,7 @@ namespace MSRPC
 // }
 
 // template<class T>
-// bool ToJsonFile(const T& t, const QString& strFilePath, bool bFormat = true)
+// bool ToJsonF(const T& t, const QString& strFilePath, bool bFormat = true)
 // {
 // 	bool bRet(false);
 
@@ -126,7 +126,7 @@ namespace MSRPC
 // }
 
 // template<class T>
-// bool FromJsonFile(T& t, const QString& strFilePath)
+// bool FromJsonF(T& t, const QString& strFilePath)
 // {
 // 	QJsonDocument doc;
 // 	QFile f(strFilePath);

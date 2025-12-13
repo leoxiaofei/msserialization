@@ -57,19 +57,25 @@ namespace MSRPC
 		template<class NODE>
 		static void serialize(NODE& vNewNode, const QVector<T>& tValue)
 		{
-			vNewNode.set_array();
-			for (int ix = 0; ix != tValue.size(); ++ix)
+			typename NODE::ArrApt apt = vNewNode.set_array();
+			for (QVector<T>::const_iterator citor = tValue.begin(); citor != tValue.end(); ++citor)
 			{
-				NODE vNode = vNewNode.add_element();
-				Serializer<T>::serialize(vNode, tValue[ix]);
+				NODE vNode = apt.add_element();
+				Serializer<T>::serialize(vNode, *citor);
 			}
 		}
 
 		template<class NODE>
 		static void deserialize(const NODE& vNewNode, QVector<T>& tValue)
 		{
-			int ix = 0;
 			typename NODE::ArrIter itor = vNewNode.sub_elements();
+
+			if(size_t count = itor.array_size()) 
+			{
+				tValue.reserve(count);
+			}
+
+			int ix = 0;
 			for (; itor; ++itor, ++ix)
 			{
 				if (NODE node = *itor)
@@ -97,10 +103,10 @@ namespace MSRPC
 		template<class NODE>
 		static void serialize(NODE& vNewNode, const QList<T>& tValue)
 		{
-			vNewNode.set_array();
+			typename NODE::ArrApt apt = vNewNode.set_array();
 			for (int ix = 0; ix != tValue.size(); ++ix)
 			{
-				NODE vNode = vNewNode.add_element();
+				NODE vNode = apt.add_element();
 				Serializer<T>::serialize(vNode, tValue[ix]);
 			}
 		}
@@ -144,12 +150,12 @@ namespace MSRPC
 		template<class NODE>
 		static void serialize(NODE& vNewNode, const QHash<QString, T>& tValue)
 		{
-			vNewNode.set_object();
+			typename NODE::ObjApt apt = vNewNode.set_object();
 			for (typename QHash<QString, T>::const_iterator citor = tValue.constBegin(); 
 			citor != tValue.constEnd(); ++citor)
 			{
 				QByteArray baKey = citor.key().toUtf8();
-				NODE vNode = vNewNode.add_member(baKey.data());
+				NODE vNode = apt.add_member(baKey.data());
 				Serializer<T>::serialize(vNode, *citor);
 			}
 		}
@@ -164,9 +170,9 @@ namespace MSRPC
 			{
 				if (NODE node = *itor)
 				{
-					T& t = tValue[itor.key()];
-					Serializer<T>::deserialize(*itor, t);
-					setKey.insert(itor.key());
+					T& t = tValue[itor.key<QString>()];
+					Serializer<T>::deserialize(node, t);
+					setKey.insert(itor.key<QString>());
 				}
 			}
 
@@ -195,73 +201,42 @@ namespace MSRPC
 		template<class NODE>
 		static void serialize(NODE& vNewNode, const QHash<K, T>& tValue)
 		{
-			vNewNode.set_object();
+			typename NODE::ArrApt apt = vNewNode.set_array();
 
-			if (!tValue.isEmpty())
+			for (typename QHash<K, T>::const_iterator citor = tValue.constBegin();
+				 citor != tValue.constEnd(); ++citor)
 			{
-				NODE vKeyNode = vNewNode.add_element();
-				vKeyNode.set_array();
+				NODE vSubNode = apt.add_element();
 
-				NODE vValueNode = vNewNode.add_element();
-				vValueNode.set_array();
+				typename NODE::ArrApt vSubApt = vSubNode.set_array();
+				NODE vKeyNode = vSubApt.add_element();
+				Serializer<K>::serialize(vKeyNode, citor.key());
 
-				for (typename QHash<K, T>::const_iterator citor = tValue.constBegin();
-					 citor != tValue.constEnd(); ++citor)
-				{
-					NODE vKNode = vKeyNode.add_element();
-					Serializer<K>::serialize(vKNode, citor.key());
-					
-					NODE vVNode = vValueNode.add_element();
-					Serializer<T>::serialize(vVNode, citor.value());
-				}
-
-				vNewNode.add_member("key", vKeyNode);
-				vNewNode.add_member("value", vValueNode);
+				NODE vValueNode = vSubApt.add_element();
+				Serializer<T>::serialize(vValueNode, citor.value());
 			}
 		}
 
 		template<class NODE>
 		static void deserialize(const NODE& vNewNode, QHash<K, T>& tValue)
 		{
-			QSet<K> setKey;
-
-			NODE vKeyNode = vNewNode.sub_member("key");
-			NODE vValueNode = vNewNode.sub_member("value");
-
-			if (vKeyNode && vValueNode)
+			QHash<K, T> tNewValue;
+			for (typename NODE::ArrIter itor = vNewNode.sub_elements(); itor; ++itor)
 			{
-				typename NODE::ArrIter itorKey = vKeyNode.sub_elements();
-				typename NODE::ArrIter itorValue = vValueNode.sub_elements();
-				for (; itorKey && itorValue; ++itorKey, ++itorValue)
+				NODE vSubNode = *itor;
+				if (typename NODE::ArrIter itorSub = vSubNode.sub_elements())
 				{
-					NODE nodeKey = *itorKey;
-					NODE nodeVal = *itorValue;
-					if (nodeKey && nodeVal)
+					K k;
+					Serializer<KT>::deserialize(*itorSub, k);
+					
+					T& t = tNewValue[k];
+					if (++itorSub)
 					{
-						K k;
-						Serializer<K>::deserialize(nodeKey, k);
-						T& t = tValue[k];
-						Serializer<T>::deserialize(nodeVal, t);
-						setKey.insert(k);
-					}
-				}
-
-				if (setKey.size() != tValue.size())
-				{
-					for (typename QHash<K, T>::iterator itor = tValue.begin();
-						itor != tValue.end();)
-					{
-						if (!setKey.contains(itor.key()))
-						{
-							itor = tValue.erase(itor);
-						}
-						else
-						{
-							++itor;
-						}
+						Serializer<T>::deserialize(*itorSub, t);
 					}
 				}
 			}
+			tNewValue.swap(tValue);
 		}
 	};
 
@@ -272,14 +247,13 @@ namespace MSRPC
 		template<class NODE>
 		static void serialize(NODE& vNewNode, const QMap<QString, T>& tValue)
 		{
-			vNewNode.set_object();
+			typename NODE::ObjApt apt = vNewNode.set_object();
 			for (typename QMap<QString, T>::const_iterator citor = tValue.constBegin();
 				citor != tValue.constEnd(); ++citor)
 			{
 				QByteArray baKey = citor.key().toUtf8();
-				NODE vNode = vNewNode.add_element();
+				NODE vNode = apt.add_member(baKey.data());
 				Serializer<T>::serialize(vNode, *citor);
-				vNewNode.add_member(baKey.data(), vNode);
 			}
 		}
 
@@ -293,9 +267,9 @@ namespace MSRPC
 			{
 				if (NODE node = *itor)
 				{
-					T& t = tValue[itor.key()];
+					T& t = tValue[itor.key<QString>()];
 					Serializer<T>::deserialize(node, t);
-					setKey.insert(itor.key());
+					setKey.insert(itor.key<QString>());
 				}
 			}
 
@@ -324,73 +298,42 @@ namespace MSRPC
 		template<class NODE>
 		static void serialize(NODE& vNewNode, const QMap<K, T>& tValue)
 		{
-			vNewNode.set_object();
+			typename NODE::ArrApt apt = vNewNode.set_array();
 
-			if (!tValue.isEmpty())
+			for (typename QHash<K, T>::const_iterator citor = tValue.constBegin();
+				 citor != tValue.constEnd(); ++citor)
 			{
-				NODE vKeyNode = vNewNode.add_element();
-				vKeyNode.set_array();
+				NODE vSubNode = apt.add_element();
 
-				NODE vValueNode = vNewNode.add_element();
-				vValueNode.set_array();
+				typename NODE::ArrApt vSubApt = vSubNode.set_array();
+				NODE vKeyNode = vSubApt.add_element();
+				Serializer<K>::serialize(vKeyNode, citor.key());
 
-				for (typename QMap<K, T>::const_iterator citor = tValue.constBegin();
-					 citor != tValue.constEnd(); ++citor)
-				{
-					NODE vKNode = vKeyNode.add_element();
-					Serializer<K>::serialize(vKNode, citor.key());
-					
-					NODE vVNode = vValueNode.add_element();
-					Serializer<T>::serialize(vVNode, citor.value());
-				}
-
-				vNewNode.add_member("key", vKeyNode);
-				vNewNode.add_member("value", vValueNode);
+				NODE vValueNode = vSubApt.add_element();
+				Serializer<T>::serialize(vValueNode, citor.value());
 			}
 		}
 
 		template<class NODE>
 		static void deserialize(const NODE& vNewNode, QMap<K, T>& tValue)
 		{
-			NODE vKeyNode = vNewNode.sub_member("key");
-			NODE vValueNode = vNewNode.sub_member("value");
-
-			if (vKeyNode && vValueNode)
+			QMap<K, T> tNewValue;
+			for (typename NODE::ArrIter itor = vNewNode.sub_elements(); itor; ++itor)
 			{
-				QSet<K> setKey;
-
-				typename NODE::ArrIter itorKey = vKeyNode.sub_elements();
-				typename NODE::ArrIter itorValue = vValueNode.sub_elements();
-				for (; itorKey && itorValue; ++itorKey, ++itorValue)
+				NODE vSubNode = *itor;
+				if (typename NODE::ArrIter itorSub = vSubNode.sub_elements())
 				{
-					NODE nodeKey = *itorKey;
-					NODE nodeVal = *itorValue;
-					if (nodeKey && nodeVal)
+					K k;
+					Serializer<KT>::deserialize(*itorSub, k);
+					
+					T& t = tNewValue[k];
+					if (++itorSub)
 					{
-						K k;
-						Serializer<K>::deserialize(nodeKey, k);
-						T& t = tValue[k];
-						Serializer<T>::deserialize(nodeVal, t);
-						setKey.insert(k);
-					}
-				}
-
-				if (setKey.size() != tValue.size())
-				{
-					for (typename QMap<K, T>::iterator itor = tValue.begin();
-						itor != tValue.end();)
-					{
-						if (!setKey.contains(itor.key()))
-						{
-							itor = tValue.erase(itor);
-						}
-						else
-						{
-							++itor;
-						}
+						Serializer<T>::deserialize(*itorSub, t);
 					}
 				}
 			}
+			tNewValue.swap(tValue);	
 		}
 	};
 
@@ -458,13 +401,12 @@ namespace MSRPC
 		template<class NODE>
 		static void serialize(NODE& vNewNode, const QVariant& tValue)
 		{
-			vNewNode.set_object();
+			typename NODE::ObjApt apt = vNewNode.set_object();
 
-			NODE vNodeType = vNewNode.add_element();
+			NODE vNodeType = apt.add_member("type");
 			Serializer<const char*>::serialize(vNodeType, tValue.typeName());
-			vNewNode.add_member("type", vNodeType);
 
-			NODE vNodeValue = vNewNode.add_element();
+			NODE vNodeValue = apt.add_member("value");
 
 			switch (tValue.type())
 			{
@@ -578,15 +520,14 @@ namespace MSRPC
 			}
 			}
 
-			vNewNode.add_member("value", vNodeValue);
-
 		}
 
 		template<class NODE>
 		static void deserialize(const NODE& vNewNode, QVariant& tValue)
 		{
-			NODE vNodeType = vNewNode.sub_member("type");
-			NODE vNodeValue = vNewNode.sub_member("value");
+			typename NODE::ObjIter itor = vNewNode.sub_members();
+			NODE vNodeType = itor.find_member("type");
+			NODE vNodeValue = itor.find_member("value");
 			if (vNodeType && vNodeValue)
 			{
 				QString baData;

@@ -4,6 +4,7 @@
 #include "msarchive.hpp"
 #include "msserialize/msbasetypeapt_qt.hpp"
 
+#include <QFile>
 #include <QScopedPointer>
 #include <QVariant>
 #include <QJsonDocument>
@@ -14,44 +15,6 @@
 
 namespace MSRPC
 {
-	// class NJVBase
-	// {
-	// protected:
-	// 	enum { NJVType = 100 };
-
-	// public:
-	// 	virtual ~NJVBase() {}
-	// 	virtual QJsonValue data() const = 0;
-	// 	virtual int type() const = 0;
-	// 	virtual void setDoc(QJsonDocument* doc) = 0;
-	// };
-
-	// class NJValue : public NJVBase
-	// {
-	// protected:
-	// 	QJsonValue m_data;
-
-	// public:
-	// 	virtual QJsonValue data() const
-	// 	{
-	// 		return m_data;
-	// 	}
-
-	// 	virtual void setDoc(QJsonDocument* doc)
-	// 	{
-	// 		// qt is not supported. 
-	// 		Q_ASSERT(false);
-	// 	}
-
-	// 	QJsonValue& value()
-	// 	{
-	// 		return m_data;
-	// 	}
-
-	// 	enum {Type = NJVType + 1};
-	// 	virtual int type() const { return Type; }
-
-	// };
 
 	class SeNodeQJson
 	{
@@ -90,12 +53,6 @@ namespace MSRPC
 		{
 			m_node = (qint64)tValue;
 		}
-
-		// void in_serialize(const char* tValue)
-		// {
-		// 	NJValue* nj = set_value();
-		// 	nj->value() = tValue;
-		// }
 
 		template <typename T>
 		void in_serialize(const StrApt<T>& tValue)
@@ -330,6 +287,12 @@ namespace MSRPC
 			{
 				T t = m_citCur.key().toUtf8().data();
 				return t;
+			}
+			
+			template <>
+			QString key<QString>() const
+			{
+				return m_citCur.key();
 			}
 
 			operator bool() const

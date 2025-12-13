@@ -1,4 +1,4 @@
-#include <msadapter/qjsonserializer.hpp>
+#include <msadapter/qjson.hpp>
 #include <msserialize/mssceneelem.hpp>
 #include <msserialize/msnodeapt.hpp>
 

@@ -43,7 +43,7 @@ bool FromJsonS(T& t, StrBuf& strJson)
 }
 
 template<class T>
-bool ToJsonFile(const T& t, const char* strFilePath, unsigned int indent = 0)
+bool ToJsonF(const T& t, const char* strFilePath, unsigned int indent = 0)
 {
 	MSRPC::SeDoc doc;
 	MSRPC::SeJsonArc ia(doc);
@@ -53,7 +53,7 @@ bool ToJsonFile(const T& t, const char* strFilePath, unsigned int indent = 0)
 }
 
 template<class T>
-bool FromJsonFile(T& t, const char* strFilePath)
+bool FromJsonF(T& t, const char* strFilePath)
 {
 	bool bRet(false);
 

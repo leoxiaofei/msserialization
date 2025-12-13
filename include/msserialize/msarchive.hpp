@@ -133,10 +133,10 @@ namespace MSRPC
 		template<class NODE>
 		static void serialize(NODE& vNewNode, const T(&tValue)[N])
 		{
-			vNewNode.set_array();
+			typename NODE::ArrApt apt = vNewNode.set_array();
 			for (int ix = 0; ix != N; ++ix)
 			{
-				NODE vNode = vNewNode.add_element();
+				NODE vNode = apt.add_element();
 				Serializer<T>::serialize(vNode, tValue[ix]);
 			}
 		}

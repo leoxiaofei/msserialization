@@ -3,7 +3,7 @@
 
 #include "functionhelper.hpp"
 #include <memory>
-#include <string.h>
+#include <cstring>
 
 namespace MSRPC
 {
@@ -165,11 +165,11 @@ namespace MSRPC
 		template<class NODE>
 		static void serialize(NODE& vNewNode, const ArrayReshape<T, F, ELEM>& tValue)
 		{
-			vNewNode.set_array();
+			typename NODE::ArrApt apt = vNewNode.set_array();
 
 			for (; tValue; ++tValue)
 			{
-				NODE vNode = vNewNode.add_element();
+				NODE vNode = apt.add_element();
 				Serializer<typename ArrayReshape<T, F, ELEM>::item_type>
 					::serialize(vNode, *tValue);
 			}
@@ -191,12 +191,12 @@ namespace MSRPC
 	class StrApt<class StrType>
 	{
 	public:
-		const char* m_data;
+		char* m_data;
 		size_t m_size;
 
 	public:
 		StrApt(const char* data = nullptr)
-			: m_data(data)
+			: m_data(const_cast<char*>(data))
 			, m_size(0)
 		{}
 
