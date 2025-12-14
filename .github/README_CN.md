@@ -1,6 +1,6 @@
 # msserialization序列化框架
 
-README.md | 简体中文
+[English](README.md) | 简体中文
 
 一个轻量级、纯头文件的C++序列化框架，灵感来自Boost.Serialization，但更加简洁易用。
 

@@ -1,48 +1,39 @@
 # msserialization
 
-English | README_CN.md
+English | [简体中文](README_CN.md)
 
 A lightweight, header-only C++ serialization framework inspired by Boost.Serialization, but more concise and easier to use.
 
-Features
+## Features
 
-• 🚀 Lightweight: Pure header file implementation, no compilation required, ready to use
+- 🚀 **Lightweight**: Pure header file implementation, no compilation required, ready to use
+- 🎯 **Non-intrusive**: Existing data structures require no modifications
+- 🔄 **Bidirectional compatibility**: Serialization and deserialization use the same code
+- 📦 **Forward/backward compatible**: Adding or removing data members does not affect other members
+- 🔀 **Automatic type conversion**: Supports automatic conversion between JSON strings and C++ numeric types
+- 🏗️ **Comprehensive support**:
+  - Basic types (bool, numbers, strings, etc.)
+  - STL containers (vector, map, set, etc.)
+  - Nested custom types
+  - Raw pointers and smart pointers
+  - Polymorphic types (base class pointers to derived class objects)
+- 🔌 **Format-agnostic**: Supports multiple serialization format backends
+- 🛠️ **Easy to use**: Clean API, intuitive macro definitions
 
-• 🎯 Non-intrusive: Existing data structures require no modifications
+## Quick Start
 
-• 🔄 Bidirectional compatibility: Serialization and deserialization use the same code
-
-• 📦 Forward/backward compatible: Adding or removing data members does not affect other members
-
-• 🔀 Automatic type conversion: Supports automatic conversion between JSON strings and C++ numeric types
-
-• 🏗️ Comprehensive support:
-
-  • Basic types (bool, numbers, strings, etc.)
-
-  • STL containers (vector, map, set, etc.)
-
-  • Nested custom types
-
-  • Raw pointers and smart pointers
-
-  • Polymorphic types (base class pointers to derived class objects)
-
-• 🔌 Format-agnostic: Supports multiple serialization format backends
-
-• 🛠️ Easy to use: Clean API, intuitive macro definitions
-
-Quick Start
-
-1. Integrate into Your Project
+### 1. Integrate into Your Project
 
 Integrate into your project via CMake:
+
+```cmake
 add_subdirectory(msserialization)
 target_link_libraries(${PROJECT_NAME} msserialization)
+```
 
+### 2. Define Serializable Types
 
-2. Define Serializable Types
-
+```cpp
 #include "msserialize/siexse.hpp"
 
 // Define your data type
@@ -56,12 +47,13 @@ public:
 
 // Register serializable members with macro
 SiExSe(Person, name, age, height, hobbies)
+```
 
+### 3. Serialize/Deserialize
 
-3. Serialize/Deserialize
+#### Using JSON (RapidJSON backend)
 
-Using JSON (RapidJSON backend)
-
+```cpp
 #include "msadapter/rajson.hpp"
 
 void example_json() {
@@ -83,10 +75,11 @@ void example_json() {
     MSRPC::ToJsonF(person, "person.json");
     MSRPC::FromJsonF(person2, "person.json");
 }
+```
 
+#### Using YAML (yaml-cpp backend)
 
-Using YAML (yaml-cpp backend)
-
+```cpp
 #include "msadapter/cppyaml.hpp"
 
 void example_yaml() {
@@ -104,13 +97,15 @@ void example_yaml() {
     MSRPC::ToYamlF(person, "person.yaml");
     MSRPC::FromYamlF(person2, "person.yaml");
 }
+```
 
+## Advanced Features
 
-Advanced Features
-
-Polymorphic Type Support
+### Polymorphic Type Support
 
 The framework supports serialization of base class pointers pointing to derived class objects:
+
+```cpp
 #include "msserialize/siexse.hpp"
 
 // Base class
@@ -157,9 +152,11 @@ BeginBaExSe(Shape)
     std::string type = tValue ? tValue->type() : "";
     ar.io("type", type);
 EndBaExSe(map, type)
-
+```
 
 Usage example:
+
+```cpp
 #include "msadapter/rajson.hpp"
 #include <memory>
 
@@ -175,11 +172,13 @@ void example_polymorphic() {
     std::vector<std::shared_ptr<Shape>> shapes2;
     MSRPC::FromJsonS(shapes2, json);
 }
+```
 
-
-Automatic Type Conversion
+### Automatic Type Conversion
 
 The framework automatically handles conversion between JSON strings and C++ numeric types:
+
+```cpp
 struct Config {
     int port;           // JSON string "8080" automatically converted to int
     double timeout;     // JSON string "5.5" automatically converted to double
@@ -196,22 +195,21 @@ void example_conversion() {
     // config.timeout = 5.5 (double)
     // config.id = "123" (string)
 }
+```
 
+## API Reference
 
-API Reference
+### Core Macros
 
-Core Macros
+| Macro | Description |
+|-------|-------------|
+| `SiExSe(Type, members...)` | Register serializable members of a type |
+| `SiExSeInhe(Type, Base, members...)` | Register serializable members of a derived type |
+| `BeginBaExSe(BaseType)`<br>`EndBaExSe(map, type_field)` | Define type mapping for polymorphic types |
 
-Macro Description
+### Serialization Functions
 
-SiExSe(Type, members...) Register serializable members of a type
-
-SiExSeInhe(Type, Base, members...) Register serializable members of a derived type
-
-BeginBaExSe(BaseType)<br>EndBaExSe(map, type_field) Define type mapping for polymorphic types
-
-Serialization Functions
-
+```cpp
 // Serialize to string
 template<typename T>
 std::string ToJsonS(const T& obj);
@@ -232,24 +230,21 @@ void ToJsonF(const T& obj, const std::string& filename);
 
 template<typename T>
 void FromJsonF(T& obj, const std::string& filename);
+```
 
+### Supported Format Backends
 
-Supported Format Backends
+| Format | Adapter Header | Dependency Library |
+|--------|----------------|--------------------|
+| JSON | `msadapter/rajson.hpp` | RapidJSON |
+| JSON | `msadapter/nljson.hpp` | nlohmann-json |
+| JSON | `msadapter/qjson.hpp` | Qt QJson |
+| YAML | `msadapter/cppyaml.hpp` | yaml-cpp |
 
-Format Adapter Header Dependency Library
-
-JSON msadapter/rajson.hpp RapidJSON
-
-JSON msadapter/nljson.hpp nlohmann-json
-
-JSON msadapter/qjson.hpp Qt QJson
-
-YAML msadapter/cppyaml.hpp yaml-cpp
-
-License
+## License
 
 MIT License
 
-Contributing
+## Contributing
 
 Issues and Pull Requests are welcome!
