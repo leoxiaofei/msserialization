@@ -122,7 +122,7 @@ namespace MSRPC
 				{
 					while (ix >= tValue.size())
 					{
-						T t;
+						T t = {};
 						tValue.append(t);
 					}
 					T& t = tValue[ix];

@@ -11,148 +11,9 @@
 #include <QGraphicsSvgItem>
 #endif
 
+
 namespace MSRPC
 {
-	template<>
-	class Serializer<QGraphicsItem*>
-	{
-	public:
-		template<class NODE>
-		static void serialize(NODE& vNewNode, const QGraphicsItem* tValue)
-		{
-			if (tValue)
-			{
-				vNewNode.set_object();
-				IArchiveHelper<NODE> ar(vNewNode);
-				int nType = tValue->type();
-				ar.io("type", nType);
-
-				switch (nType)
-				{
-				case QGraphicsRectItem::Type:
-					Serializer<QGraphicsRectItem*>::serialize(vNewNode,
-						qgraphicsitem_cast<const QGraphicsRectItem*>(tValue));
-					break;
-				case QGraphicsLineItem::Type:
-					Serializer<QGraphicsLineItem*>::serialize(vNewNode,
-						qgraphicsitem_cast<const QGraphicsLineItem*>(tValue));
-					break;
-				case QGraphicsEllipseItem::Type:
-					Serializer<QGraphicsEllipseItem*>::serialize(vNewNode,
-						qgraphicsitem_cast<const QGraphicsEllipseItem*>(tValue));
-					break;
-				case QGraphicsPixmapItem::Type:
-					Serializer<QGraphicsPixmapItem*>::serialize(vNewNode,
-						qgraphicsitem_cast<const QGraphicsPixmapItem*>(tValue));
-					break;
-#ifdef QT_SVG_LIB
-				case QGraphicsSvgItem::Type:
-					Serializer<QGraphicsSvgItem*>::serialize(vNewNode,
-						qgraphicsitem_cast<const QGraphicsSvgItem*>(tValue));
-					break;
-#endif
-				case QGraphicsTextItem::Type:
-					Serializer<QGraphicsTextItem*>::serialize(vNewNode,
-						qgraphicsitem_cast<const QGraphicsTextItem*>(tValue));
-					break;
-				case QGraphicsPolygonItem::Type:
-					Serializer<QGraphicsPolygonItem*>::serialize(vNewNode,
-						qgraphicsitem_cast<const QGraphicsPolygonItem*>(tValue));
-					break;
-				case QGraphicsPathItem::Type:
-					Serializer<QGraphicsPathItem*>::serialize(vNewNode,
-						qgraphicsitem_cast<const QGraphicsPathItem*>(tValue));
-					break;
-				case QGraphicsItemGroup::Type:
-					Serializer<QGraphicsItemGroup*>::serialize(vNewNode,
-						qgraphicsitem_cast<const QGraphicsItemGroup*>(tValue));
-					break;
-				default:
-					break;
-				}
-			}
-		}
-
-		template<class NODE>
-		static void deserialize(const NODE& vNewNode, QGraphicsItem*& tValue)
-		{
-			int nType;
-			OArchiveHelper<NODE> ar(vNewNode);
-			ar.io("type", nType);
-			switch (nType)
-			{
-			case QGraphicsRectItem::Type:
-			{
-				QGraphicsRectItem* pVal = 0;
-				Serializer<QGraphicsRectItem*>::deserialize(vNewNode, pVal);
-				tValue = pVal;
-				break;
-			}
-			case QGraphicsLineItem::Type:
-			{
-				QGraphicsLineItem* pVal = 0;
-				Serializer<QGraphicsLineItem*>::deserialize(vNewNode, pVal);
-				tValue = pVal;
-				break;
-			}
-			case QGraphicsEllipseItem::Type:
-			{
-				QGraphicsEllipseItem* pVal = 0;
-				Serializer<QGraphicsEllipseItem*>::deserialize(vNewNode, pVal);
-				tValue = pVal;
-				break;
-			}
-			case QGraphicsPixmapItem::Type:
-			{
-				QGraphicsPixmapItem* pVal = 0;
-				Serializer<QGraphicsPixmapItem*>::deserialize(vNewNode, pVal);
-				tValue = pVal;
-				break;
-			}
-#ifdef QT_SVG_LIB
-			case QGraphicsSvgItem::Type:
-			{
-				QGraphicsSvgItem* pVal = 0;
-				Serializer<QGraphicsSvgItem*>::deserialize(vNewNode, pVal);
-				tValue = pVal;
-				break;
-			}
-#endif
-			case QGraphicsTextItem::Type:
-			{
-				QGraphicsTextItem* pVal = 0;
-				Serializer<QGraphicsTextItem*>::deserialize(vNewNode, pVal);
-				tValue = pVal;
-				break;
-			}
-			case QGraphicsPolygonItem::Type:
-			{
-				QGraphicsPolygonItem* pVal = 0;
-				Serializer<QGraphicsPolygonItem*>::deserialize(vNewNode, pVal);
-				tValue = pVal;
-				break;
-			}
-			case QGraphicsPathItem::Type:
-			{
-				QGraphicsPathItem* pVal = 0;
-				Serializer<QGraphicsPathItem*>::deserialize(vNewNode, pVal);
-				tValue = pVal;
-				break;
-			}
-			case QGraphicsItemGroup::Type:
-			{
-				QGraphicsItemGroup* pVal = 0;
-				Serializer<QGraphicsItemGroup*>::deserialize(vNewNode, pVal);
-				tValue = pVal;
-				break;
-			}
-			default:
-				tValue = nullptr;
-				break;
-			}
-		}
-	};
-
 	template<class Ar>
 	void ex_serialize(Ar& ar, QGraphicsItem& tValue)
 	{
@@ -251,3 +112,21 @@ namespace MSRPC
 	}
 
 }
+
+BeginBaExSe(QGraphicsItem)
+    static std::map<int32_t, QGraphicsItemConvT> map = {
+    {QGraphicsRectItem::Type, QGraphicsItemConv<Ar, QGraphicsRectItem>},
+    {QGraphicsLineItem::Type, QGraphicsItemConv<Ar, QGraphicsLineItem>},
+    {QGraphicsEllipseItem::Type, QGraphicsItemConv<Ar, QGraphicsEllipseItem>},
+    {QGraphicsPixmapItem::Type, QGraphicsItemConv<Ar, QGraphicsPixmapItem>},
+#ifdef QT_SVG_LIB
+    {QGraphicsSvgItem::Type, QGraphicsItemConv<Ar, QGraphicsSvgItem>},
+#endif
+    {QGraphicsTextItem::Type, QGraphicsItemConv<Ar, QGraphicsTextItem>},
+    {QGraphicsPolygonItem::Type, QGraphicsItemConv<Ar, QGraphicsPolygonItem>},
+    {QGraphicsPathItem::Type, QGraphicsItemConv<Ar, QGraphicsPathItem>},
+    {QGraphicsItemGroup::Type, QGraphicsItemConv<Ar, QGraphicsItemGroup>}
+    };
+    int32_t type = tValue ? tValue->type() : 0;
+    ar.io("type", type);
+EndBaExSe(map, type)
