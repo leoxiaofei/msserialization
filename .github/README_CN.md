@@ -1,51 +1,42 @@
-# msserialization
+# msserialization序列化框架
 
-English | README_CN.md
+README.md | 简体中文
 
-A lightweight, header-only C++ serialization framework inspired by Boost.Serialization, but more concise and easier to use.
+一个轻量级、纯头文件的C++序列化框架，灵感来自Boost.Serialization，但更加简洁易用。
 
-Features
+## 特性
 
-• 🚀 Lightweight: Pure header file implementation, no compilation required, ready to use
+- 🚀 **轻量级**：纯头文件实现，无需编译，开箱即用
+- 🎯 **非侵入式**：现有数据结构无需任何修改
+- 🔄 **双向兼容**：序列化和反序列化使用同一套代码
+- 📦 **向前/向后兼容**：数据结构成员增删不影响已有数据
+- 🔀 **自动类型转换**：支持JSON字符串与C++数值类型的自动转换
+- 🏗️ **全面支持**：
+  - 基本类型（bool、数字、字符串等）
+  - STL容器（vector、map、set等）
+  - 嵌套自定义类型
+  - 原生指针和智能指针
+  - 多态类型（基类指针指向派生类对象）
+- 🔌 **格式无关**：支持多种序列化格式后端
+- 🛠️ **简单易用**：简洁的API，直观的宏定义
 
-• 🎯 Non-intrusive: Existing data structures require no modifications
+## 快速开始
 
-• 🔄 Bidirectional compatibility: Serialization and deserialization use the same code
+### 1. 集成到项目
 
-• 📦 Forward/backward compatible: Adding or removing data members does not affect other members
+通过CMake集成到你的项目：
 
-• 🔀 Automatic type conversion: Supports automatic conversion between JSON strings and C++ numeric types
-
-• 🏗️ Comprehensive support:
-
-  • Basic types (bool, numbers, strings, etc.)
-
-  • STL containers (vector, map, set, etc.)
-
-  • Nested custom types
-
-  • Raw pointers and smart pointers
-
-  • Polymorphic types (base class pointers to derived class objects)
-
-• 🔌 Format-agnostic: Supports multiple serialization format backends
-
-• 🛠️ Easy to use: Clean API, intuitive macro definitions
-
-Quick Start
-
-1. Integrate into Your Project
-
-Integrate into your project via CMake:
+```cmake
 add_subdirectory(msserialization)
 target_link_libraries(${PROJECT_NAME} msserialization)
+```
 
+### 2. 定义可序列化类型
 
-2. Define Serializable Types
-
+```cpp
 #include "msserialize/siexse.hpp"
 
-// Define your data type
+// 定义你的数据类型
 class Person {
 public:
     std::string name;
@@ -54,14 +45,15 @@ public:
     std::vector<std::string> hobbies;
 };
 
-// Register serializable members with macro
+// 使用宏注册可序列化成员
 SiExSe(Person, name, age, height, hobbies)
+```
 
+### 3. 序列化/反序列化
 
-3. Serialize/Deserialize
+#### 使用JSON (RapidJSON后端)
 
-Using JSON (RapidJSON backend)
-
+```cpp
 #include "msadapter/rajson.hpp"
 
 void example_json() {
@@ -71,49 +63,52 @@ void example_json() {
     person.height = 1.65;
     person.hobbies = {"reading", "swimming"};
     
-    // Serialize to JSON string
+    // 序列化为JSON字符串
     std::string json_str = MSRPC::ToJsonS(person);
     // json_str: {"name":"Alice","age":30,"height":1.65,"hobbies":["reading","swimming"]}
     
-    // Deserialize from JSON string
+    // 从JSON字符串反序列化
     Person person2;
     MSRPC::FromJsonS(person2, json_str);
     
-    // File operations
+    // 文件操作
     MSRPC::ToJsonF(person, "person.json");
     MSRPC::FromJsonF(person2, "person.json");
 }
+```
 
+#### 使用YAML (yaml-cpp后端)
 
-Using YAML (yaml-cpp backend)
-
+```cpp
 #include "msadapter/cppyaml.hpp"
 
 void example_yaml() {
     Person person;
-    // ... initialize data
+    // ... 初始化数据
     
-    // Serialize to YAML string
+    // 序列化为YAML字符串
     std::string yaml_str = MSRPC::ToYamlS(person);
     
-    // Deserialize from YAML string
+    // 从YAML字符串反序列化
     Person person2;
     MSRPC::FromYamlS(person2, yaml_str);
     
-    // File operations
+    // 文件操作
     MSRPC::ToYamlF(person, "person.yaml");
     MSRPC::FromYamlF(person2, "person.yaml");
 }
+```
 
+## 高级特性
 
-Advanced Features
+### 多态类型支持
 
-Polymorphic Type Support
+框架支持基类指针指向派生类对象的序列化：
 
-The framework supports serialization of base class pointers pointing to derived class objects:
+```cpp
 #include "msserialize/siexse.hpp"
 
-// Base class
+// 基类
 class Shape {
 public:
     virtual ~Shape() {}
@@ -125,7 +120,7 @@ public:
 
 SiExSe(Shape, color);
 
-// Derived class: Circle
+// 派生类：圆形
 class Circle : public Shape {
 public:
     std::string type() const override { return "circle"; }
@@ -137,7 +132,7 @@ public:
 
 SiExSeInhe(Circle, Shape, radius, x, y);
 
-// Derived class: Rectangle
+// 派生类：矩形
 class Rectangle : public Shape {
 public:
     std::string type() const override { return "rectangle"; }
@@ -148,7 +143,7 @@ public:
 
 SiExSeInhe(Rectangle, Shape, width, height);
 
-// Register polymorphic type mapping
+// 注册多态类型映射
 BeginBaExSe(Shape)
     static std::map<std::string, ShapeConvT> map = {
         {"circle", ShapeConv<Ar, Circle>},
@@ -157,9 +152,11 @@ BeginBaExSe(Shape)
     std::string type = tValue ? tValue->type() : "";
     ar.io("type", type);
 EndBaExSe(map, type)
+```
 
+使用示例：
 
-Usage example:
+```cpp
 #include "msadapter/rajson.hpp"
 #include <memory>
 
@@ -168,22 +165,24 @@ void example_polymorphic() {
     shapes.push_back(std::make_shared<Circle>());
     shapes.push_back(std::make_shared<Rectangle>());
     
-    // Serialize container with polymorphic types
+    // 序列化包含多态类型的容器
     std::string json = MSRPC::ToJsonS(shapes);
     
-    // Deserialize
+    // 反序列化
     std::vector<std::shared_ptr<Shape>> shapes2;
     MSRPC::FromJsonS(shapes2, json);
 }
+```
 
+### 自动类型转换
 
-Automatic Type Conversion
+框架自动处理JSON字符串与C++数值类型之间的转换：
 
-The framework automatically handles conversion between JSON strings and C++ numeric types:
+```cpp
 struct Config {
-    int port;           // JSON string "8080" automatically converted to int
-    double timeout;     // JSON string "5.5" automatically converted to double
-    std::string id;     // JSON number 123 automatically converted to string
+    int port;           // JSON中的字符串"8080"会自动转换为int
+    double timeout;     // JSON中的字符串"5.5"会自动转换为double
+    std::string id;     // JSON中的数字123会自动转换为字符串
 };
 
 SiExSe(Config, port, timeout, id);
@@ -196,60 +195,56 @@ void example_conversion() {
     // config.timeout = 5.5 (double)
     // config.id = "123" (string)
 }
+```
 
+## API参考
 
-API Reference
+### 核心宏
 
-Core Macros
+| 宏 | 说明 |
+|----|------|
+| `SiExSe(Type, members...)` | 注册类型的可序列化成员 |
+| `SiExSeInhe(Type, Base, members...)` | 注册派生类型的可序列化成员 |
+| `BeginBaExSe(BaseType)`<br>`EndBaExSe(map, type_field)` | 定义多态类型的类型映射 |
 
-Macro Description
+### 序列化函数
 
-SiExSe(Type, members...) Register serializable members of a type
-
-SiExSeInhe(Type, Base, members...) Register serializable members of a derived type
-
-BeginBaExSe(BaseType)<br>EndBaExSe(map, type_field) Define type mapping for polymorphic types
-
-Serialization Functions
-
-// Serialize to string
+```cpp
+// 序列化为字符串
 template<typename T>
 std::string ToJsonS(const T& obj);
 
 template<typename T>
 std::string ToYamlS(const T& obj);
 
-// Deserialize from string
+// 从字符串反序列化
 template<typename T>
 void FromJsonS(T& obj, const std::string& str);
 
 template<typename T>
 void FromYamlS(T& obj, const std::string& str);
 
-// File operations
+// 文件操作
 template<typename T>
 void ToJsonF(const T& obj, const std::string& filename);
 
 template<typename T>
 void FromJsonF(T& obj, const std::string& filename);
+```
 
+### 支持的格式后端
 
-Supported Format Backends
+| 格式 | 适配器头文件 | 依赖库 |
+|------|--------------|--------|
+| JSON | `msadapter/rajson.hpp` | RapidJSON |
+| JSON | `msadapter/nljson.hpp` | nlohmann-json |
+| JSON | `msadapter/qjson.hpp` | Qt QJson |
+| YAML | `msadapter/cppyaml.hpp` | yaml-cpp |
 
-Format Adapter Header Dependency Library
-
-JSON msadapter/rajson.hpp RapidJSON
-
-JSON msadapter/nljson.hpp nlohmann-json
-
-JSON msadapter/qjson.hpp Qt QJson
-
-YAML msadapter/cppyaml.hpp yaml-cpp
-
-License
+## 许可证
 
 MIT License
 
-Contributing
+## 贡献
 
-Issues and Pull Requests are welcome!
+欢迎提交Issue和Pull Request！
