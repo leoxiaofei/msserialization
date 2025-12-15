@@ -116,10 +116,6 @@ namespace MSRPC
 			return SeNodeRapidJson((m_node->End() - 1), m_allocator);
 		}
 
-		void finish()
-		{
-		}
-
 	public:
 		rapidjson::Value& data()
 		{
