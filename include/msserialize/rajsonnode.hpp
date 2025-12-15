@@ -225,7 +225,7 @@ namespace MSRPC
 
 		void in_serialize(double& tValue) const
 		{
-			if(m_node->Is<double>())
+			if(m_node->IsNumber())
 			{
 				tValue = m_node->Get<double>();
 			}
