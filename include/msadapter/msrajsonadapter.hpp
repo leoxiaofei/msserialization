@@ -30,9 +30,12 @@ namespace MSRPC
 		void Pop(int count) { baData.resize(baData.size() - count); }
 
 		const char* GetString() {
-			// Push and pop a null terminator. This is safe.
-			baData.push_back('\0');
-			baData.resize(baData.size() - 1);
+			if(*(baData.data()+baData.size()) != '\0')
+			{
+				// Push and pop a null terminator. This is safe.
+				baData.push_back('\0');
+				baData.resize(baData.size() - 1);
+			}
 
 			return baData.data();
 		}

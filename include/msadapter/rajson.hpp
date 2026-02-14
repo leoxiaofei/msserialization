@@ -35,17 +35,14 @@ bool FromJsonO(T& t, const rapidjson::Value& obj)
 	return deNode;
 }
 
-// template<class T, class StrBuf = std::string>
-// StrBuf ToJsonS(const T& t, unsigned int indent = 0)
-// {
-// 	//Serialization
-// 	MSRPC::SeDoc seDoc;
-// 	MSRPC::SeJsonArc ia(seDoc);
-// 	ia & t;
-
-// 	//Output the JSON string
-// 	return seDoc.Stringify<StrBuf>(indent);
-// }
+template<class T>
+bool ToJsonO(const T& t, rapidjson::Value& obj,
+	 rapidjson::Document::AllocatorType& allocator)
+{
+	MSRPC::SeNode seNode(&obj, &allocator);
+	seNode << t;
+	return seNode;
+}
 
 // template<class T, class StrBuf>
 // bool FromJsonS(T& t, StrBuf& strJson)
