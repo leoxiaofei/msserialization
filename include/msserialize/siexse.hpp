@@ -85,10 +85,19 @@ void ex_serialize(Ar& ar, TYPE& tValue) \
 	MS_ENUMARGS(SiArIo, __VA_ARGS__) \
 }
 
+namespace MSRPC
+{
+	template <typename T, typename IsEnum>
+	class Serializer;
+	template <class NODE>
+	class IArchiveHelper;
+	template <class NODE>
+	class OArchiveHelper;
+}
+
 #define DiExSe(EX) \
-	namespace MSRPC { \
-	template <typename T, typename IsEnum> \
-	class Serializer; \
+namespace MSRPC \
+{ \
 	template <> \
 	class Serializer<EX, void> \
 	{ \
@@ -106,7 +115,7 @@ void ex_serialize(Ar& ar, TYPE& tValue) \
 			ex_serialize(oh, tValue); \
 		} \
 	}; \
-	}
+}
 
 #define BeginBaExSe(BASE) \
 	DiExSe(BASE*) \

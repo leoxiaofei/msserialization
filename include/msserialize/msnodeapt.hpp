@@ -50,6 +50,9 @@ namespace MSRPC
 		int m_n;
 	};
 
+	template <typename T>
+	class StrApt;
+
 	template <typename Enum>
 	class StrApt<EnumApt<Enum> >
 	{
@@ -72,8 +75,11 @@ namespace MSRPC
 		}
 	};
 
+	template <typename T, typename IsEnum>
+	class Serializer;
+
 	template<class T>
-	class Serializer<EnumApt<T> >
+	class Serializer<EnumApt<T>, void>
 	{
 	public:
 		template<class NODE>
@@ -159,7 +165,7 @@ namespace MSRPC
 	//////////////////////////////////////////////////////////////////////////
 	// 
 	template<typename T, typename F, typename ELEM>
-	class Serializer<ArrayReshape<T, F, ELEM> >
+	class Serializer<ArrayReshape<T, F, ELEM>, void>
 	{
 	public:
 		template<class NODE>
@@ -170,7 +176,7 @@ namespace MSRPC
 			for (; tValue; ++tValue)
 			{
 				NODE vNode = apt.add_element();
-				Serializer<typename ArrayReshape<T, F, ELEM>::item_type>
+				Serializer<typename ArrayReshape<T, F, ELEM>::item_type, void>
 					::serialize(vNode, *tValue);
 			}
 		}
@@ -182,7 +188,7 @@ namespace MSRPC
 			for (; itor; ++itor)
 			{
 				ELEM itemValue = tValue.push();
-				Serializer<ELEM>::deserialize(*itor, itemValue);
+				Serializer<ELEM, void>::deserialize(*itor, itemValue);
 			}
 		}
 	};
@@ -219,6 +225,11 @@ namespace MSRPC
 			std::strncpy(m_data, tValue, sSize+1);
 			m_size = sSize;
 		}
+
+		operator const char* () const
+		{
+			return m_data;
+		}
 	};
 
 	typedef StrApt<StrType> StrTypeApt;
@@ -227,20 +238,20 @@ namespace MSRPC
 	class ExtractApt;
 
 	template<class R, class T, class F>
-	class Serializer<ExtractApt<R, T, F> >
+	class Serializer<ExtractApt<R, T, F>, void>
 	{
 	public:
 		template<class NODE>
 		static void serialize(NODE& vNewNode, const ExtractApt<R, T, F>& tValue)
 		{
-			Serializer<R>::serialize(vNewNode, (const R&)tValue);
+			Serializer<R, void>::serialize(vNewNode, (const R&)tValue);
 		}
 
 		template<class NODE>
 		static void deserialize(const NODE& vNewNode, ExtractApt<R, T, F>& tValue)
 		{
 			R ptValue = tValue;
-			Serializer<R>::deserialize(vNewNode, ptValue);
+			Serializer<R, void>::deserialize(vNewNode, ptValue);
 			tValue = ptValue;
 		}
 	};
