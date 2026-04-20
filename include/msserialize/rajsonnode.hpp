@@ -284,7 +284,7 @@ namespace MSRPC
 			{
 				size_t nSize = m_node->GetStringLength() + 1;
 				tValue = new char[nSize];
-				std::strncpy(tValue, m_node->GetString(), nSize);
+				std::snprintf(tValue, nSize, "%s", m_node->GetString());
 			}
 			else if(m_node->IsNumber())
 			{
@@ -354,7 +354,7 @@ namespace MSRPC
 					nSize = nSize - 1;
 				}
 
-				std::strncpy(tValue, str, nSize);
+				std::snprintf(tValue, nSize, "%s", str);
 			}
 			else if(m_node->IsNumber())
 			{

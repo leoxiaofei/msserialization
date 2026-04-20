@@ -222,7 +222,7 @@ namespace MSRPC
 		void Set(const char* tValue, const size_t& sSize)
 		{
 			m_data = new char[sSize+1];
-			std::strncpy(m_data, tValue, sSize+1);
+			std::snprintf(m_data, sSize+1, "%s", tValue);
 			m_size = sSize;
 		}
 
