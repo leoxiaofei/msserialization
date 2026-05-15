@@ -9,145 +9,74 @@
 #include <msserialize/msnodeapt_qt.hpp>
 #include <msserialize/msnodeapt.hpp>
 
+// ============================================================================
+// QJson adapter namespace
+// ============================================================================
 namespace MSRPC
+{
+namespace QJson
 {
 	typedef MSRPC::SeNodeQJson SeNode;
 	typedef MSRPC::DeNodeQJson DeNode;
 	typedef MSRPC::SeDocQJson SeDoc;
 	typedef MSRPC::DeDocQJson DeDoc;
 
-    template<class T, class SEDOC = MSRPC::SeDoc>
-    QByteArray ToJsonS(const T& t, unsigned int indent = 0)
-    {
-        //Serialization
+	template<class T>
+	QByteArray ToJsonS(const T& t, unsigned int indent = 0)
+	{
+		SeDoc seDoc;
+		seDoc << t;
+		return seDoc.Stringify(indent);
+	}
 
-        SEDOC seDoc;
-        seDoc << t;
+	template<class T>
+	bool FromJsonS(T& t, QByteArray& strJson)
+	{
+		bool bRet(false);
+		DeDoc deDoc;
+		if (deDoc.Parse(strJson))
+		{
+			deDoc >> t;
+			bRet = true;
+		}
+		return bRet;
+	}
 
-        //Output the JSON string
-        return seDoc.Stringify(indent);
-    }
+	template<class T>
+	bool ToJsonF(const T& t, const QString& strFilePath, unsigned int indent = 0)
+	{
+		SeDoc seDoc;
+		seDoc << t;
+		return seDoc.Save(strFilePath, indent);
+	}
 
-    template<class T, class DEDOC = MSRPC::DeDoc>
-    bool FromJsonS(T& t, QByteArray& strJson)
-    {
-        bool bRet(false);
-
-        DEDOC deDoc;
-
-        if (deDoc.Parse(strJson))
-        {
-            deDoc >> t;
-            bRet = true;
-        }
-
-        return bRet;
-    }
-
-    template<class T, class SEDOC = MSRPC::SeDoc>
-    bool ToJsonF(const T& t, const QString& strFilePath, unsigned int indent = 0)
-    {
-        //Serialization
-        SEDOC seDoc;
-        seDoc << t;
-
-        return seDoc.Save(strFilePath, indent);
-    }
-
-    template<class T, class DEDOC = MSRPC::DeDoc>
-    bool FromJsonF(T& t, const QString& strFilePath)
-    {
-        bool bRet(false);
-        DEDOC deDoc;
-        if (deDoc.Load(strFilePath))
-        {
-            deDoc >> t;
-            bRet = true;
-        }
-
-        return bRet;
-    }
+	template<class T>
+	bool FromJsonF(T& t, const QString& strFilePath)
+	{
+		bool bRet(false);
+		DeDoc deDoc;
+		if (deDoc.Load(strFilePath))
+		{
+			deDoc >> t;
+			bRet = true;
+		}
+		return bRet;
+	}
 }
+}
+
+// ============================================================================
+// Backward compatibility: skip if already defined by another adapter
+// ============================================================================
+#ifndef MSRPC_JSON_COMPAT_DEFINED
+#define MSRPC_JSON_COMPAT_DEFINED
 
 namespace MSRPC
 {
-// template<class T>
-// QByteArray ToJsonS(const T& t, bool bFormat = false)
-// {
-// 	MSRPC::SeJsonArc::Node nObjI;
-// 	MSRPC::SeJsonArc ia(nObjI);
-// 	ia & t;
-
-// 	QJsonDocument doc;
-// 	nObjI.finish(&doc);
-
-// 	return doc.toJson(bFormat ? QJsonDocument::Indented 
-// 		: QJsonDocument::Compact);
-// }
-
-// template<class T>
-// bool FromJsonS(T& t, QByteArray& strJson)
-// {
-// 	QJsonDocument doc = QJsonDocument::fromJson(strJson);
-
-// 	MSRPC::DeJsonArc::Node objO(&doc);
-// 	MSRPC::DeJsonArc oa(objO);
-
-// 	if (objO)
-// 	{
-// 		oa & t;
-// 	}
-
-// 	return objO;
-// }
-
-// template<class T>
-// bool ToJsonF(const T& t, const QString& strFilePath, bool bFormat = true)
-// {
-// 	bool bRet(false);
-
-// 	MSRPC::SeJsonArc::Node nObjI;
-// 	MSRPC::SeJsonArc ia(nObjI);
-// 	ia & t;
-
-// 	QJsonDocument doc;
-// 	nObjI.finish(&doc);
-
-// 	QByteArray strJson = doc.toJson(bFormat 
-// 		? QJsonDocument::Indented : QJsonDocument::Compact);
-
-// 	QFile f(strFilePath);
-// 	if (f.open(QFile::WriteOnly))
-// 	{
-// 		bRet = f.write(strJson) == strJson.size();
-// 	}
-
-// 	return bRet;
-// }
-
-// template<class T>
-// bool FromJsonF(T& t, const QString& strFilePath)
-// {
-// 	QJsonDocument doc;
-// 	QFile f(strFilePath);
-// 	if (f.open(QFile::ReadOnly))
-// 	{
-// 		QByteArray strJson = f.readAll();
-// 		doc = QJsonDocument::fromJson(strJson);
-// 	}
-
-// 	MSRPC::DeJsonArc::Node objO(&doc);
-// 	MSRPC::DeJsonArc oa(objO);
-
-// 	if (objO)
-// 	{
-// 		oa & t;
-// 	}
-
-// 	return objO;
-// }
-
+	using namespace MSRPC::QJson;
 }
+
+#endif // MSRPC_JSON_COMPAT_DEFINED
 
 
 #endif // QJSONSERIALIZER_HPP__

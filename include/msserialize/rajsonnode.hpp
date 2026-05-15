@@ -343,17 +343,6 @@ namespace MSRPC
 			if(m_node->IsString())
 			{
 				const char* str = m_node->GetString();
-				size_t len = m_node->GetStringLength() + 1;
-				if (nSize > len)
-				{
-					nSize = len;
-				}
-				else
-				{
-					tValue[nSize - 1] = '\0';
-					nSize = nSize - 1;
-				}
-
 				std::snprintf(tValue, nSize, "%s", str);
 			}
 			else if(m_node->IsNumber())

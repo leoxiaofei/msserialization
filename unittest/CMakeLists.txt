@@ -28,6 +28,11 @@ if(Qt5Core_FOUND)
 list(PREPEND  MSTEST_SOURCE_FILES "qjson_test.cpp")
 endif(Qt5Core_FOUND)
 
+# 互转测试：需要至少两个库同时存在
+if(RapidJSON_FOUND AND nlohmann_json_FOUND AND yaml-cpp_FOUND)
+list(PREPEND  MSTEST_SOURCE_FILES "convert_test.cpp")
+endif()
+
 
 add_executable(msttest ${MSTEST_INCLUDE_FILES} ${MSTEST_SOURCE_FILES})
 

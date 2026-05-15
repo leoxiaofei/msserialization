@@ -348,7 +348,6 @@ namespace MSRPC
 			// YAML::Emitter out;
 			// out << node;
 
-			// // 将Emitter的内容转换为字符串
 			// return out.c_str();
 		}
 

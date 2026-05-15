@@ -12,8 +12,14 @@ endif()
 target_include_directories(${PROJECT_NAME} INTERFACE "include")
 
 option(TEST_OPT "option for test" OFF)
+option(BENCH_OPT "option for benchmark" OFF)
 
 if (TEST_OPT)
 	include(CTest)
 	add_subdirectory(unittest)
+endif()
+
+if (BENCH_OPT)
+	include(CTest)
+	add_subdirectory(benchmark)
 endif()
