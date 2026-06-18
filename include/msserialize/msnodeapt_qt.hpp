@@ -7,13 +7,21 @@
 #include "msscenedef.h"
 #include <QSharedPointer>
 #include <QRect>
-#include <QRegExp>
 #include <QHash>
 #include <QString>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+#include <QStringView>
+#endif
 #include <QPointF>
 #include <QVariant>
 #include <QTextStream>
 #include <QBuffer>
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#include <QRegExp>
+#else
+#include <QRegularExpression>
+#endif
 
 #ifdef QT_GUI_LIB
 #include <QFont>
@@ -311,7 +319,15 @@ namespace MSRPC
 			m_t.setData(m_nKey, strValue);
 			if(strValue.startsWith(Sign()))
 			{
-				QByteArray ba = QByteArray::fromBase64(strValue.midRef(Sign().size()).toLatin1());
+#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
+				// QStringView::mid() is O(1) (no copy of the base64 payload);
+				// avoids the temporary QString produced by QString::mid().
+				QStringView view(strValue);
+				QByteArray ba = QByteArray::fromBase64(
+					view.mid(Sign().size()).toLatin1());
+#else
+				QByteArray ba = QByteArray::fromBase64(strValue.mid(Sign().size()).toLatin1());
+#endif
 				QPixmap pixmap;
 				if(pixmap.loadFromData(ba))
 				{
@@ -384,18 +400,27 @@ namespace MSRPC
 			QStringList listFunc = strValue.split(";");
 			if (!listFunc.isEmpty())
 			{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 				QRegExp re[_TK_TOTAL_] = {
 					QRegExp("translate\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
 					QRegExp("scale\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
 					QRegExp("rotate\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(\\d)\\s*\\)"),
 				};
-				
+#else
+				QRegularExpression re[_TK_TOTAL_] = {
+					QRegularExpression("translate\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
+					QRegularExpression("scale\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(-?\\d+\\.?\\d*)\\s*\\)"),
+					QRegularExpression("rotate\\s*\\(\\s*(-?\\d+\\.?\\d*)\\s*,\\s*(\\d)\\s*\\)"),
+				};
+#endif
+
 				QTransform tf;
 
 				foreach(const QString& strFunc, listFunc)
 				{
 					for (int ix = 0; ix != _TK_TOTAL_; ++ix)
 					{
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 						QRegExp& exp = re[ix];
 						if (exp.indexIn(strFunc) != -1)
 						{
@@ -408,7 +433,7 @@ namespace MSRPC
 								tf.scale(exp.cap(1).toDouble(), exp.cap(2).toDouble());
 								break;
 							case TK_ROTATE:
-								tf.rotate(exp.cap(1).toDouble(), 
+								tf.rotate(exp.cap(1).toDouble(),
 									static_cast<Qt::Axis>(exp.cap(2).toInt()));
 								break;
 							default:
@@ -416,6 +441,29 @@ namespace MSRPC
 							}
 							break;
 						}
+#else
+						const QRegularExpression& exp = re[ix];
+						QRegularExpressionMatch m = exp.match(strFunc);
+						if (m.hasMatch())
+						{
+							switch (ix)
+							{
+							case TK_TRANSLATE:
+								tf.translate(m.captured(1).toDouble(), m.captured(2).toDouble());
+								break;
+							case TK_SCALE:
+								tf.scale(m.captured(1).toDouble(), m.captured(2).toDouble());
+								break;
+							case TK_ROTATE:
+								tf.rotate(m.captured(1).toDouble(),
+									static_cast<Qt::Axis>(m.captured(2).toInt()));
+								break;
+							default:
+								break;
+							}
+							break;
+						}
+#endif
 					}
 				}
 

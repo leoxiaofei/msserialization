@@ -50,6 +50,7 @@ namespace MSRPC
 		}
 	};
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	template<class T>
 	class Serializer<QVector<T> >
 	{
@@ -58,7 +59,7 @@ namespace MSRPC
 		static void serialize(NODE& vNewNode, const QVector<T>& tValue)
 		{
 			typename NODE::ArrApt apt = vNewNode.set_array();
-			for (QVector<T>::const_iterator citor = tValue.begin(); citor != tValue.end(); ++citor)
+			for (auto citor = tValue.begin(); citor != tValue.end(); ++citor)
 			{
 				NODE vNode = apt.add_element();
 				Serializer<T>::serialize(vNode, *citor);
@@ -95,6 +96,7 @@ namespace MSRPC
 			}
 		}
 	};
+#endif
 
 	template<class T>
 	class Serializer<QList<T> >
@@ -227,7 +229,7 @@ namespace MSRPC
 				if (typename NODE::ArrIter itorSub = vSubNode.sub_elements())
 				{
 					K k;
-					Serializer<KT>::deserialize(*itorSub, k);
+					Serializer<K>::deserialize(*itorSub, k);
 					
 					T& t = tNewValue[k];
 					if (++itorSub)
@@ -324,7 +326,7 @@ namespace MSRPC
 				if (typename NODE::ArrIter itorSub = vSubNode.sub_elements())
 				{
 					K k;
-					Serializer<KT>::deserialize(*itorSub, k);
+					Serializer<K>::deserialize(*itorSub, k);
 					
 					T& t = tNewValue[k];
 					if (++itorSub)
@@ -391,8 +393,10 @@ namespace MSRPC
 
 #endif
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	template<>
 	class Serializer<QStringList> : public Serializer<QList<QString> > { };
+#endif
 
 	template<>
 	class Serializer<QVariant>

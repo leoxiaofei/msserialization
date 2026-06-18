@@ -206,7 +206,7 @@ namespace MSRPC
 		void in_serialize(char *tValue, size_t nSize) const
 		{
 			QByteArray baBuffer = m_node.toString().toUtf8();
-			if (nSize > baBuffer.size() + 1)
+			if (nSize > (size_t)baBuffer.size() + 1)
 			{
 				nSize = baBuffer.size() + 1;
 			}
